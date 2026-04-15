@@ -658,6 +658,40 @@ function getUrgencia() {
   return 'normal'
 }
 
+// ── VERIFICA LOGIN ────────────────────────────────────────────
+const { data: { session } } = await supabase.auth.getSession()
+if (!session) {
+  window.location.href = '/login'
+}
+const userLogado = session.user
+
+// ── GARANTE CLIENTE NO BANCO ──────────────────────────────────
+async function garantirCliente() {
+  // Tenta buscar pelo email do usuário logado
+  const { data: existente } = await supabase
+    .from('clientes')
+    .select('id')
+    .eq('email', userLogado.email)
+    .single()
+
+  if (existente) return existente.id
+
+  // Cria cliente vinculado ao usuário logado
+  const { data: novo, error } = await supabase
+    .from('clientes')
+    .insert([{
+      nome:     userLogado.user_metadata?.nome || 'Cliente',
+      telefone: userLogado.id.slice(0, 11),
+      email:    userLogado.email,
+      cidade:   'São João da Boa Vista',
+    }])
+    .select()
+    .single()
+
+  if (error) throw error
+  return novo.id
+}
+
 // ── POSTAR SERVIÇO ────────────────────────────────────────────
 window.postar = async function() {
   if (!tipoAtivo) {
@@ -669,29 +703,8 @@ window.postar = async function() {
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando...' }
 
   try {
-    // 1. Garante que o cliente existe (cria se necessário)
-    let clienteId = localStorage.getItem('acheiobra_cliente_id')
-
-    if (!clienteId) {
-      const telefone = prompt('Informe seu WhatsApp para receber os orçamentos:')
-      if (!telefone) throw new Error('Telefone obrigatório')
-
-      const nome = prompt('Seu nome:') || 'Cliente'
-
-      const { data: cliente, error: errCliente } = await supabase
-        .from('clientes')
-        .upsert([{
-          nome,
-          telefone: telefone.replace(/\D/g, ''),
-          cidade: 'São João da Boa Vista',
-        }], { onConflict: 'telefone' })
-        .select()
-        .single()
-
-      if (errCliente) throw errCliente
-      clienteId = cliente.id
-      localStorage.setItem('acheiobra_cliente_id', clienteId)
-    }
+    // 1. Pega clienteId do usuário logado (sem pedir dados)
+    const clienteId = await garantirCliente()
 
     // 2. Upload das fotos
     const fotosUrls = []
@@ -717,14 +730,13 @@ window.postar = async function() {
 
     if (error) throw error
 
-    // 4. Atualiza tela de sucesso com dados reais
-    const totalEl = document.querySelector('#sucesso .sucesso-cards .sucesso-card:first-child .sucesso-val')
-    if (totalEl) totalEl.textContent = '3–5'
-
-    // 5. Exibe sucesso
+    // 4. Redireciona para área do cliente após sucesso
     document.getElementById('form-area').style.display = 'none'
     document.getElementById('sucesso').classList.add('visible')
     window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    // Redireciona para minha-area após 2 segundos
+    setTimeout(() => { window.location.href = '/minha-area' }, 2500)
 
   } catch (err) {
     console.error('Erro ao postar serviço:', err)
