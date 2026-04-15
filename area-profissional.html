@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcheiObra — Área do Profissional</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --laranja:#E8521A;--laranja-cl:#FF6B35;
+  --bg:#0F0F0F;--bg2:#1A1A1A;--bg3:#242424;
+  --branco:#FAFAF8;--muted:rgba(255,255,255,0.5);--dim:rgba(255,255,255,0.2);
+  --border:rgba(255,255,255,0.08);--syne:'Syne',sans-serif;--dm:'DM Sans',sans-serif;
+  --verde:#1D9E75;--amarelo:#EF9F27;
+}
+body{background:var(--bg);color:var(--branco);font-family:var(--dm);min-height:100vh;}
+
+nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nav-icon{width:32px;height:32px;background:var(--laranja);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.nav-icon svg{width:18px;height:18px;}
+.nav-nome{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--branco);letter-spacing:-0.4px;}
+.nav-nome span{color:var(--laranja);}
+.nav-dir{display:flex;align-items:center;gap:12px;}
+.nav-user{font-size:13px;color:var(--muted);}
+.btn-sair{font-size:12px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:var(--dm);transition:all .15s;}
+.btn-sair:hover{color:var(--branco);}
+
+.page{max-width:800px;margin:0 auto;padding:32px 20px 80px;}
+
+/* TABS */
+.tabs-nav{display:flex;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:24px;border:1px solid var(--border);}
+.tab-btn{flex:1;font-family:var(--syne);font-size:13px;font-weight:700;padding:10px;border-radius:9px;cursor:pointer;color:var(--muted);transition:all .15s;text-align:center;border:none;background:none;}
+.tab-btn.active{background:var(--laranja);color:#fff;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.stat-val{font-family:var(--syne);font-size:24px;font-weight:800;color:var(--branco);}
+.stat-val.laranja{color:var(--laranja);}
+.stat-label{font-size:12px;color:var(--muted);margin-top:3px;}
+
+/* LOADING / VAZIO */
+.loading{text-align:center;padding:60px 20px;color:var(--muted);}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--laranja);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.vazio{text-align:center;padding:60px 20px;}
+.vazio-ico{font-size:48px;margin-bottom:12px;}
+.vazio-titulo{font-family:var(--syne);font-size:18px;font-weight:700;margin-bottom:6px;}
+.vazio-sub{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* SERVIÇO DISPONÍVEL */
+.srv-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px;transition:border-color .15s;}
+.srv-card:hover{border-color:rgba(232,82,26,0.3);}
+.srv-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.srv-tipo{display:flex;align-items:center;gap:10px;}
+.srv-emoji{font-size:28px;}
+.srv-titulo{font-family:var(--syne);font-size:15px;font-weight:700;color:var(--branco);margin-bottom:3px;}
+.srv-meta{font-size:12px;color:var(--muted);}
+.urg-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
+.urg-urgente{background:rgba(226,75,74,0.15);color:#F09595;}
+.urg-normal{background:rgba(232,82,26,0.12);color:var(--laranja-cl);}
+.urg-sem_pressa{background:rgba(255,255,255,0.06);color:var(--muted);}
+.srv-detalhes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.detalhe-pill{font-size:11px;padding:4px 10px;border-radius:20px;background:var(--bg3);color:var(--muted);border:1px solid var(--border);}
+.srv-fotos{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.foto-thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;background:var(--bg3);border:1px solid var(--border);}
+.foto-placeholder{width:64px;height:64px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.srv-proposta-enviada{background:rgba(29,158,117,0.08);border:1px solid rgba(29,158,117,0.2);border-radius:10px;padding:10px 14px;font-size:13px;color:#5DCAA5;}
+
+/* FORM PROPOSTA */
+.form-proposta{background:var(--bg3);border-radius:12px;padding:16px;margin-top:4px;display:none;}
+.form-proposta.open{display:block;}
+.form-titulo{font-size:13px;font-weight:600;color:var(--branco);margin-bottom:12px;}
+.campo-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.campo-p{margin-bottom:12px;}
+.campo-p label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:0.05em;text-transform:uppercase;}
+.campo-p input,.campo-p textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--branco);font-family:var(--dm);outline:none;transition:border-color .15s;}
+.campo-p input:focus,.campo-p textarea:focus{border-color:rgba(232,82,26,0.5);}
+.campo-p textarea{resize:vertical;min-height:60px;}
+.form-btns{display:flex;gap:8px;}
+.btn-enviar{flex:1;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:11px;border-radius:8px;border:none;cursor:pointer;transition:background .15s;}
+.btn-enviar:hover{background:var(--laranja-cl);}
+.btn-cancelar{background:transparent;color:var(--muted);font-size:13px;padding:11px 14px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-family:var(--dm);}
+.btn-fazer-proposta{background:rgba(232,82,26,0.1);color:var(--laranja-cl);font-family:var(--syne);font-size:13px;font-weight:700;padding:10px 18px;border-radius:8px;border:1px solid rgba(232,82,26,0.2);cursor:pointer;transition:all .15s;}
+.btn-fazer-proposta:hover{background:var(--laranja);color:#fff;}
+
+/* MEUS SERVIÇOS (em andamento) */
+.meu-srv{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px;}
+.meu-srv-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.meu-srv-nome{font-family:var(--syne);font-size:15px;font-weight:700;color:var(--branco);margin-bottom:3px;}
+.meu-srv-meta{font-size:12px;color:var(--muted);}
+.badge-and{background:rgba(239,159,39,0.15);color:var(--amarelo);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
+.badge-conc{background:rgba(29,158,117,0.15);color:#5DCAA5;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
+.valor-destaque{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--laranja);margin-bottom:4px;}
+.valor-sub{font-size:11px;color:var(--muted);}
+.btn-concluir{background:var(--verde);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;margin-top:12px;}
+
+@media(max-width:480px){
+  .stats{grid-template-columns:1fr 1fr;}
+  .campo-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-icon">
+      <svg viewBox="0 0 44 44" fill="none">
+        <path d="M8 20L22 8L36 20V38H28V28H16V38H8V20Z" fill="white" opacity="0.95"/>
+        <circle cx="32" cy="14" r="7" fill="white"/>
+        <path d="M29 14L31.5 16.5L35.5 11" stroke="#E8521A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="nav-nome">Achei<span>Obra</span></div>
+  </a>
+  <div class="nav-dir">
+    <span class="nav-user" id="nav-nome">Carregando...</span>
+    <button class="btn-sair" onclick="sair()">Sair</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="tabs-nav">
+    <button class="tab-btn active" id="tab-disponiveis" onclick="trocarTab('disponiveis')">Serviços disponíveis</button>
+    <button class="tab-btn" id="tab-meus" onclick="trocarTab('meus')">Meus serviços</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val laranja" id="stat-propostas">0</div>
+      <div class="stat-label">Propostas enviadas</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-andamento">0</div>
+      <div class="stat-label">Em andamento</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-ganhos">R$ 0</div>
+      <div class="stat-label">Total ganho</div>
+    </div>
+  </div>
+
+  <div id="tab-content-disponiveis">
+    <div class="loading"><div class="spinner"></div>Buscando serviços...</div>
+  </div>
+
+  <div id="tab-content-meus" style="display:none;">
+    <div class="loading"><div class="spinner"></div>Carregando...</div>
+  </div>
+
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const SUPABASE_URL = 'https://tsjtsxbnrxsowhqrkmjz.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzanRzeGJucnhzb3docXJrbWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjI0OTcsImV4cCI6MjA5MTgzODQ5N30.2jhI37qyVF1qjy61RSRGTtZlHedekb8VMZzMdOJxVnc'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+const TIPO_LABEL = {
+  pedra_calcada:'Assentamento de pedra', eletrica:'Elétrica',
+  hidraulica:'Hidráulica', pintura:'Pintura', alvenaria:'Alvenaria / muro',
+  gesseiro:'Gesseiro', azulejista:'Azulejista', carpintaria:'Carpintaria',
+  serralheria:'Serralheria', outro:'Outro serviço'
+}
+const TIPO_EMOJI = {
+  pedra_calcada:'🪨', eletrica:'⚡', hidraulica:'🔧', pintura:'🖌️',
+  alvenaria:'🧱', gesseiro:'🪟', azulejista:'🪨', carpintaria:'🪚',
+  serralheria:'🔩', outro:'🏗️'
+}
+const URG_LABEL = { urgente:'Urgente', normal:'Normal', sem_pressa:'Sem pressa' }
+
+let user = null
+let profissionalId = null
+let tabAtiva = 'disponiveis'
+
+// ── AUTH ─────────────────────────────────────────────────────
+const { data: { session } } = await supabase.auth.getSession()
+if (!session) { window.location.href = '/login' }
+
+user = session.user
+document.getElementById('nav-nome').textContent = user.user_metadata?.nome || user.email
+
+// Busca profissional vinculado
+const { data: prof } = await supabase
+  .from('profissionais')
+  .select('id, nome, especialidades, cidade')
+  .eq('email', user.email)
+  .single()
+
+if (prof) {
+  profissionalId = prof.id
+} else {
+  // Profissional ainda não completou o cadastro
+  window.location.href = '/cadastro-profissional'
+}
+
+// ── TABS ─────────────────────────────────────────────────────
+window.trocarTab = function(tab) {
+  tabAtiva = tab
+  document.getElementById('tab-disponiveis').classList.toggle('active', tab === 'disponiveis')
+  document.getElementById('tab-meus').classList.toggle('active', tab === 'meus')
+  document.getElementById('tab-content-disponiveis').style.display = tab === 'disponiveis' ? 'block' : 'none'
+  document.getElementById('tab-content-meus').style.display        = tab === 'meus'        ? 'block' : 'none'
+  if (tab === 'meus') carregarMeusServicos()
+}
+
+// ── SERVIÇOS DISPONÍVEIS ──────────────────────────────────────
+async function carregarDisponiveis() {
+  const { data: servicos } = await supabase
+    .from('servicos')
+    .select(`id, tipo, status, urgencia, criado_em, detalhes, fotos_urls, cidade,
+      clientes ( nome ),
+      propostas ( id, profissional_id, status )`)
+    .eq('status', 'aberto')
+    .eq('cidade', prof.cidade)
+    .order('criado_em', { ascending: false })
+
+  // Stats
+  const { data: minhasPropostas } = await supabase
+    .from('propostas').select('id, status').eq('profissional_id', profissionalId)
+  const { data: meusServicos } = await supabase
+    .from('servicos').select('id, status').eq('profissional_id', profissionalId)
+
+  document.getElementById('stat-propostas').textContent = minhasPropostas?.length || 0
+  document.getElementById('stat-andamento').textContent = meusServicos?.filter(s => s.status === 'em_andamento').length || 0
+
+  const { data: pgtos } = await supabase.from('pagamentos')
+    .select('valor_profissional').eq('profissional_id', profissionalId).eq('status', 'liberado')
+  const total = pgtos?.reduce((acc, p) => acc + Number(p.valor_profissional), 0) || 0
+  document.getElementById('stat-ganhos').textContent = 'R$ ' + total.toLocaleString('pt-BR')
+
+  if (!servicos || servicos.length === 0) {
+    document.getElementById('tab-content-disponiveis').innerHTML =
+      '<div class="vazio"><div class="vazio-ico">🔍</div><div class="vazio-titulo">Nenhum serviço disponível</div><div class="vazio-sub">Novos serviços aparecerão aqui assim que clientes postarem na sua região.</div></div>'
+    return
+  }
+
+  const html = servicos.map(s => renderDisponivel(s)).join('')
+  document.getElementById('tab-content-disponiveis').innerHTML = html
+}
+
+function renderDisponivel(s) {
+  const data   = new Date(s.criado_em).toLocaleDateString('pt-BR')
+  const urgCls = `urg-${s.urgencia}`
+  const jaPropus = s.propostas?.some(p => p.profissional_id === profissionalId)
+  const detalhes = s.detalhes ? Object.entries(s.detalhes)
+    .filter(([k,v]) => v && !k.startsWith('obs'))
+    .slice(0,4)
+    .map(([k,v]) => `<span class="detalhe-pill">${v}</span>`).join('') : ''
+
+  const fotos = (s.fotos_urls || []).slice(0,4).map(url =>
+    `<img class="foto-thumb" src="${url}" alt="foto">`).join('') ||
+    `<div class="foto-placeholder">📷</div>`
+
+  const acaoHtml = jaPropus
+    ? `<div class="srv-proposta-enviada">✓ Você já enviou uma proposta para este serviço</div>`
+    : `<button class="btn-fazer-proposta" onclick="abrirProposta('${s.id}')">Fazer proposta</button>
+       <div class="form-proposta" id="form-${s.id}">
+         <div class="form-titulo">Sua proposta</div>
+         <div class="campo-row">
+           <div class="campo-p">
+             <label>Valor (R$) *</label>
+             <input type="number" id="val-${s.id}" placeholder="Ex: 450">
+           </div>
+           <div class="campo-p">
+             <label>Prazo (dias) *</label>
+             <input type="number" id="prazo-${s.id}" placeholder="Ex: 2">
+           </div>
+         </div>
+         <div class="campo-p">
+           <label>Mensagem (opcional)</label>
+           <textarea id="msg-${s.id}" placeholder="Experiência com esse tipo de serviço, disponibilidade..."></textarea>
+         </div>
+         <div class="form-btns">
+           <button class="btn-cancelar" onclick="fecharProposta('${s.id}')">Cancelar</button>
+           <button class="btn-enviar" onclick="enviarProposta('${s.id}')">Enviar proposta</button>
+         </div>
+       </div>`
+
+  return `
+    <div class="srv-card" id="srv-${s.id}">
+      <div class="srv-top">
+        <div class="srv-tipo">
+          <div class="srv-emoji">${TIPO_EMOJI[s.tipo] || '🏗️'}</div>
+          <div>
+            <div class="srv-titulo">${TIPO_LABEL[s.tipo] || s.tipo}</div>
+            <div class="srv-meta">${s.cidade} · ${data} · ${s.clientes?.nome || 'Cliente'}</div>
+          </div>
+        </div>
+        <span class="urg-badge ${urgCls}">${URG_LABEL[s.urgencia]}</span>
+      </div>
+      ${detalhes ? `<div class="srv-detalhes">${detalhes}</div>` : ''}
+      <div class="srv-fotos">${fotos}</div>
+      ${acaoHtml}
+    </div>`
+}
+
+// ── PROPOSTA ──────────────────────────────────────────────────
+window.abrirProposta = function(id) {
+  document.getElementById('form-' + id).classList.add('open')
+}
+window.fecharProposta = function(id) {
+  document.getElementById('form-' + id).classList.remove('open')
+}
+
+window.enviarProposta = async function(servicoId) {
+  const valor = parseFloat(document.getElementById('val-' + servicoId).value)
+  const prazo = parseInt(document.getElementById('prazo-' + servicoId).value)
+  const msg   = document.getElementById('msg-' + servicoId).value.trim()
+
+  if (!valor || valor <= 0) { toast('Informe um valor válido', 'erro'); return }
+  if (!prazo || prazo <= 0) { toast('Informe o prazo em dias', 'erro'); return }
+
+  const { error } = await supabase.from('propostas').insert([{
+    servico_id:      servicoId,
+    profissional_id: profissionalId,
+    valor,
+    prazo_dias:      prazo,
+    mensagem:        msg || null,
+    status:          'enviada',
+  }])
+
+  if (error) {
+    toast(error.message?.includes('unique') ? 'Você já enviou uma proposta.' : 'Erro ao enviar.', 'erro')
+    return
+  }
+
+  toast('Proposta enviada! O cliente será notificado.', 'ok')
+  carregarDisponiveis()
+}
+
+// ── MEUS SERVIÇOS ─────────────────────────────────────────────
+async function carregarMeusServicos() {
+  const { data: servicos } = await supabase
+    .from('servicos')
+    .select(`id, tipo, status, valor_combinado, prazo_combinado, iniciado_em,
+      clientes ( nome, telefone ),
+      pagamentos ( valor_profissional, status )`)
+    .eq('profissional_id', profissionalId)
+    .in('status', ['em_andamento', 'concluido'])
+    .order('iniciado_em', { ascending: false })
+
+  if (!servicos || servicos.length === 0) {
+    document.getElementById('tab-content-meus').innerHTML =
+      '<div class="vazio"><div class="vazio-ico">📋</div><div class="vazio-titulo">Nenhum serviço ainda</div><div class="vazio-sub">Quando um cliente aceitar sua proposta, o serviço aparecerá aqui.</div></div>'
+    return
+  }
+
+  const html = servicos.map(s => {
+    const badge = s.status === 'em_andamento'
+      ? '<span class="badge-and">Em andamento</span>'
+      : '<span class="badge-conc">Concluído</span>'
+    const data = s.iniciado_em ? new Date(s.iniciado_em).toLocaleDateString('pt-BR') : '—'
+    const valorLiq = s.pagamentos?.[0]?.valor_profissional
+      ? 'R$ ' + Number(s.pagamentos[0].valor_profissional).toLocaleString('pt-BR')
+      : s.valor_combinado ? 'R$ ' + Number(s.valor_combinado * 0.85).toLocaleString('pt-BR') : '—'
+
+    const concluirBtn = s.status === 'em_andamento'
+      ? `<button class="btn-concluir" onclick="marcarConcluido('${s.id}')">Marcar como concluído</button>` : ''
+
+    return `
+      <div class="meu-srv">
+        <div class="meu-srv-header">
+          <div>
+            <div class="meu-srv-nome">${TIPO_LABEL[s.tipo] || s.tipo} — ${s.clientes?.nome || 'Cliente'}</div>
+            <div class="meu-srv-meta">Iniciado em ${data} · Prazo: ${s.prazo_combinado || '—'} dias</div>
+          </div>
+          ${badge}
+        </div>
+        <div class="valor-destaque">${valorLiq}</div>
+        <div class="valor-sub">Valor líquido (após comissão de 15%)</div>
+        ${concluirBtn}
+      </div>`
+  }).join('')
+
+  document.getElementById('tab-content-meus').innerHTML = html
+}
+
+window.marcarConcluido = async function(servicoId) {
+  if (!confirm('Confirma que o serviço foi concluído? O cliente receberá uma notificação para aprovar.')) return
+  await supabase.from('servicos')
+    .update({ status: 'em_andamento' })
+    .eq('id', servicoId)
+  toast('Cliente notificado para aprovar o serviço.', 'ok')
+  carregarMeusServicos()
+}
+
+// ── SAIR ──────────────────────────────────────────────────────
+window.sair = async function() {
+  await supabase.auth.signOut()
+  window.location.href = '/login'
+}
+
+function toast(msg, tipo = 'ok') {
+  const cores = { ok:'#1D9E75', erro:'#E8521A', info:'#378ADD' }
+  const el = document.createElement('div')
+  el.textContent = msg
+  Object.assign(el.style, {
+    position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
+    background: cores[tipo], color:'#fff', padding:'12px 24px',
+    borderRadius:'8px', fontSize:'14px', fontWeight:'500', zIndex:'9999',
+  })
+  document.body.appendChild(el)
+  setTimeout(() => el.remove(), 3000)
+}
+
+carregarDisponiveis()
+</script>
+</body>
+</html>

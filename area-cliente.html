@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcheiObra — Minha Área</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --laranja:#E8521A;--laranja-cl:#FF6B35;
+  --bg:#0F0F0F;--bg2:#1A1A1A;--bg3:#242424;
+  --branco:#FAFAF8;--muted:rgba(255,255,255,0.5);--dim:rgba(255,255,255,0.2);
+  --border:rgba(255,255,255,0.08);--syne:'Syne',sans-serif;--dm:'DM Sans',sans-serif;
+  --verde:#1D9E75;--amarelo:#EF9F27;
+}
+body{background:var(--bg);color:var(--branco);font-family:var(--dm);min-height:100vh;}
+
+nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nav-icon{width:32px;height:32px;background:var(--laranja);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.nav-icon svg{width:18px;height:18px;}
+.nav-nome{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--branco);letter-spacing:-0.4px;}
+.nav-nome span{color:var(--laranja);}
+.nav-dir{display:flex;align-items:center;gap:12px;}
+.nav-user{font-size:13px;color:var(--muted);}
+.btn-sair{font-size:12px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:var(--dm);transition:all .15s;}
+.btn-sair:hover{color:var(--branco);border-color:var(--muted);}
+
+.page{max-width:800px;margin:0 auto;padding:32px 20px 80px;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
+.page-titulo{font-family:var(--syne);font-size:24px;font-weight:800;letter-spacing:-0.4px;}
+.btn-novo{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:10px 20px;border-radius:10px;text-decoration:none;transition:background .15s;display:flex;align-items:center;gap:6px;}
+.btn-novo:hover{background:var(--laranja-cl);}
+.btn-novo svg{width:16px;height:16px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.stat-val{font-family:var(--syne);font-size:24px;font-weight:800;color:var(--branco);}
+.stat-val.laranja{color:var(--laranja);}
+.stat-label{font-size:12px;color:var(--muted);margin-top:3px;}
+
+/* LOADING */
+.loading{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--laranja);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* VAZIO */
+.vazio{text-align:center;padding:60px 20px;}
+.vazio-ico{font-size:48px;margin-bottom:16px;}
+.vazio-titulo{font-family:var(--syne);font-size:18px;font-weight:700;color:var(--branco);margin-bottom:8px;}
+.vazio-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+
+/* SERVIÇO CARD */
+.servico-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden;transition:border-color .15s;}
+.servico-card:hover{border-color:rgba(232,82,26,0.3);}
+.servico-header{padding:18px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;cursor:pointer;}
+.servico-tipo{display:flex;align-items:center;gap:10px;}
+.servico-emoji{font-size:24px;flex-shrink:0;}
+.servico-info{}
+.servico-nome{font-family:var(--syne);font-size:15px;font-weight:700;color:var(--branco);margin-bottom:3px;}
+.servico-meta{font-size:12px;color:var(--muted);}
+.servico-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.badge-aberto{background:rgba(232,82,26,0.15);color:var(--laranja-cl);}
+.badge-andamento{background:rgba(239,159,39,0.15);color:var(--amarelo);}
+.badge-concluido{background:rgba(29,158,117,0.15);color:#5DCAA5;}
+.badge-cancelado{background:rgba(255,255,255,0.06);color:var(--muted);}
+
+/* PROPOSTAS */
+.propostas-wrap{border-top:1px solid var(--border);padding:16px 20px;display:none;}
+.propostas-wrap.open{display:block;}
+.propostas-titulo{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;}
+.sem-propostas{font-size:13px;color:var(--muted);padding:12px 0;}
+
+.proposta{background:var(--bg3);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;}
+.prop-avatar{width:40px;height:40px;background:var(--laranja);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--syne);font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
+.prop-info{flex:1;}
+.prop-nome{font-size:14px;font-weight:600;color:var(--branco);margin-bottom:2px;}
+.prop-detalhe{font-size:12px;color:var(--muted);}
+.prop-msg{font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;}
+.prop-valor{font-family:var(--syne);font-size:16px;font-weight:800;color:var(--laranja);white-space:nowrap;}
+.prop-acoes{display:flex;gap:8px;margin-top:10px;}
+.btn-aceitar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;transition:background .15s;}
+.btn-aceitar:hover{background:var(--laranja-cl);}
+.btn-recusar{background:transparent;color:var(--muted);font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-family:var(--dm);transition:all .15s;}
+.btn-recusar:hover{color:var(--branco);}
+.prop-aceita-tag{font-size:11px;font-weight:600;color:#5DCAA5;background:rgba(29,158,117,0.12);padding:4px 10px;border-radius:20px;}
+
+/* APROVAR SERVIÇO */
+.aprovar-wrap{background:rgba(29,158,117,0.08);border:1px solid rgba(29,158,117,0.2);border-radius:12px;padding:14px 16px;margin-top:10px;}
+.aprovar-txt{font-size:13px;color:#5DCAA5;margin-bottom:10px;line-height:1.5;}
+.btn-aprovar{background:var(--verde);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;}
+
+/* MODAL AVALIAÇÃO */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:420px;}
+.modal-titulo{font-family:var(--syne);font-size:18px;font-weight:800;margin-bottom:6px;}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+.estrelas-sel{display:flex;gap:8px;margin-bottom:16px;}
+.estrela{font-size:28px;cursor:pointer;opacity:0.3;transition:opacity .15s;}
+.estrela.active{opacity:1;}
+.campo-modal{margin-bottom:16px;}
+.campo-modal label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:0.06em;text-transform:uppercase;}
+.campo-modal textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--branco);font-family:var(--dm);outline:none;resize:vertical;min-height:80px;}
+.modal-btns{display:flex;gap:8px;}
+.btn-modal-ok{flex:1;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:14px;font-weight:700;padding:12px;border-radius:10px;border:none;cursor:pointer;}
+.btn-modal-cancel{background:var(--bg3);color:var(--muted);font-size:13px;padding:12px 16px;border-radius:10px;border:1px solid var(--border);cursor:pointer;font-family:var(--dm);}
+
+@media(max-width:480px){
+  .stats{grid-template-columns:1fr 1fr;}
+  .proposta{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-icon">
+      <svg viewBox="0 0 44 44" fill="none">
+        <path d="M8 20L22 8L36 20V38H28V28H16V38H8V20Z" fill="white" opacity="0.95"/>
+        <circle cx="32" cy="14" r="7" fill="white"/>
+        <path d="M29 14L31.5 16.5L35.5 11" stroke="#E8521A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="nav-nome">Achei<span>Obra</span></div>
+  </a>
+  <div class="nav-dir">
+    <span class="nav-user" id="nav-nome">Carregando...</span>
+    <button class="btn-sair" onclick="sair()">Sair</button>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div class="page-titulo">Meus serviços</div>
+    <a href="/postar-servico" class="btn-novo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Novo serviço
+    </a>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val laranja" id="stat-abertos">0</div>
+      <div class="stat-label">Aguardando propostas</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-andamento">0</div>
+      <div class="stat-label">Em andamento</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-concluidos">0</div>
+      <div class="stat-label">Concluídos</div>
+    </div>
+  </div>
+
+  <div id="lista-servicos">
+    <div class="loading">
+      <div class="spinner"></div>
+      Carregando seus serviços...
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AVALIAÇÃO -->
+<div class="overlay" id="modal-avaliacao">
+  <div class="modal">
+    <div class="modal-titulo">Avaliar profissional</div>
+    <div class="modal-sub">Como foi o serviço? Sua avaliação ajuda outros clientes.</div>
+    <div class="estrelas-sel" id="estrelas">
+      <span class="estrela" onclick="selecionarEstrela(1)">★</span>
+      <span class="estrela" onclick="selecionarEstrela(2)">★</span>
+      <span class="estrela" onclick="selecionarEstrela(3)">★</span>
+      <span class="estrela" onclick="selecionarEstrela(4)">★</span>
+      <span class="estrela" onclick="selecionarEstrela(5)">★</span>
+    </div>
+    <div class="campo-modal">
+      <label>Comentário (opcional)</label>
+      <textarea id="avaliacao-comentario" placeholder="Como foi o atendimento, qualidade do serviço..."></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-modal-ok" onclick="enviarAvaliacao()">Enviar avaliação</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const SUPABASE_URL = 'https://tsjtsxbnrxsowhqrkmjz.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzanRzeGJucnhzb3docXJrbWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjI0OTcsImV4cCI6MjA5MTgzODQ5N30.2jhI37qyVF1qjy61RSRGTtZlHedekb8VMZzMdOJxVnc'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+const TIPO_LABEL = {
+  pedra_calcada:'Assentamento de pedra', eletrica:'Elétrica',
+  hidraulica:'Hidráulica', pintura:'Pintura', alvenaria:'Alvenaria / muro',
+  gesseiro:'Gesseiro', azulejista:'Azulejista', carpintaria:'Carpintaria',
+  serralheria:'Serralheria', outro:'Outro serviço'
+}
+const TIPO_EMOJI = {
+  pedra_calcada:'🪨', eletrica:'⚡', hidraulica:'🔧', pintura:'🖌️',
+  alvenaria:'🧱', gesseiro:'🪟', azulejista:'🪨', carpintaria:'🪚',
+  serralheria:'🔩', outro:'🏗️'
+}
+
+let user = null
+let clienteId = null
+let servicoAvaliar = null
+let notaSelecionada = 0
+
+// ── AUTH ─────────────────────────────────────────────────────
+const { data: { session } } = await supabase.auth.getSession()
+if (!session) { window.location.href = '/login'; }
+
+user = session.user
+document.getElementById('nav-nome').textContent = user.user_metadata?.nome || user.email
+
+// Busca ou cria cliente vinculado ao user
+const { data: clienteExistente } = await supabase
+  .from('clientes')
+  .select('id')
+  .eq('email', user.email)
+  .single()
+
+if (clienteExistente) {
+  clienteId = clienteExistente.id
+} else {
+  const { data: novoCliente } = await supabase
+    .from('clientes')
+    .insert([{
+      nome:     user.user_metadata?.nome || 'Cliente',
+      telefone: user.phone || user.id.slice(0,11),
+      email:    user.email,
+      cidade:   'São João da Boa Vista',
+    }])
+    .select()
+    .single()
+  clienteId = novoCliente?.id
+}
+
+// ── CARREGAR SERVIÇOS ─────────────────────────────────────────
+async function carregarServicos() {
+  const { data: servicos, error } = await supabase
+    .from('servicos')
+    .select(`
+      id, tipo, status, urgencia, criado_em, descricao,
+      propostas (
+        id, valor, prazo_dias, mensagem, status, criado_em,
+        profissionais ( id, nome, nota_media, total_avaliacoes )
+      )
+    `)
+    .eq('cliente_id', clienteId)
+    .order('criado_em', { ascending: false })
+
+  if (error || !servicos) {
+    document.getElementById('lista-servicos').innerHTML =
+      '<div class="vazio"><div class="vazio-ico">😕</div><div class="vazio-titulo">Erro ao carregar</div><div class="vazio-sub">Tente recarregar a página.</div></div>'
+    return
+  }
+
+  // Stats
+  document.getElementById('stat-abertos').textContent    = servicos.filter(s => s.status === 'aberto').length
+  document.getElementById('stat-andamento').textContent  = servicos.filter(s => s.status === 'em_andamento').length
+  document.getElementById('stat-concluidos').textContent = servicos.filter(s => s.status === 'concluido').length
+
+  if (servicos.length === 0) {
+    document.getElementById('lista-servicos').innerHTML = `
+      <div class="vazio">
+        <div class="vazio-ico">🏗️</div>
+        <div class="vazio-titulo">Nenhum serviço ainda</div>
+        <div class="vazio-sub">Poste seu primeiro serviço e receba orçamentos de profissionais da sua região.</div>
+        <a href="/postar-servico" class="btn-novo" style="display:inline-flex;margin:0 auto;">Postar primeiro serviço</a>
+      </div>`
+    return
+  }
+
+  const html = servicos.map(s => renderServico(s)).join('')
+  document.getElementById('lista-servicos').innerHTML = html
+}
+
+function renderServico(s) {
+  const badges = {
+    aberto:       '<span class="servico-badge badge-aberto">Aguardando propostas</span>',
+    em_andamento: '<span class="servico-badge badge-andamento">Em andamento</span>',
+    concluido:    '<span class="servico-badge badge-concluido">Concluído</span>',
+    cancelado:    '<span class="servico-badge badge-cancelado">Cancelado</span>',
+    em_disputa:   '<span class="servico-badge badge-andamento">Em disputa</span>',
+  }
+  const data = new Date(s.criado_em).toLocaleDateString('pt-BR')
+  const propEnviadas = (s.propostas || []).filter(p => p.status === 'enviada')
+  const propAceita   = (s.propostas || []).find(p => p.status === 'aceita')
+
+  const propostasHtml = s.status === 'concluido' ? '' : renderPropostas(s, propEnviadas, propAceita)
+  const aprovarHtml   = s.status === 'em_andamento' ? `
+    <div class="aprovar-wrap">
+      <div class="aprovar-txt">O profissional marcou o serviço como concluído. Confirme para liberar o pagamento.</div>
+      <button class="btn-aprovar" onclick="aprovarServico('${s.id}', '${propAceita?.profissionais?.id}')">Confirmar e avaliar</button>
+    </div>` : ''
+
+  return `
+    <div class="servico-card" id="card-${s.id}">
+      <div class="servico-header" onclick="togglePropostas('${s.id}')">
+        <div class="servico-tipo">
+          <div class="servico-emoji">${TIPO_EMOJI[s.tipo] || '🏗️'}</div>
+          <div class="servico-info">
+            <div class="servico-nome">${TIPO_LABEL[s.tipo] || s.tipo}</div>
+            <div class="servico-meta">Postado em ${data} · ${propEnviadas.length} proposta(s)</div>
+          </div>
+        </div>
+        ${badges[s.status] || ''}
+      </div>
+      <div class="propostas-wrap" id="prop-${s.id}">
+        ${propostasHtml}
+        ${aprovarHtml}
+      </div>
+    </div>`
+}
+
+function renderPropostas(s, propEnviadas, propAceita) {
+  if (propAceita) {
+    const prof = propAceita.profissionais
+    return `
+      <div class="propostas-titulo">Profissional contratado</div>
+      <div class="proposta">
+        <div class="prop-avatar">${(prof?.nome || 'P')[0]}</div>
+        <div class="prop-info">
+          <div class="prop-nome">${prof?.nome || 'Profissional'}</div>
+          <div class="prop-detalhe">Prazo: ${propAceita.prazo_dias} dias · Nota: ${prof?.nota_media || '—'} ★</div>
+          ${propAceita.mensagem ? `<div class="prop-msg">"${propAceita.mensagem}"</div>` : ''}
+        </div>
+        <div>
+          <div class="prop-valor">R$ ${Number(propAceita.valor).toLocaleString('pt-BR')}</div>
+          <div class="prop-aceita-tag" style="margin-top:6px;">Aceita ✓</div>
+        </div>
+      </div>`
+  }
+
+  if (propEnviadas.length === 0) {
+    return `<div class="propostas-titulo">Propostas recebidas</div><div class="sem-propostas">Nenhuma proposta ainda. Os profissionais serão notificados.</div>`
+  }
+
+  const itens = propEnviadas.map(p => {
+    const prof = p.profissionais
+    return `
+      <div class="proposta" id="proposta-${p.id}">
+        <div class="prop-avatar">${(prof?.nome || 'P')[0]}</div>
+        <div class="prop-info">
+          <div class="prop-nome">${prof?.nome || 'Profissional'}</div>
+          <div class="prop-detalhe">Prazo: ${p.prazo_dias} dias · Nota: ${prof?.nota_media || 'Novo'} ★</div>
+          ${p.mensagem ? `<div class="prop-msg">"${p.mensagem}"</div>` : ''}
+          <div class="prop-acoes">
+            <button class="btn-aceitar" onclick="aceitarProposta('${p.id}','${s.id}')">Aceitar proposta</button>
+            <button class="btn-recusar" onclick="recusarProposta('${p.id}')">Recusar</button>
+          </div>
+        </div>
+        <div class="prop-valor">R$ ${Number(p.valor).toLocaleString('pt-BR')}</div>
+      </div>`
+  }).join('')
+
+  return `<div class="propostas-titulo">Propostas recebidas (${propEnviadas.length})</div>${itens}`
+}
+
+// ── TOGGLE PROPOSTAS ──────────────────────────────────────────
+window.togglePropostas = function(id) {
+  const el = document.getElementById('prop-' + id)
+  el.classList.toggle('open')
+}
+
+// ── ACEITAR PROPOSTA ──────────────────────────────────────────
+window.aceitarProposta = async function(propostaId, servicoId) {
+  if (!confirm('Confirma a aceitação desta proposta? O pagamento será retido até a conclusão.')) return
+
+  const { error } = await supabase
+    .from('propostas')
+    .update({ status: 'aceita', aceita_em: new Date().toISOString() })
+    .eq('id', propostaId)
+
+  if (error) { alert('Erro ao aceitar proposta.'); return }
+
+  // Recusa as outras
+  await supabase.from('propostas').update({ status: 'recusada' })
+    .eq('servico_id', servicoId).neq('id', propostaId)
+
+  // Atualiza serviço
+  await supabase.from('servicos')
+    .update({ status: 'em_andamento', iniciado_em: new Date().toISOString() })
+    .eq('id', servicoId)
+
+  toast('Proposta aceita! O profissional foi notificado.', 'ok')
+  carregarServicos()
+}
+
+// ── RECUSAR PROPOSTA ──────────────────────────────────────────
+window.recusarProposta = async function(propostaId) {
+  await supabase.from('propostas').update({ status: 'recusada' }).eq('id', propostaId)
+  toast('Proposta recusada.', 'info')
+  carregarServicos()
+}
+
+// ── APROVAR E AVALIAR ─────────────────────────────────────────
+window.aprovarServico = function(servicoId, profissionalId) {
+  servicoAvaliar = { servicoId, profissionalId }
+  document.getElementById('modal-avaliacao').classList.add('open')
+}
+
+window.selecionarEstrela = function(nota) {
+  notaSelecionada = nota
+  document.querySelectorAll('.estrela').forEach((el, i) => {
+    el.classList.toggle('active', i < nota)
+  })
+}
+
+window.fecharModal = function() {
+  document.getElementById('modal-avaliacao').classList.remove('open')
+  servicoAvaliar = null
+  notaSelecionada = 0
+  document.querySelectorAll('.estrela').forEach(el => el.classList.remove('active'))
+}
+
+window.enviarAvaliacao = async function() {
+  if (!notaSelecionada) { toast('Selecione uma nota de 1 a 5', 'erro'); return }
+
+  const comentario = document.getElementById('avaliacao-comentario').value.trim()
+
+  await supabase.from('servicos')
+    .update({ status: 'concluido', concluido_em: new Date().toISOString() })
+    .eq('id', servicoAvaliar.servicoId)
+
+  await supabase.from('avaliacoes').insert([{
+    servico_id:      servicoAvaliar.servicoId,
+    cliente_id:      clienteId,
+    profissional_id: servicoAvaliar.profissionalId,
+    nota:            notaSelecionada,
+    comentario:      comentario || null,
+  }])
+
+  fecharModal()
+  toast('Avaliação enviada! Obrigado.', 'ok')
+  carregarServicos()
+}
+
+// ── SAIR ──────────────────────────────────────────────────────
+window.sair = async function() {
+  await supabase.auth.signOut()
+  window.location.href = '/login'
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg, tipo = 'ok') {
+  const cores = { ok:'#1D9E75', erro:'#E8521A', info:'#378ADD' }
+  const el = document.createElement('div')
+  el.textContent = msg
+  Object.assign(el.style, {
+    position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
+    background: cores[tipo], color:'#fff', padding:'12px 24px',
+    borderRadius:'8px', fontSize:'14px', fontWeight:'500', zIndex:'9999',
+  })
+  document.body.appendChild(el)
+  setTimeout(() => el.remove(), 3000)
+}
+
+carregarServicos()
+</script>
+</body>
+</html>

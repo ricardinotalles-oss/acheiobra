@@ -1,8 +1,10 @@
 {
   "rewrites": [
-    { "source": "/",                        "destination": "/landing-acheiobra.html" },
-    { "source": "/login",                   "destination": "/login.html" },
-    { "source": "/cadastro-profissional",   "destination": "/cadastro-profissional.html" },
-    { "source": "/postar-servico",          "destination": "/formulario-servico.html" }
+    { "source": "/",                       "destination": "/landing-acheiobra.html" },
+    { "source": "/login",                  "destination": "/login.html" },
+    { "source": "/cadastro-profissional",  "destination": "/cadastro-profissional.html" },
+    { "source": "/postar-servico",         "destination": "/formulario-servico.html" },
+    { "source": "/minha-area",             "destination": "/area-cliente.html" },
+    { "source": "/area-profissional",      "destination": "/area-profissional.html" }
   ]
 }

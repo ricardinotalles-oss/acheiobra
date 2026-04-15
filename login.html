@@ -375,9 +375,9 @@ window.fazerLogin = async function() {
   // Redireciona conforme perfil
   setTimeout(() => {
     if (perfilAtivo === 'profissional') {
-      window.location.href = 'cadastro-profissional.html'
+      window.location.href = '/area-profissional'
     } else {
-      window.location.href = 'formulario-servico.html'
+      window.location.href = '/minha-area'
     }
   }, 1000)
 }
@@ -425,9 +425,7 @@ window.fazerCadastro = async function() {
     localStorage.setItem('acheiobra_user_id', data.user.id)
     mostrarAlerta('Conta criada! Redirecionando...', 'ok')
     setTimeout(() => {
-      window.location.href = perfilAtivo === 'profissional'
-        ? 'cadastro-profissional.html'
-        : 'formulario-servico.html'
+      window.location.href = perfilAtivo === 'profissional' ? '/area-profissional' : '/minha-area'
     }, 1000)
     return
   }
@@ -480,9 +478,7 @@ window.reenviarEmail = async function() {
 const { data: { session } } = await supabase.auth.getSession()
 if (session) {
   const perfil = localStorage.getItem('acheiobra_perfil') || 'cliente'
-  window.location.href = perfil === 'profissional'
-    ? 'cadastro-profissional.html'
-    : 'formulario-servico.html'
+  window.location.href = perfil === 'profissional' ? '/area-profissional' : '/minha-area'
 }
 
 // Enter para submeter
