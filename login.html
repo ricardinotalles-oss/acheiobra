@@ -406,7 +406,7 @@ window.fazerCadastro = async function() {
         nome,
         perfil: perfilAtivo,
       },
-      emailRedirectTo: window.location.origin + '/login.html',
+      emailRedirectTo: 'https://acheiobra.com.br/login',
     }
   })
 
@@ -461,7 +461,7 @@ window.enviarReset = async function() {
   if (!email) return mostrarAlerta('Informe seu email.')
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + '/login.html',
+    redirectTo: 'https://acheiobra.com.br/login',
   })
 
   if (error) return mostrarAlerta('Erro ao enviar. Verifique o email informado.')
