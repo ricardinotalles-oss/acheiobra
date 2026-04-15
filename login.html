@@ -372,13 +372,12 @@ window.fazerLogin = async function() {
 
   mostrarAlerta('Login realizado! Redirecionando...', 'ok')
 
-  // Redireciona conforme perfil
+  // Salva perfil selecionado nos metadados
+  await supabase.auth.updateUser({ data: { perfil: perfilAtivo } })
+
+  // Redireciona conforme perfil selecionado
   setTimeout(() => {
-    if (perfilAtivo === 'profissional') {
-      window.location.href = '/area-profissional'
-    } else {
-      window.location.href = '/minha-area'
-    }
+    window.location.href = perfilAtivo === 'profissional' ? '/area-profissional' : '/minha-area'
   }, 1000)
 }
 
@@ -477,8 +476,8 @@ window.reenviarEmail = async function() {
 // ── VERIFICA SE JÁ ESTÁ LOGADO ────────────────────────────────
 const { data: { session } } = await supabase.auth.getSession()
 if (session) {
-  const perfil = localStorage.getItem('acheiobra_perfil') || 'cliente'
-  window.location.href = perfil === 'profissional' ? '/area-profissional' : '/minha-area'
+  // Não redireciona automaticamente — deixa o usuário escolher o perfil
+  // para poder alternar entre área do cliente e área do profissional
 }
 
 // Enter para submeter
