@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcheiObra — Postar Serviço</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --laranja:#E8521A;--laranja-cl:#FF6B35;--preto:#141414;
+  --bg:#0F0F0F;--bg2:#1A1A1A;--bg3:#222;
+  --branco:#FAFAF8;--muted:rgba(255,255,255,0.5);--dim:rgba(255,255,255,0.2);
+  --border:rgba(255,255,255,0.08);--syne:'Syne',sans-serif;--dm:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--branco);font-family:var(--dm);min-height:100vh;padding:0;}
+
+/* NAV */
+nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nav-icon{width:32px;height:32px;background:var(--laranja);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.nav-icon svg{width:18px;height:18px;}
+.nav-nome{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--branco);letter-spacing:-0.4px;}
+.nav-nome span{color:var(--laranja);}
+.nav-back{font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.nav-back:hover{color:var(--branco);}
+
+/* PAGE */
+.page{max-width:640px;margin:0 auto;padding:40px 20px 80px;}
+.page-titulo{font-family:var(--syne);font-size:28px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;}
+.page-sub{font-size:14px;color:var(--muted);margin-bottom:32px;}
+
+/* SERVIÇOS */
+.servicos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;}
+.srv{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 12px;cursor:pointer;transition:all .15s;text-align:center;}
+.srv:hover{border-color:rgba(232,82,26,0.4);}
+.srv.active{border-color:var(--laranja);background:rgba(232,82,26,0.08);}
+.srv-emoji{font-size:24px;margin-bottom:8px;}
+.srv-nome{font-family:var(--syne);font-size:13px;font-weight:700;color:var(--branco);}
+.srv-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* FORM */
+.form-wrap{display:none;}
+.form-wrap.visible{display:block;}
+.dica{background:rgba(232,82,26,0.08);border-left:3px solid var(--laranja);padding:11px 14px;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:20px;border-radius:0 8px 8px 0;}
+.dica strong{color:var(--branco);font-weight:500;}
+.campo{margin-bottom:18px;}
+.campo label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:0.04em;text-transform:uppercase;}
+.obrig{color:var(--laranja);margin-left:2px;}
+.campo input,.campo textarea,.campo select{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--branco);font-family:var(--dm);outline:none;transition:border-color .15s;}
+.campo input:focus,.campo textarea:focus,.campo select:focus{border-color:rgba(232,82,26,0.5);}
+.campo textarea{resize:vertical;min-height:80px;}
+.campo select option{background:var(--bg3);}
+.campo-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.opcoes{display:flex;flex-wrap:wrap;gap:7px;}
+.opc{font-size:12px;font-weight:500;padding:7px 14px;border-radius:20px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--muted);transition:all .15s;}
+.opc:hover{border-color:rgba(232,82,26,0.4);color:var(--branco);}
+.opc.sel{background:var(--laranja);color:#fff;border-color:var(--laranja);}
+.upload-box{border:1.5px dashed rgba(255,255,255,0.15);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.upload-box:hover{border-color:rgba(232,82,26,0.5);}
+.upload-ico{font-size:28px;margin-bottom:8px;}
+.upload-txt{font-size:13px;color:var(--muted);line-height:1.5;}
+.upload-txt strong{color:var(--branco);display:block;margin-bottom:2px;}
+.urgencia{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.urg{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s;}
+.urg:hover{border-color:rgba(232,82,26,0.4);}
+.urg.sel{border-color:var(--laranja);background:rgba(232,82,26,0.08);}
+.urg-ico{font-size:20px;margin-bottom:4px;}
+.urg-t{font-family:var(--syne);font-size:12px;font-weight:700;color:var(--branco);}
+.urg-s{font-size:10px;color:var(--muted);margin-top:1px;}
+.btn-post{width:100%;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:15px;font-weight:700;padding:14px;border-radius:12px;border:none;cursor:pointer;margin-top:8px;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-post:hover{background:var(--laranja-cl);}
+.btn-post svg{width:18px;height:18px;}
+.divider{border:none;border-top:1px solid var(--border);margin:24px 0;}
+
+/* SUCESSO */
+.sucesso{display:none;text-align:center;padding:48px 24px;}
+.sucesso.visible{display:block;}
+.sucesso-ico{width:72px;height:72px;background:rgba(29,158,117,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+.sucesso-ico svg{width:36px;height:36px;color:#1D9E75;}
+.sucesso-titulo{font-family:var(--syne);font-size:22px;font-weight:800;color:var(--branco);margin-bottom:8px;}
+.sucesso-sub{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.sucesso-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:28px;}
+.sucesso-card{background:var(--bg2);border-radius:12px;padding:14px;border:1px solid var(--border);}
+.sucesso-val{font-family:var(--syne);font-size:18px;font-weight:800;color:var(--laranja);}
+.sucesso-label{font-size:11px;color:var(--muted);margin-top:2px;}
+.btn-novo{background:var(--bg2);color:var(--branco);font-family:var(--syne);font-size:14px;font-weight:700;padding:12px 24px;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:background .2s;}
+.btn-novo:hover{background:var(--bg3);}
+
+@media(max-width:480px){
+  .servicos-grid{grid-template-columns:repeat(2,1fr);}
+  .campo-row{grid-template-columns:1fr;}
+  .sucesso-cards{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="landing-acheiobra.html" class="nav-logo">
+    <div class="nav-icon">
+      <svg viewBox="0 0 44 44" fill="none">
+        <path d="M8 20L22 8L36 20V38H28V28H16V38H8V20Z" fill="white" opacity="0.95"/>
+        <circle cx="32" cy="14" r="7" fill="white"/>
+        <path d="M29 14L31.5 16.5L35.5 11" stroke="#E8521A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="nav-nome">Achei<span>Obra</span></div>
+  </a>
+  <a href="landing-acheiobra.html" class="nav-back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Voltar
+  </a>
+</nav>
+
+<div class="page">
+
+  <!-- SUCESSO -->
+  <div class="sucesso" id="sucesso">
+    <div class="sucesso-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div class="sucesso-titulo">Serviço postado!</div>
+    <div class="sucesso-sub">Profissionais da sua região já foram notificados e estão preparando os orçamentos.</div>
+    <div class="sucesso-cards">
+      <div class="sucesso-card"><div class="sucesso-val">3–5</div><div class="sucesso-label">orçamentos esperados</div></div>
+      <div class="sucesso-card"><div class="sucesso-val">2h</div><div class="sucesso-label">tempo médio de resposta</div></div>
+      <div class="sucesso-card"><div class="sucesso-val">100%</div><div class="sucesso-label">pagamento garantido</div></div>
+    </div>
+    <button class="btn-novo" onclick="resetar()">Postar outro serviço</button>
+  </div>
+
+  <!-- FORM -->
+  <div id="form-area">
+    <div class="page-titulo">Que serviço você precisa?</div>
+    <div class="page-sub">Selecione e preencha os detalhes — sem precisar de visita técnica.</div>
+
+    <div class="servicos-grid">
+      <div class="srv" onclick="selSrv('pedra',this)">
+        <div class="srv-emoji">🪨</div>
+        <div class="srv-nome">Pedra / calçada</div>
+        <div class="srv-sub">Assentamento</div>
+      </div>
+      <div class="srv" onclick="selSrv('eletrica',this)">
+        <div class="srv-emoji">⚡</div>
+        <div class="srv-nome">Elétrica</div>
+        <div class="srv-sub">Instalação / reparo</div>
+      </div>
+      <div class="srv" onclick="selSrv('hidraulica',this)">
+        <div class="srv-emoji">🔧</div>
+        <div class="srv-nome">Hidráulica</div>
+        <div class="srv-sub">Encanamento / vazamento</div>
+      </div>
+      <div class="srv" onclick="selSrv('pintura',this)">
+        <div class="srv-emoji">🖌️</div>
+        <div class="srv-nome">Pintura</div>
+        <div class="srv-sub">Interna / externa</div>
+      </div>
+      <div class="srv" onclick="selSrv('alvenaria',this)">
+        <div class="srv-emoji">🧱</div>
+        <div class="srv-nome">Alvenaria</div>
+        <div class="srv-sub">Muro / parede</div>
+      </div>
+      <div class="srv" onclick="selSrv('outro',this)">
+        <div class="srv-emoji">🏗️</div>
+        <div class="srv-nome">Outro</div>
+        <div class="srv-sub">Descrever serviço</div>
+      </div>
+    </div>
+
+    <!-- PEDRA -->
+    <div id="form-pedra" class="form-wrap">
+      <div class="dica"><strong>Dica AcheiObra:</strong> com metragem + fotos do local, os profissionais conseguem orçar sem precisar ir até você. Mais rápido e sem enrolação.</div>
+      <div class="campo">
+        <label>Tipo de serviço <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'tp')">Calçada</div>
+          <div class="opc" onclick="opc(this,'tp')">Área externa</div>
+          <div class="opc" onclick="opc(this,'tp')">Quintal / jardim</div>
+          <div class="opc" onclick="opc(this,'tp')">Entrada de garagem</div>
+          <div class="opc" onclick="opc(this,'tp')">Área de piscina</div>
+        </div>
+      </div>
+      <div class="campo campo-row">
+        <div>
+          <label>Metragem (m²) <span class="obrig">*</span></label>
+          <input type="number" placeholder="Ex: 12">
+        </div>
+        <div>
+          <label>Tipo de pedra</label>
+          <select>
+            <option>Não sei / a definir</option>
+            <option>Pedra portuguesa</option>
+            <option>Pedra irregular</option>
+            <option>Paralelepípedo</option>
+            <option>Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Material incluído? <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'mat')">Já tenho o material</div>
+          <div class="opc" onclick="opc(this,'mat')">Incluir no orçamento</div>
+          <div class="opc" onclick="opc(this,'mat')">Não sei ainda</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Estado atual do local <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'est')">Terra / sem revestimento</div>
+          <div class="opc" onclick="opc(this,'est')">Concreto existente</div>
+          <div class="opc" onclick="opc(this,'est')">Pedra antiga para remover</div>
+          <div class="opc" onclick="opc(this,'est')">Outro revestimento</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Fotos do local <span class="obrig">*</span></label>
+        <div class="upload-box">
+          <div class="upload-ico">📷</div>
+          <div class="upload-txt"><strong>Toque para adicionar fotos</strong>Mínimo 2 fotos — frente e lateral do local. Quanto mais aberto o ângulo, melhor.</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Acesso ao local</label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'ac')">Frente de rua — fácil</div>
+          <div class="opc" onclick="opc(this,'ac')">Fundo / lateral</div>
+          <div class="opc" onclick="opc(this,'ac')">Condomínio fechado</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Observações</label>
+        <textarea placeholder="Ex: calçada tem desnível, precisa nivelar antes..."></textarea>
+      </div>
+      <div class="campo">
+        <label>Urgência <span class="obrig">*</span></label>
+        <div class="urgencia">
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">⚡</div><div class="urg-t">Urgente</div><div class="urg-s">Esta semana</div></div>
+          <div class="urg sel" onclick="urg(this)"><div class="urg-ico">📅</div><div class="urg-t">Normal</div><div class="urg-s">Próximas 2 semanas</div></div>
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">🗓️</div><div class="urg-t">Sem pressa</div><div class="urg-s">Próximo mês</div></div>
+        </div>
+      </div>
+      <button class="btn-post" onclick="postar()">
+        Receber orçamentos gratuitos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- ELÉTRICA -->
+    <div id="form-eletrica" class="form-wrap">
+      <div class="dica"><strong>Dica AcheiObra:</strong> foto do quadro de disjuntores + local do problema = orçamento sem visita na maioria dos casos.</div>
+      <div class="campo">
+        <label>Tipo de serviço <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'te')">Tomada / ponto novo</div>
+          <div class="opc" onclick="opc(this,'te')">Disjuntor / quadro</div>
+          <div class="opc" onclick="opc(this,'te')">Chuveiro / aquecedor</div>
+          <div class="opc" onclick="opc(this,'te')">Iluminação</div>
+          <div class="opc" onclick="opc(this,'te')">Curto / problema</div>
+          <div class="opc" onclick="opc(this,'te')">Instalação completa</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Local do serviço <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'le')">Residência</div>
+          <div class="opc" onclick="opc(this,'le')">Comércio</div>
+          <div class="opc" onclick="opc(this,'le')">Área externa</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Quantos pontos / cômodos?</label>
+        <input type="number" placeholder="Ex: 3 tomadas, ou 2 cômodos">
+      </div>
+      <div class="campo">
+        <label>Fotos: quadro elétrico + local <span class="obrig">*</span></label>
+        <div class="upload-box">
+          <div class="upload-ico">📷</div>
+          <div class="upload-txt"><strong>Foto do quadro de disjuntores + local do problema</strong>Permite orçamento remoto na maioria dos casos.</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Descreva o problema</label>
+        <textarea placeholder="Ex: tomada da sala parou de funcionar, disjuntor cai sempre que ligo o ar..."></textarea>
+      </div>
+      <div class="campo">
+        <label>Urgência <span class="obrig">*</span></label>
+        <div class="urgencia">
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">⚡</div><div class="urg-t">Urgente</div><div class="urg-s">Esta semana</div></div>
+          <div class="urg sel" onclick="urg(this)"><div class="urg-ico">📅</div><div class="urg-t">Normal</div><div class="urg-s">Próximas 2 semanas</div></div>
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">🗓️</div><div class="urg-t">Sem pressa</div><div class="urg-s">Próximo mês</div></div>
+        </div>
+      </div>
+      <button class="btn-post" onclick="postar()">
+        Receber orçamentos gratuitos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- HIDRÁULICA -->
+    <div id="form-hidraulica" class="form-wrap">
+      <div class="dica"><strong>Dica AcheiObra:</strong> um vídeo curto de 15 segundos mostrando o vazamento vale mais que qualquer descrição.</div>
+      <div class="campo">
+        <label>Tipo de serviço <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'th')">Vazamento / infiltração</div>
+          <div class="opc" onclick="opc(this,'th')">Entupimento</div>
+          <div class="opc" onclick="opc(this,'th')">Torneira / registro</div>
+          <div class="opc" onclick="opc(this,'th')">Caixa d'água</div>
+          <div class="opc" onclick="opc(this,'th')">Encanamento novo</div>
+          <div class="opc" onclick="opc(this,'th')">Fossa / esgoto</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Onde está o problema? <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'lh')">Banheiro</div>
+          <div class="opc" onclick="opc(this,'lh')">Cozinha</div>
+          <div class="opc" onclick="opc(this,'lh')">Área de serviço</div>
+          <div class="opc" onclick="opc(this,'lh')">Área externa</div>
+          <div class="opc" onclick="opc(this,'lh')">Laje / teto</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Foto ou vídeo do problema <span class="obrig">*</span></label>
+        <div class="upload-box">
+          <div class="upload-ico">🎥</div>
+          <div class="upload-txt"><strong>Foto ou vídeo curto (até 30 seg)</strong>Mostre o vazamento ou o local. Mais claro = orçamento mais preciso.</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Há quanto tempo está assim?</label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'hq')">Acabou de acontecer</div>
+          <div class="opc" onclick="opc(this,'hq')">Alguns dias</div>
+          <div class="opc" onclick="opc(this,'hq')">Semanas ou mais</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Descreva o problema</label>
+        <textarea placeholder="Ex: torneira da cozinha pingando, pressão baixou muito..."></textarea>
+      </div>
+      <div class="campo">
+        <label>Urgência <span class="obrig">*</span></label>
+        <div class="urgencia">
+          <div class="urg sel" onclick="urg(this)"><div class="urg-ico">⚡</div><div class="urg-t">Urgente</div><div class="urg-s">Esta semana</div></div>
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">📅</div><div class="urg-t">Normal</div><div class="urg-s">Próximas 2 semanas</div></div>
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">🗓️</div><div class="urg-t">Sem pressa</div><div class="urg-s">Próximo mês</div></div>
+        </div>
+      </div>
+      <button class="btn-post" onclick="postar()">
+        Receber orçamentos gratuitos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- PINTURA -->
+    <div id="form-pintura" class="form-wrap">
+      <div class="dica"><strong>Dica AcheiObra:</strong> metragem + estado da parede são os dois fatores principais. Com esses dados o pintor já orça sem visitar.</div>
+      <div class="campo">
+        <label>O que será pintado? <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'tp2')">Paredes internas</div>
+          <div class="opc" onclick="opc(this,'tp2')">Fachada externa</div>
+          <div class="opc" onclick="opc(this,'tp2')">Teto</div>
+          <div class="opc" onclick="opc(this,'tp2')">Grades / portão</div>
+          <div class="opc" onclick="opc(this,'tp2')">Casa completa</div>
+        </div>
+      </div>
+      <div class="campo campo-row">
+        <div>
+          <label>Metragem (m²) <span class="obrig">*</span></label>
+          <input type="number" placeholder="Ex: 40">
+        </div>
+        <div>
+          <label>Nº de cômodos</label>
+          <input type="number" placeholder="Ex: 3">
+        </div>
+      </div>
+      <div class="campo">
+        <label>Estado atual das paredes <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'ep')">Boa condição — só pintar</div>
+          <div class="opc" onclick="opc(this,'ep')">Algumas manchas / rachaduras</div>
+          <div class="opc" onclick="opc(this,'ep')">Precisa massa corrida</div>
+          <div class="opc" onclick="opc(this,'ep')">Precisa lixar e preparar</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Tinta incluída? <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'ti')">Já tenho a tinta</div>
+          <div class="opc" onclick="opc(this,'ti')">Incluir no orçamento</div>
+          <div class="opc" onclick="opc(this,'ti')">Não sei ainda</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Fotos do local <span class="obrig">*</span></label>
+        <div class="upload-box">
+          <div class="upload-ico">📷</div>
+          <div class="upload-txt"><strong>Fotos de cada ambiente</strong>Mostre paredes, teto e estado atual.</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Urgência <span class="obrig">*</span></label>
+        <div class="urgencia">
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">⚡</div><div class="urg-t">Urgente</div><div class="urg-s">Esta semana</div></div>
+          <div class="urg sel" onclick="urg(this)"><div class="urg-ico">📅</div><div class="urg-t">Normal</div><div class="urg-s">Próximas 2 semanas</div></div>
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">🗓️</div><div class="urg-t">Sem pressa</div><div class="urg-s">Próximo mês</div></div>
+        </div>
+      </div>
+      <button class="btn-post" onclick="postar()">
+        Receber orçamentos gratuitos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- ALVENARIA -->
+    <div id="form-alvenaria" class="form-wrap">
+      <div class="dica"><strong>Dica AcheiObra:</strong> comprimento + altura do muro + foto do terreno são suficientes para a maioria dos orçamentos.</div>
+      <div class="campo">
+        <label>Tipo de serviço <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'ta')">Muro novo</div>
+          <div class="opc" onclick="opc(this,'ta')">Ampliar muro</div>
+          <div class="opc" onclick="opc(this,'ta')">Reparo / rachadura</div>
+          <div class="opc" onclick="opc(this,'ta')">Demolição</div>
+          <div class="opc" onclick="opc(this,'ta')">Parede interna</div>
+        </div>
+      </div>
+      <div class="campo campo-row">
+        <div>
+          <label>Comprimento (m) <span class="obrig">*</span></label>
+          <input type="number" placeholder="Ex: 15">
+        </div>
+        <div>
+          <label>Altura (m)</label>
+          <input type="number" placeholder="Ex: 2.5" step="0.1">
+        </div>
+      </div>
+      <div class="campo">
+        <label>Material preferido</label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'ma')">Tijolo comum</div>
+          <div class="opc" onclick="opc(this,'ma')">Bloco de concreto</div>
+          <div class="opc" onclick="opc(this,'ma')">Bloco cerâmico</div>
+          <div class="opc" onclick="opc(this,'ma')">A sugerir</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Material incluído? <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'mai')">Já tenho</div>
+          <div class="opc" onclick="opc(this,'mai')">Incluir no orçamento</div>
+          <div class="opc" onclick="opc(this,'mai')">Não sei</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Fotos do local <span class="obrig">*</span></label>
+        <div class="upload-box">
+          <div class="upload-ico">📷</div>
+          <div class="upload-txt"><strong>Foto do terreno / local</strong>Mostre espaço disponível e referência de altura.</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Observações</label>
+        <textarea placeholder="Ex: muro de divisa com vizinho, precisa de portão no meio..."></textarea>
+      </div>
+      <div class="campo">
+        <label>Urgência <span class="obrig">*</span></label>
+        <div class="urgencia">
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">⚡</div><div class="urg-t">Urgente</div><div class="urg-s">Esta semana</div></div>
+          <div class="urg sel" onclick="urg(this)"><div class="urg-ico">📅</div><div class="urg-t">Normal</div><div class="urg-s">Próximas 2 semanas</div></div>
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">🗓️</div><div class="urg-t">Sem pressa</div><div class="urg-s">Próximo mês</div></div>
+        </div>
+      </div>
+      <button class="btn-post" onclick="postar()">
+        Receber orçamentos gratuitos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- OUTRO -->
+    <div id="form-outro" class="form-wrap">
+      <div class="dica"><strong>Dica AcheiObra:</strong> quanto mais detalhes e fotos, mais preciso será o orçamento — e menor a chance de precisar de visita técnica.</div>
+      <div class="campo">
+        <label>Descreva o serviço <span class="obrig">*</span></label>
+        <textarea placeholder="Ex: preciso reformar o banheiro completo, trocar piso, azulejo e louças..."></textarea>
+      </div>
+      <div class="campo">
+        <label>Especialidade necessária</label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'esp')">Pedreiro</div>
+          <div class="opc" onclick="opc(this,'esp')">Eletricista</div>
+          <div class="opc" onclick="opc(this,'esp')">Encanador</div>
+          <div class="opc" onclick="opc(this,'esp')">Pintor</div>
+          <div class="opc" onclick="opc(this,'esp')">Gesseiro</div>
+          <div class="opc" onclick="opc(this,'esp')">Azulejista</div>
+          <div class="opc" onclick="opc(this,'esp')">Carpinteiro</div>
+          <div class="opc" onclick="opc(this,'esp')">Não sei</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Fotos do local</label>
+        <div class="upload-box">
+          <div class="upload-ico">📷</div>
+          <div class="upload-txt"><strong>Adicionar fotos</strong>Quanto mais imagens, melhor o orçamento.</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Urgência <span class="obrig">*</span></label>
+        <div class="urgencia">
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">⚡</div><div class="urg-t">Urgente</div><div class="urg-s">Esta semana</div></div>
+          <div class="urg sel" onclick="urg(this)"><div class="urg-ico">📅</div><div class="urg-t">Normal</div><div class="urg-s">Próximas 2 semanas</div></div>
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">🗓️</div><div class="urg-t">Sem pressa</div><div class="urg-s">Próximo mês</div></div>
+        </div>
+      </div>
+      <button class="btn-post" onclick="postar()">
+        Receber orçamentos gratuitos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function selSrv(id, btn) {
+  document.querySelectorAll('.srv').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.form-wrap').forEach(f => f.classList.remove('visible'));
+  document.getElementById('form-' + id).classList.add('visible');
+  document.getElementById('form-' + id).scrollIntoView({behavior:'smooth', block:'start'});
+}
+window.opc = function(el, grupo) {
+  el.closest('.opcoes').querySelectorAll('.opc').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+window.urg = function(el) {
+  el.closest('.urgencia').querySelectorAll('.urg').forEach(u => u.classList.remove('sel'));
+  el.classList.add('sel');
+}
+window.resetar = function() {
+  document.getElementById('sucesso').classList.remove('visible');
+  document.getElementById('form-area').style.display = 'block';
+  document.querySelectorAll('.srv').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.form-wrap').forEach(f => f.classList.remove('visible'));
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+</script>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+// ── CONFIG ──────────────────────────────────────────────────
+const SUPABASE_URL = 'https://tsjtsxbnrxsowhqrkmjz.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzanRzeGJucnhzb3docXJrbWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjI0OTcsImV4cCI6MjA5MTgzODQ5N30.2jhI37qyVF1qjy61RSRGTtZlHedekb8VMZzMdOJxVnc'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+// Estado
+let tipoAtivo = null
+const fotosAnexadas = []
+
+// Mapa de tipo visual → tipo do banco
+const TIPO_MAPA = {
+  'pedra':     'pedra_calcada',
+  'eletrica':  'eletrica',
+  'hidraulica':'hidraulica',
+  'pintura':   'pintura',
+  'alvenaria': 'alvenaria',
+  'outro':     'outro',
+}
+
+// ── SELECIONAR SERVIÇO ────────────────────────────────────────
+window.selSrv = function(id, btn) {
+  document.querySelectorAll('.srv').forEach(s => s.classList.remove('active'))
+  btn.classList.add('active')
+  document.querySelectorAll('.form-wrap').forEach(f => f.classList.remove('visible'))
+  document.getElementById('form-' + id).classList.add('visible')
+  document.getElementById('form-' + id).scrollIntoView({ behavior: 'smooth', block: 'start' })
+  tipoAtivo = id
+}
+
+// ── UPLOAD DE FOTOS ───────────────────────────────────────────
+document.querySelectorAll('.upload-box').forEach(box => {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/*,video/*'
+  input.multiple = true
+  input.style.display = 'none'
+  box.appendChild(input)
+
+  box.addEventListener('click', () => input.click())
+
+  input.addEventListener('change', () => {
+    const arquivos = [...input.files]
+    arquivos.forEach(f => fotosAnexadas.push(f))
+    box.querySelector('.upload-txt').innerHTML =
+      `<strong>${fotosAnexadas.length} arquivo(s) selecionado(s)</strong>Pronto para enviar ✓`
+  })
+})
+
+async function uploadFoto(arquivo) {
+  const ext     = arquivo.name.split('.').pop()
+  const caminho = `servicos/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+  const { error } = await supabase.storage.from('fotos').upload(caminho, arquivo)
+  if (error) throw error
+  const { data } = supabase.storage.from('fotos').getPublicUrl(caminho)
+  return data.publicUrl
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg, tipo = 'ok') {
+  const cores = { ok: '#1D9E75', erro: '#E8521A' }
+  const el = document.createElement('div')
+  el.textContent = msg
+  Object.assign(el.style, {
+    position:'fixed', bottom:'24px', left:'50%',
+    transform:'translateX(-50%)',
+    background: cores[tipo],
+    color:'#fff', padding:'12px 24px',
+    borderRadius:'8px', fontSize:'14px',
+    fontWeight:'500', zIndex:'9999',
+    transition:'opacity .3s',
+  })
+  document.body.appendChild(el)
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300) }, 3000)
+}
+
+// ── COLETAR DETALHES DO FORMULÁRIO ATIVO ─────────────────────
+function coletarDetalhes() {
+  const form    = document.getElementById(`form-${tipoAtivo}`)
+  const detalhes = {}
+
+  form.querySelectorAll('input[type=number]').forEach((inp, i) => {
+    if (inp.value) detalhes[`numero_${i}`] = parseFloat(inp.value)
+  })
+  form.querySelectorAll('select').forEach((sel, i) => {
+    if (sel.value) detalhes[`select_${i}`] = sel.value
+  })
+  form.querySelectorAll('.opc.sel').forEach(el => {
+    const grupo = el.getAttribute('onclick')?.match(/'([^']+)'\)/)?.[1] || 'opcao'
+    detalhes[grupo] = el.textContent.trim()
+  })
+  form.querySelectorAll('textarea').forEach((ta, i) => {
+    if (ta.value.trim()) detalhes[`obs_${i}`] = ta.value.trim()
+  })
+
+  return detalhes
+}
+
+function getUrgencia() {
+  const urg = document.querySelector('.form-wrap.visible .urg.sel .urg-t')?.textContent?.trim()
+  if (!urg) return 'normal'
+  if (urg === 'Urgente')     return 'urgente'
+  if (urg === 'Sem pressa')  return 'sem_pressa'
+  return 'normal'
+}
+
+// ── POSTAR SERVIÇO ────────────────────────────────────────────
+window.postar = async function() {
+  if (!tipoAtivo) {
+    toast('Selecione o tipo de serviço', 'erro')
+    return
+  }
+
+  const btn = document.querySelector('.form-wrap.visible .btn-post')
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...' }
+
+  try {
+    // 1. Garante que o cliente existe (cria se necessário)
+    let clienteId = localStorage.getItem('acheiobra_cliente_id')
+
+    if (!clienteId) {
+      const telefone = prompt('Informe seu WhatsApp para receber os orçamentos:')
+      if (!telefone) throw new Error('Telefone obrigatório')
+
+      const nome = prompt('Seu nome:') || 'Cliente'
+
+      const { data: cliente, error: errCliente } = await supabase
+        .from('clientes')
+        .upsert([{
+          nome,
+          telefone: telefone.replace(/\D/g, ''),
+          cidade: 'São João da Boa Vista',
+        }], { onConflict: 'telefone' })
+        .select()
+        .single()
+
+      if (errCliente) throw errCliente
+      clienteId = cliente.id
+      localStorage.setItem('acheiobra_cliente_id', clienteId)
+    }
+
+    // 2. Upload das fotos
+    const fotosUrls = []
+    for (const foto of fotosAnexadas) {
+      const url = await uploadFoto(foto)
+      fotosUrls.push(url)
+    }
+
+    // 3. Insere serviço no banco
+    const { data: servico, error } = await supabase
+      .from('servicos')
+      .insert([{
+        cliente_id:  clienteId,
+        tipo:        TIPO_MAPA[tipoAtivo] || 'outro',
+        urgencia:    getUrgencia(),
+        cidade:      'São João da Boa Vista',
+        fotos_urls:  fotosUrls,
+        detalhes:    coletarDetalhes(),
+        status:      'aberto',
+      }])
+      .select()
+      .single()
+
+    if (error) throw error
+
+    // 4. Atualiza tela de sucesso com dados reais
+    const totalEl = document.querySelector('#sucesso .sucesso-cards .sucesso-card:first-child .sucesso-val')
+    if (totalEl) totalEl.textContent = '3–5'
+
+    // 5. Exibe sucesso
+    document.getElementById('form-area').style.display = 'none'
+    document.getElementById('sucesso').classList.add('visible')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+  } catch (err) {
+    console.error('Erro ao postar serviço:', err)
+    toast('Erro ao postar serviço. Tente novamente.', 'erro')
+    if (btn) { btn.disabled = false; btn.textContent = 'Receber orçamentos gratuitos →' }
+  }
+}
+</script>
+</body>
+</html>

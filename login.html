@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcheiObra — Entrar</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --laranja:#E8521A;--laranja-cl:#FF6B35;--laranja-esc:#C43E10;
+  --bg:#0F0F0F;--bg2:#1A1A1A;--bg3:#242424;
+  --branco:#FAFAF8;--muted:rgba(255,255,255,0.5);--dim:rgba(255,255,255,0.2);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --syne:'Syne',sans-serif;--dm:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--branco);font-family:var(--dm);min-height:100vh;display:flex;flex-direction:column;}
+
+/* NAV */
+nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nav-icon{width:32px;height:32px;background:var(--laranja);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.nav-icon svg{width:18px;height:18px;}
+.nav-nome{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--branco);letter-spacing:-0.4px;}
+.nav-nome span{color:var(--laranja);}
+
+/* LAYOUT */
+.page{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:36px 32px;width:100%;max-width:420px;}
+
+/* PERFIL SELECTOR */
+.perfil-sel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:28px;}
+.perfil-btn{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;transition:all .15s;user-select:none;}
+.perfil-btn:hover{border-color:rgba(232,82,26,0.4);}
+.perfil-btn.active{border-color:var(--laranja);background:rgba(232,82,26,0.08);}
+.perfil-ico{font-size:22px;margin-bottom:6px;}
+.perfil-nome{font-family:var(--syne);font-size:13px;font-weight:700;color:var(--branco);}
+.perfil-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* TABS */
+.tabs{display:flex;background:var(--bg3);border-radius:10px;padding:4px;margin-bottom:24px;}
+.tab{flex:1;font-family:var(--syne);font-size:13px;font-weight:700;padding:9px;border-radius:7px;cursor:pointer;color:var(--muted);transition:all .15s;text-align:center;border:none;background:none;}
+.tab.active{background:var(--laranja);color:#fff;}
+
+/* FORM */
+.form-titulo{font-family:var(--syne);font-size:20px;font-weight:800;letter-spacing:-0.3px;margin-bottom:4px;}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.5;}
+.campo{margin-bottom:16px;}
+.campo label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:0.06em;text-transform:uppercase;}
+.campo input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--branco);font-family:var(--dm);outline:none;transition:border-color .15s;}
+.campo input:focus{border-color:rgba(232,82,26,0.5);}
+.campo input.erro{border-color:#E8521A;}
+.campo-hint{font-size:11px;color:var(--dim);margin-top:5px;}
+
+/* SENHA TOGGLE */
+.senha-wrap{position:relative;}
+.senha-wrap input{padding-right:44px;}
+.senha-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);background:none;border:none;padding:0;display:flex;align-items:center;}
+.senha-toggle:hover{color:var(--branco);}
+.senha-toggle svg{width:16px;height:16px;}
+
+/* FORÇA DA SENHA */
+.forca-wrap{margin-top:8px;display:none;}
+.forca-wrap.visible{display:block;}
+.forca-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:4px;}
+.forca-fill{height:100%;border-radius:2px;transition:width .3s,background .3s;}
+.forca-txt{font-size:11px;color:var(--muted);}
+
+/* BOTÕES */
+.btn-prim{width:100%;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:14px;font-weight:700;padding:13px;border-radius:10px;border:none;cursor:pointer;transition:background .2s;margin-top:4px;}
+.btn-prim:hover{background:var(--laranja-cl);}
+.btn-prim:disabled{opacity:0.6;cursor:not-allowed;}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--dim);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.link-btn{background:none;border:none;color:var(--laranja-cl);font-size:13px;cursor:pointer;text-decoration:underline;font-family:var(--dm);}
+.link-btn:hover{color:var(--laranja);}
+.texto-centro{text-align:center;font-size:13px;color:var(--muted);margin-top:16px;}
+
+/* ALERTA */
+.alerta{border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5;margin-bottom:16px;display:none;}
+.alerta.visible{display:block;}
+.alerta.erro{background:rgba(226,75,74,0.1);border:1px solid rgba(226,75,74,0.3);color:#F09595;}
+.alerta.ok{background:rgba(29,158,117,0.1);border:1px solid rgba(29,158,117,0.3);color:#5DCAA5;}
+
+/* SUCESSO VERIFICAÇÃO */
+.verificacao{text-align:center;padding:16px 0;display:none;}
+.verificacao.visible{display:block;}
+.verif-ico{font-size:48px;margin-bottom:16px;}
+.verif-titulo{font-family:var(--syne);font-size:18px;font-weight:800;color:var(--branco);margin-bottom:8px;}
+.verif-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;}
+.verif-email{font-weight:600;color:var(--branco);}
+
+/* RESET SENHA */
+.reset-form{display:none;}
+.reset-form.visible{display:block;}
+
+@media(max-width:480px){
+  .card{padding:24px 20px;}
+  .perfil-sel{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="landing-acheiobra.html" class="nav-logo">
+    <div class="nav-icon">
+      <svg viewBox="0 0 44 44" fill="none">
+        <path d="M8 20L22 8L36 20V38H28V28H16V38H8V20Z" fill="white" opacity="0.95"/>
+        <circle cx="32" cy="14" r="7" fill="white"/>
+        <path d="M29 14L31.5 16.5L35.5 11" stroke="#E8521A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="nav-nome">Achei<span>Obra</span></div>
+  </a>
+</nav>
+
+<div class="page">
+  <div class="card">
+
+    <!-- SELETOR DE PERFIL -->
+    <div class="perfil-sel" id="perfil-sel">
+      <div class="perfil-btn active" id="btn-cliente" onclick="selecionarPerfil('cliente')">
+        <div class="perfil-ico">🏠</div>
+        <div class="perfil-nome">Sou cliente</div>
+        <div class="perfil-sub">Preciso de serviço</div>
+      </div>
+      <div class="perfil-btn" id="btn-profissional" onclick="selecionarPerfil('profissional')">
+        <div class="perfil-ico">🔨</div>
+        <div class="perfil-nome">Sou profissional</div>
+        <div class="perfil-sub">Quero trabalhar</div>
+      </div>
+    </div>
+
+    <!-- TABS LOGIN / CADASTRO -->
+    <div class="tabs">
+      <button class="tab active" id="tab-login" onclick="trocarTab('login')">Entrar</button>
+      <button class="tab" id="tab-cadastro" onclick="trocarTab('cadastro')">Criar conta</button>
+    </div>
+
+    <!-- ALERTA -->
+    <div class="alerta" id="alerta"></div>
+
+    <!-- ── FORM LOGIN ── -->
+    <div id="form-login">
+      <div class="form-titulo" id="titulo-login">Bom te ver de volta</div>
+      <div class="form-sub" id="sub-login">Entre com seu email e senha para continuar.</div>
+
+      <div class="campo">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="campo">
+        <label>Senha</label>
+        <div class="senha-wrap">
+          <input type="password" id="login-senha" placeholder="Sua senha" autocomplete="current-password">
+          <button class="senha-toggle" onclick="toggleSenha('login-senha', this)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div style="text-align:right;margin-top:-8px;margin-bottom:16px;">
+        <button class="link-btn" onclick="mostrarReset()">Esqueci minha senha</button>
+      </div>
+
+      <button class="btn-prim" id="btn-login" onclick="fazerLogin()">Entrar</button>
+
+      <div class="texto-centro">
+        Não tem conta? <button class="link-btn" onclick="trocarTab('cadastro')">Criar agora</button>
+      </div>
+    </div>
+
+    <!-- ── FORM RESET SENHA ── -->
+    <div id="form-reset" class="reset-form">
+      <div class="form-titulo">Redefinir senha</div>
+      <div class="form-sub">Informe seu email e enviaremos um link para criar uma nova senha.</div>
+
+      <div class="campo">
+        <label>Email</label>
+        <input type="email" id="reset-email" placeholder="seu@email.com">
+      </div>
+
+      <button class="btn-prim" onclick="enviarReset()">Enviar link de redefinição</button>
+
+      <div class="texto-centro">
+        <button class="link-btn" onclick="voltarLogin()">Voltar para o login</button>
+      </div>
+    </div>
+
+    <!-- ── FORM CADASTRO ── -->
+    <div id="form-cadastro" style="display:none;">
+      <div class="form-titulo" id="titulo-cad">Criar sua conta</div>
+      <div class="form-sub" id="sub-cad">Preencha os dados para começar.</div>
+
+      <div class="campo">
+        <label>Nome completo</label>
+        <input type="text" id="cad-nome" placeholder="Seu nome completo" autocomplete="name">
+      </div>
+      <div class="campo">
+        <label>Email</label>
+        <input type="email" id="cad-email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="campo">
+        <label>Senha</label>
+        <div class="senha-wrap">
+          <input type="password" id="cad-senha" placeholder="Mínimo 8 caracteres" autocomplete="new-password" oninput="verificarForca(this.value)">
+          <button class="senha-toggle" onclick="toggleSenha('cad-senha', this)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="forca-wrap" id="forca-wrap">
+          <div class="forca-bar"><div class="forca-fill" id="forca-fill"></div></div>
+          <div class="forca-txt" id="forca-txt"></div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Confirmar senha</label>
+        <div class="senha-wrap">
+          <input type="password" id="cad-senha2" placeholder="Repita a senha" autocomplete="new-password">
+          <button class="senha-toggle" onclick="toggleSenha('cad-senha2', this)" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-prim" id="btn-cad" onclick="fazerCadastro()">Criar conta</button>
+
+      <div class="texto-centro">
+        Já tem conta? <button class="link-btn" onclick="trocarTab('login')">Entrar</button>
+      </div>
+    </div>
+
+    <!-- ── TELA DE VERIFICAÇÃO ── -->
+    <div class="verificacao" id="verificacao">
+      <div class="verif-ico">📧</div>
+      <div class="verif-titulo">Confirme seu email</div>
+      <div class="verif-sub">
+        Enviamos um link de confirmação para<br>
+        <span class="verif-email" id="verif-email-txt"></span><br><br>
+        Clique no link do email para ativar sua conta e fazer login.
+      </div>
+      <button class="btn-prim" style="max-width:260px;margin:0 auto;" onclick="reenviarEmail()">Reenviar email</button>
+      <div class="texto-centro" style="margin-top:12px;">
+        <button class="link-btn" onclick="voltarLogin()">Voltar para o login</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const SUPABASE_URL = 'https://tsjtsxbnrxsowhqrkmjz.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzanRzeGJucnhzb3docXJrbWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjI0OTcsImV4cCI6MjA5MTgzODQ5N30.2jhI37qyVF1qjy61RSRGTtZlHedekb8VMZzMdOJxVnc'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+let perfilAtivo = 'cliente'
+let tabAtiva    = 'login'
+let emailCadastro = ''
+
+// ── PERFIL ───────────────────────────────────────────────────
+window.selecionarPerfil = function(perfil) {
+  perfilAtivo = perfil
+  document.getElementById('btn-cliente').classList.toggle('active', perfil === 'cliente')
+  document.getElementById('btn-profissional').classList.toggle('active', perfil === 'profissional')
+
+  const isPro = perfil === 'profissional'
+  document.getElementById('titulo-login').textContent = isPro ? 'Área do profissional' : 'Bom te ver de volta'
+  document.getElementById('sub-login').textContent    = isPro
+    ? 'Entre para ver seus serviços disponíveis.'
+    : 'Entre para postar serviços e receber orçamentos.'
+  document.getElementById('titulo-cad').textContent  = isPro ? 'Cadastro de profissional' : 'Criar sua conta'
+  document.getElementById('sub-cad').textContent     = isPro
+    ? 'Crie sua conta para começar a receber serviços.'
+    : 'Crie sua conta para contratar profissionais.'
+}
+
+// ── TABS ─────────────────────────────────────────────────────
+window.trocarTab = function(tab) {
+  tabAtiva = tab
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login')
+  document.getElementById('tab-cadastro').classList.toggle('active', tab === 'cadastro')
+  document.getElementById('form-login').style.display    = tab === 'login'    ? 'block' : 'none'
+  document.getElementById('form-cadastro').style.display = tab === 'cadastro' ? 'block' : 'none'
+  document.getElementById('form-reset').classList.remove('visible')
+  document.getElementById('verificacao').classList.remove('visible')
+  limparAlerta()
+}
+
+// ── TOGGLE SENHA ─────────────────────────────────────────────
+window.toggleSenha = function(id, btn) {
+  const input = document.getElementById(id)
+  const show  = input.type === 'password'
+  input.type  = show ? 'text' : 'password'
+  btn.innerHTML = show
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+}
+
+// ── FORÇA DA SENHA ────────────────────────────────────────────
+window.verificarForca = function(senha) {
+  const wrap = document.getElementById('forca-wrap')
+  const fill = document.getElementById('forca-fill')
+  const txt  = document.getElementById('forca-txt')
+
+  if (!senha) { wrap.classList.remove('visible'); return }
+  wrap.classList.add('visible')
+
+  let forca = 0
+  if (senha.length >= 8)          forca++
+  if (/[A-Z]/.test(senha))        forca++
+  if (/[0-9]/.test(senha))        forca++
+  if (/[^A-Za-z0-9]/.test(senha)) forca++
+
+  const config = [
+    { pct: '25%', cor: '#E24B4A', label: 'Senha fraca' },
+    { pct: '50%', cor: '#EF9F27', label: 'Senha razoável' },
+    { pct: '75%', cor: '#5DCAA5', label: 'Senha boa' },
+    { pct: '100%',cor: '#1D9E75', label: 'Senha forte' },
+  ]
+  const c = config[forca - 1] || config[0]
+  fill.style.width      = c.pct
+  fill.style.background = c.cor
+  txt.textContent       = c.label
+  txt.style.color       = c.cor
+}
+
+// ── ALERTAS ───────────────────────────────────────────────────
+function mostrarAlerta(msg, tipo = 'erro') {
+  const el = document.getElementById('alerta')
+  el.textContent = msg
+  el.className   = `alerta ${tipo} visible`
+}
+function limparAlerta() {
+  const el = document.getElementById('alerta')
+  el.classList.remove('visible')
+}
+
+function setBotao(id, loading, txt) {
+  const btn = document.getElementById(id)
+  btn.disabled     = loading
+  btn.textContent  = loading ? 'Aguarde...' : txt
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────
+window.fazerLogin = async function() {
+  const email = document.getElementById('login-email').value.trim()
+  const senha = document.getElementById('login-senha').value
+
+  if (!email) return mostrarAlerta('Informe seu email.')
+  if (!senha) return mostrarAlerta('Informe sua senha.')
+
+  setBotao('btn-login', true, 'Entrar')
+  limparAlerta()
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha })
+
+  if (error) {
+    setBotao('btn-login', false, 'Entrar')
+    const msgs = {
+      'Invalid login credentials': 'Email ou senha incorretos.',
+      'Email not confirmed':       'Confirme seu email antes de entrar. Verifique sua caixa de entrada.',
+    }
+    return mostrarAlerta(msgs[error.message] || 'Erro ao entrar. Tente novamente.')
+  }
+
+  // Salva perfil no localStorage
+  localStorage.setItem('acheiobra_perfil', perfilAtivo)
+  localStorage.setItem('acheiobra_user_id', data.user.id)
+
+  mostrarAlerta('Login realizado! Redirecionando...', 'ok')
+
+  // Redireciona conforme perfil
+  setTimeout(() => {
+    if (perfilAtivo === 'profissional') {
+      window.location.href = 'cadastro-profissional.html'
+    } else {
+      window.location.href = 'formulario-servico.html'
+    }
+  }, 1000)
+}
+
+// ── CADASTRO ──────────────────────────────────────────────────
+window.fazerCadastro = async function() {
+  const nome   = document.getElementById('cad-nome').value.trim()
+  const email  = document.getElementById('cad-email').value.trim()
+  const senha  = document.getElementById('cad-senha').value
+  const senha2 = document.getElementById('cad-senha2').value
+
+  if (!nome)              return mostrarAlerta('Informe seu nome completo.')
+  if (!email)             return mostrarAlerta('Informe seu email.')
+  if (senha.length < 8)   return mostrarAlerta('A senha deve ter ao menos 8 caracteres.')
+  if (senha !== senha2)   return mostrarAlerta('As senhas não conferem.')
+
+  setBotao('btn-cad', true, 'Criar conta')
+  limparAlerta()
+  emailCadastro = email
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: senha,
+    options: {
+      data: {
+        nome,
+        perfil: perfilAtivo,
+      },
+      emailRedirectTo: window.location.origin + '/login.html',
+    }
+  })
+
+  setBotao('btn-cad', false, 'Criar conta')
+
+  if (error) {
+    const msgs = {
+      'User already registered': 'Este email já está cadastrado. Faça login.',
+    }
+    return mostrarAlerta(msgs[error.message] || 'Erro ao criar conta. Tente novamente.')
+  }
+
+  // Se o Supabase não exige confirmação de email, já loga direto
+  if (data.session) {
+    localStorage.setItem('acheiobra_perfil', perfilAtivo)
+    localStorage.setItem('acheiobra_user_id', data.user.id)
+    mostrarAlerta('Conta criada! Redirecionando...', 'ok')
+    setTimeout(() => {
+      window.location.href = perfilAtivo === 'profissional'
+        ? 'cadastro-profissional.html'
+        : 'formulario-servico.html'
+    }, 1000)
+    return
+  }
+
+  // Exige confirmação de email
+  document.getElementById('form-cadastro').style.display = 'none'
+  document.getElementById('verificacao').classList.add('visible')
+  document.getElementById('verif-email-txt').textContent = email
+  document.querySelectorAll('.tabs, #perfil-sel').forEach(el => el.style.display = 'none')
+}
+
+// ── RESET SENHA ───────────────────────────────────────────────
+window.mostrarReset = function() {
+  document.getElementById('form-login').style.display = 'none'
+  document.getElementById('form-reset').classList.add('visible')
+  limparAlerta()
+}
+
+window.voltarLogin = function() {
+  document.getElementById('form-reset').classList.remove('visible')
+  document.getElementById('verificacao').classList.remove('visible')
+  document.getElementById('form-login').style.display = 'block'
+  document.getElementById('form-cadastro').style.display = 'none'
+  document.querySelectorAll('.tabs, #perfil-sel').forEach(el => el.style.display = '')
+  document.querySelector('.tabs').style.display = 'flex'
+  trocarTab('login')
+}
+
+window.enviarReset = async function() {
+  const email = document.getElementById('reset-email').value.trim()
+  if (!email) return mostrarAlerta('Informe seu email.')
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/login.html',
+  })
+
+  if (error) return mostrarAlerta('Erro ao enviar. Verifique o email informado.')
+
+  mostrarAlerta('Email enviado! Verifique sua caixa de entrada.', 'ok')
+}
+
+// ── REENVIAR EMAIL ────────────────────────────────────────────
+window.reenviarEmail = async function() {
+  if (!emailCadastro) return
+  await supabase.auth.resend({ type: 'signup', email: emailCadastro })
+  mostrarAlerta('Email reenviado!', 'ok')
+}
+
+// ── VERIFICA SE JÁ ESTÁ LOGADO ────────────────────────────────
+const { data: { session } } = await supabase.auth.getSession()
+if (session) {
+  const perfil = localStorage.getItem('acheiobra_perfil') || 'cliente'
+  window.location.href = perfil === 'profissional'
+    ? 'cadastro-profissional.html'
+    : 'formulario-servico.html'
+}
+
+// Enter para submeter
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return
+  if (tabAtiva === 'login')    fazerLogin()
+  if (tabAtiva === 'cadastro') fazerCadastro()
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcheiObra — Cadastro de Profissional</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --laranja:#E8521A;--laranja-cl:#FF6B35;--preto:#141414;
+  --bg:#0F0F0F;--bg2:#1A1A1A;--bg3:#222;
+  --branco:#FAFAF8;--muted:rgba(255,255,255,0.5);--dim:rgba(255,255,255,0.2);
+  --border:rgba(255,255,255,0.08);--syne:'Syne',sans-serif;--dm:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--branco);font-family:var(--dm);min-height:100vh;}
+
+nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nav-icon{width:32px;height:32px;background:var(--laranja);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.nav-icon svg{width:18px;height:18px;}
+.nav-nome{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--branco);letter-spacing:-0.4px;}
+.nav-nome span{color:var(--laranja);}
+.nav-back{font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.nav-back:hover{color:var(--branco);}
+
+.page{max-width:600px;margin:0 auto;padding:40px 20px 80px;}
+
+/* PROGRESSO */
+.prog{display:flex;align-items:center;margin-bottom:36px;}
+.prog-item{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+.prog-item:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:var(--border);z-index:0;transition:background .3s;}
+.prog-item.done:not(:last-child)::after{background:var(--laranja);}
+.prog-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);position:relative;z-index:1;transition:all .3s;}
+.prog-item.active .prog-dot{border-color:var(--laranja);color:var(--laranja);background:rgba(232,82,26,0.1);}
+.prog-item.done .prog-dot{border-color:var(--laranja);background:var(--laranja);color:#fff;}
+.prog-label{font-size:10px;color:var(--muted);margin-top:5px;text-align:center;font-weight:500;}
+.prog-item.active .prog-label{color:var(--branco);}
+
+/* STEPS */
+.step{display:none;}
+.step.visible{display:block;}
+.step-titulo{font-family:var(--syne);font-size:22px;font-weight:800;letter-spacing:-0.4px;margin-bottom:4px;}
+.step-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.5;}
+
+/* CAMPOS */
+.campo{margin-bottom:18px;}
+.campo label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:0.04em;text-transform:uppercase;}
+.obrig{color:var(--laranja);margin-left:2px;}
+.campo input,.campo textarea,.campo select{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--branco);font-family:var(--dm);outline:none;transition:border-color .15s;}
+.campo input:focus,.campo textarea:focus,.campo select:focus{border-color:rgba(232,82,26,0.5);}
+.campo textarea{resize:vertical;min-height:90px;}
+.campo select option{background:var(--bg3);}
+.campo-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.campo-hint{font-size:11px;color:var(--dim);margin-top:5px;line-height:1.4;}
+
+/* OPÇÕES */
+.opcoes{display:flex;flex-wrap:wrap;gap:8px;}
+.opc{font-size:12px;font-weight:500;padding:7px 14px;border-radius:20px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--muted);transition:all .15s;user-select:none;}
+.opc:hover{border-color:rgba(232,82,26,0.4);color:var(--branco);}
+.opc.sel{background:var(--laranja);color:#fff;border-color:var(--laranja);}
+
+/* ESPECIALIDADES GRID */
+.espec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.espec-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;transition:all .15s;user-select:none;}
+.espec-card:hover{border-color:rgba(232,82,26,0.4);}
+.espec-card.sel{border-color:var(--laranja);background:rgba(232,82,26,0.08);}
+.espec-ico{font-size:22px;margin-bottom:6px;}
+.espec-nome{font-family:var(--syne);font-size:12px;font-weight:700;color:var(--branco);}
+
+/* UPLOAD */
+.upload-box{border:1.5px dashed rgba(255,255,255,0.15);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.upload-box:hover{border-color:rgba(232,82,26,0.5);}
+.upload-ico{font-size:32px;margin-bottom:10px;}
+.upload-txt{font-size:13px;color:var(--muted);line-height:1.5;}
+.upload-txt strong{color:var(--branco);display:block;margin-bottom:3px;}
+
+/* DISPONIBILIDADE */
+.dias{display:flex;gap:6px;flex-wrap:wrap;}
+.dia{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;user-select:none;}
+.dia:hover{border-color:rgba(232,82,26,0.4);}
+.dia.sel{background:var(--laranja);border-color:var(--laranja);color:#fff;}
+
+/* RAIO */
+.raio-wrap{display:flex;align-items:center;gap:12px;}
+.raio-wrap input[type=range]{flex:1;accent-color:var(--laranja);}
+.raio-val{font-family:var(--syne);font-size:15px;font-weight:700;color:var(--laranja);min-width:52px;text-align:right;}
+
+/* ESTRELAS / AVALIAÇÃO */
+.aviso-gratis{background:rgba(232,82,26,0.08);border:1px solid rgba(232,82,26,0.2);border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;margin-bottom:20px;}
+.aviso-ico{font-size:20px;flex-shrink:0;}
+.aviso-txt{font-size:13px;color:var(--muted);line-height:1.55;}
+.aviso-txt strong{color:var(--branco);display:block;margin-bottom:2px;font-weight:600;}
+
+/* BOTÕES */
+.btn-row{display:flex;gap:10px;margin-top:8px;}
+.btn-prim{flex:1;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:14px;font-weight:700;padding:13px;border-radius:10px;border:none;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-prim:hover{background:var(--laranja-cl);}
+.btn-prim svg{width:16px;height:16px;}
+.btn-sec{background:var(--bg2);color:var(--muted);font-family:var(--syne);font-size:14px;font-weight:600;padding:13px 20px;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .2s;}
+.btn-sec:hover{color:var(--branco);}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+
+/* TERMOS */
+.termo{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;}
+.termo input[type=checkbox]{width:16px;height:16px;accent-color:var(--laranja);flex-shrink:0;margin-top:2px;cursor:pointer;}
+.termo label{font-size:12px;color:var(--muted);line-height:1.5;cursor:pointer;}
+.termo label a{color:var(--laranja-cl);text-decoration:none;}
+
+/* SUCESSO */
+.sucesso{display:none;text-align:center;padding:48px 16px;}
+.sucesso.visible{display:block;}
+.sucesso-ico{width:80px;height:80px;background:rgba(29,158,117,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;}
+.sucesso-ico svg{width:40px;height:40px;color:#1D9E75;}
+.sucesso-titulo{font-family:var(--syne);font-size:24px;font-weight:800;color:var(--branco);margin-bottom:8px;}
+.sucesso-sub{font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.6;max-width:380px;margin-left:auto;margin-right:auto;}
+.sucesso-proximos{background:var(--bg2);border-radius:14px;padding:20px;margin-bottom:24px;text-align:left;border:1px solid var(--border);}
+.prox-titulo{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;}
+.prox-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;font-size:13px;color:var(--muted);line-height:1.4;}
+.prox-num{width:20px;height:20px;background:var(--laranja);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px;}
+
+@media(max-width:480px){
+  .campo-row{grid-template-columns:1fr;}
+  .espec-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="landing-acheiobra.html" class="nav-logo">
+    <div class="nav-icon">
+      <svg viewBox="0 0 44 44" fill="none">
+        <path d="M8 20L22 8L36 20V38H28V28H16V38H8V20Z" fill="white" opacity="0.95"/>
+        <circle cx="32" cy="14" r="7" fill="white"/>
+        <path d="M29 14L31.5 16.5L35.5 11" stroke="#E8521A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="nav-nome">Achei<span>Obra</span></div>
+  </a>
+  <a href="landing-acheiobra.html" class="nav-back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Voltar
+  </a>
+</nav>
+
+<div class="page">
+
+  <!-- SUCESSO -->
+  <div class="sucesso" id="sucesso">
+    <div class="sucesso-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div class="sucesso-titulo">Cadastro recebido!</div>
+    <div class="sucesso-sub">Seu perfil está em análise. Em breve você receberá uma mensagem no WhatsApp com a confirmação.</div>
+    <div class="sucesso-proximos">
+      <div class="prox-titulo">Próximos passos</div>
+      <div class="prox-item"><div class="prox-num">1</div><span>Análise do seu cadastro (até 24h)</span></div>
+      <div class="prox-item"><div class="prox-num">2</div><span>Confirmação via WhatsApp com acesso ao app</span></div>
+      <div class="prox-item"><div class="prox-num">3</div><span>Primeiros pedidos de serviço chegam no seu celular</span></div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);">Dúvidas? Fale com a gente pelo WhatsApp: (19) 9XXXX-XXXX</p>
+  </div>
+
+  <!-- FORMULÁRIO -->
+  <div id="form-area">
+
+    <!-- PROGRESSO -->
+    <div class="prog" id="prog">
+      <div class="prog-item active" id="pi-1">
+        <div class="prog-dot">1</div>
+        <div class="prog-label">Dados pessoais</div>
+      </div>
+      <div class="prog-item" id="pi-2">
+        <div class="prog-dot">2</div>
+        <div class="prog-label">Especialidades</div>
+      </div>
+      <div class="prog-item" id="pi-3">
+        <div class="prog-dot">3</div>
+        <div class="prog-label">Disponibilidade</div>
+      </div>
+      <div class="prog-item" id="pi-4">
+        <div class="prog-dot">4</div>
+        <div class="prog-label">Portfólio</div>
+      </div>
+      <div class="prog-item" id="pi-5">
+        <div class="prog-dot">5</div>
+        <div class="prog-label">Finalizar</div>
+      </div>
+    </div>
+
+    <!-- STEP 1 — DADOS PESSOAIS -->
+    <div class="step visible" id="step-1">
+      <div class="aviso-gratis">
+        <div class="aviso-ico">🎉</div>
+        <div class="aviso-txt">
+          <strong>Cadastro 100% gratuito</strong>
+          Sem mensalidade, sem taxa de adesão. Você só paga quando receber serviços pela plataforma.
+        </div>
+      </div>
+      <div class="step-titulo">Dados pessoais</div>
+      <div class="step-sub">Vamos começar com suas informações básicas.</div>
+
+      <div class="campo campo-row">
+        <div>
+          <label>Nome <span class="obrig">*</span></label>
+          <input type="text" id="f-nome" placeholder="Seu nome">
+        </div>
+        <div>
+          <label>Sobrenome <span class="obrig">*</span></label>
+          <input type="text" id="f-sobrenome" placeholder="Seu sobrenome">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>WhatsApp <span class="obrig">*</span></label>
+        <input type="tel" id="f-telefone" placeholder="(19) 9XXXX-XXXX">
+        <div class="campo-hint">Usado para receber pedidos de serviço e confirmações.</div>
+      </div>
+
+      <div class="campo">
+        <label>CPF <span class="obrig">*</span></label>
+        <input type="text" id="f-cpf" placeholder="000.000.000-00">
+        <div class="campo-hint">Necessário para receber pagamentos pela plataforma.</div>
+      </div>
+
+      <div class="campo">
+        <label>Cidade <span class="obrig">*</span></label>
+        <select id="f-cidade">
+          <option value="">Selecione sua cidade</option>
+          <option>São João da Boa Vista</option>
+          <option>Aguaí</option>
+          <option>Casa Branca</option>
+          <option>Espírito Santo do Pinhal</option>
+          <option>Mococa</option>
+          <option>São José do Rio Pardo</option>
+          <option>Vargem Grande do Sul</option>
+          <option>Outra cidade</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Você tem CNPJ / MEI?</label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'cnpj')">Sim, tenho MEI</div>
+          <div class="opc" onclick="opc(this,'cnpj')">Sim, tenho CNPJ</div>
+          <div class="opc" onclick="opc(this,'cnpj')">Não, sou autônomo</div>
+          <div class="opc" onclick="opc(this,'cnpj')">Quero abrir MEI</div>
+        </div>
+        <div class="campo-hint">Autônomos também podem usar a plataforma.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-prim" onclick="irPara(2)">
+          Continuar
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2 — ESPECIALIDADES -->
+    <div class="step" id="step-2">
+      <div class="step-titulo">Suas especialidades</div>
+      <div class="step-sub">Selecione tudo que você sabe fazer — pode ser mais de uma.</div>
+
+      <div class="campo">
+        <label>Especialidades <span class="obrig">*</span></label>
+        <div class="espec-grid">
+          <div class="espec-card" onclick="this.classList.toggle('sel')">
+            <div class="espec-ico">🧱</div>
+            <div class="espec-nome">Pedreiro</div>
+          </div>
+          <div class="espec-card" onclick="this.classList.toggle('sel')">
+            <div class="espec-ico">⚡</div>
+            <div class="espec-nome">Eletricista</div>
+          </div>
+          <div class="espec-card" onclick="this.classList.toggle('sel')">
+            <div class="espec-ico">🔧</div>
+            <div class="espec-nome">Encanador</div>
+          </div>
+          <div class="espec-card" onclick="this.classList.toggle('sel')">
+            <div class="espec-ico">🖌️</div>
+            <div class="espec-nome">Pintor</div>
+          </div>
+          <div class="espec-card" onclick="this.classList.toggle('sel')">
+            <div class="espec-ico">🪟</div>
+            <div class="espec-nome">Gesseiro</div>
+          </div>
+          <div class="espec-card" onclick="this.classList.toggle('sel')">
+            <div class="espec-ico">🪨</div>
+            <div class="espec-nome">Azulejista</div>
+          </div>
+          <div class="espec-card" onclick="this.classList.toggle('sel')">
+            <div class="espec-ico">🪚</div>
+            <div class="espec-nome">Carpinteiro</div>
+          </div>
+          <div class="espec-card" onclick="this.classList.toggle('sel')">
+            <div class="espec-ico">🏗️</div>
+            <div class="espec-nome">Mestre de obras</div>
+          </div>
+          <div class="espec-card" onclick="this.classList.toggle('sel')">
+            <div class="espec-ico">🔩</div>
+            <div class="espec-nome">Serralheiro</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Anos de experiência <span class="obrig">*</span></label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'exp')">Menos de 1 ano</div>
+          <div class="opc" onclick="opc(this,'exp')">1 a 3 anos</div>
+          <div class="opc" onclick="opc(this,'exp')">3 a 5 anos</div>
+          <div class="opc" onclick="opc(this,'exp')">5 a 10 anos</div>
+          <div class="opc" onclick="opc(this,'exp')">Mais de 10 anos</div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Como prefere cobrar?</label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'cob')">Por diária</div>
+          <div class="opc" onclick="opc(this,'cob')">Por m²</div>
+          <div class="opc" onclick="opc(this,'cob')">Por serviço / empreitada</div>
+          <div class="opc" onclick="opc(this,'cob')">Depende do serviço</div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Valor médio da sua diária (R$)</label>
+        <input type="number" id="f-diaria" placeholder="Ex: 200">
+        <div class="campo-hint">Referência para clientes. Você pode ajustar por serviço.</div>
+      </div>
+
+      <div class="campo">
+        <label>Sobre você</label>
+        <textarea id="f-sobre" placeholder="Conte um pouco sobre sua experiência, tipos de obra que já fez, diferenciais..."></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-sec" onclick="irPara(1)">Voltar</button>
+        <button class="btn-prim" onclick="irPara(3)">
+          Continuar
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3 — DISPONIBILIDADE -->
+    <div class="step" id="step-3">
+      <div class="step-titulo">Disponibilidade</div>
+      <div class="step-sub">Quando e onde você está disponível para trabalhar?</div>
+
+      <div class="campo">
+        <label>Dias disponíveis <span class="obrig">*</span></label>
+        <div class="dias">
+          <div class="dia sel" onclick="this.classList.toggle('sel')">Seg</div>
+          <div class="dia sel" onclick="this.classList.toggle('sel')">Ter</div>
+          <div class="dia sel" onclick="this.classList.toggle('sel')">Qua</div>
+          <div class="dia sel" onclick="this.classList.toggle('sel')">Qui</div>
+          <div class="dia sel" onclick="this.classList.toggle('sel')">Sex</div>
+          <div class="dia" onclick="this.classList.toggle('sel')">Sáb</div>
+          <div class="dia" onclick="this.classList.toggle('sel')">Dom</div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Horário de atendimento</label>
+        <div class="opcoes">
+          <div class="opc sel" onclick="opc(this,'hor')">Comercial (7h–18h)</div>
+          <div class="opc" onclick="opc(this,'hor')">Manhã (7h–12h)</div>
+          <div class="opc" onclick="opc(this,'hor')">Tarde (13h–18h)</div>
+          <div class="opc" onclick="opc(this,'hor')">Flexível</div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Raio de atendimento</label>
+        <div class="raio-wrap">
+          <input type="range" min="5" max="100" value="30" step="5" id="f-raio"  oninput="document.getElementById('raio-val').textContent=this.value+'km'">
+          <div class="raio-val" id="raio-val">30km</div>
+        </div>
+        <div class="campo-hint">Distância máxima que você aceita se deslocar a partir da sua cidade.</div>
+      </div>
+
+      <div class="campo">
+        <label>Capacidade mensal</label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'cap')">1 a 3 serviços/mês</div>
+          <div class="opc sel" onclick="opc(this,'cap')">4 a 8 serviços/mês</div>
+          <div class="opc" onclick="opc(this,'cap')">Mais de 8 serviços/mês</div>
+          <div class="opc" onclick="opc(this,'cap')">Sem limite definido</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-sec" onclick="irPara(2)">Voltar</button>
+        <button class="btn-prim" onclick="irPara(4)">
+          Continuar
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 4 — PORTFÓLIO -->
+    <div class="step" id="step-4">
+      <div class="step-titulo">Portfólio de trabalhos</div>
+      <div class="step-sub">Fotos de obras anteriores aumentam muito suas chances de receber serviços.</div>
+
+      <div class="campo">
+        <label>Fotos de trabalhos anteriores</label>
+        <div class="upload-box">
+          <div class="upload-ico">📸</div>
+          <div class="upload-txt">
+            <strong>Adicionar fotos de obras feitas</strong>
+            Quanto mais fotos, maior a confiança do cliente.<br>
+            Recomendamos ao menos 3 fotos — antes e depois é ótimo!
+          </div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Foto de documento com foto <span class="obrig">*</span></label>
+        <div class="upload-box">
+          <div class="upload-ico">🪪</div>
+          <div class="upload-txt">
+            <strong>RG ou CNH (frente)</strong>
+            Necessário para verificação de identidade e liberação dos pagamentos.
+          </div>
+        </div>
+        <div class="campo-hint">Seus dados são protegidos e nunca são exibidos publicamente.</div>
+      </div>
+
+      <div class="campo">
+        <label>Foto sua (selfie ou profissional)</label>
+        <div class="upload-box">
+          <div class="upload-ico">🤳</div>
+          <div class="upload-txt">
+            <strong>Uma foto sua</strong>
+            Perfis com foto recebem até 3x mais pedidos de serviço.
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-sec" onclick="irPara(3)">Voltar</button>
+        <button class="btn-prim" onclick="irPara(5)">
+          Continuar
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 5 — FINALIZAR -->
+    <div class="step" id="step-5">
+      <div class="step-titulo">Quase lá!</div>
+      <div class="step-sub">Confirme as informações e finalize seu cadastro.</div>
+
+      <div class="aviso-gratis">
+        <div class="aviso-ico">💰</div>
+        <div class="aviso-txt">
+          <strong>Como funciona o pagamento</strong>
+          O cliente paga antes. O valor fica retido na plataforma. Após conclusão e aprovação do serviço, o valor cai na sua conta — descontada apenas a comissão da plataforma.
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Chave Pix para receber <span class="obrig">*</span></label>
+        <input type="text" id="f-pix" placeholder="CPF, telefone ou e-mail">
+        <div class="campo-hint">Usado para transferir seus pagamentos após cada serviço concluído.</div>
+      </div>
+
+      <div class="campo">
+        <label>Como ficou sabendo do AcheiObra?</label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'src')">Panfleto</div>
+          <div class="opc" onclick="opc(this,'src')">Indicação de amigo</div>
+          <div class="opc" onclick="opc(this,'src')">Instagram</div>
+          <div class="opc" onclick="opc(this,'src')">Loja de material</div>
+          <div class="opc" onclick="opc(this,'src')">Outro</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="termo">
+        <input type="checkbox" id="t1">
+        <label for="t1">Li e aceito os <a href="#">Termos de uso</a> e a <a href="#">Política de privacidade</a> do AcheiObra.</label>
+      </div>
+      <div class="termo">
+        <input type="checkbox" id="t2">
+        <label for="t2">Autorizo o AcheiObra a exibir meu perfil e informações de contato para clientes da plataforma.</label>
+      </div>
+      <div class="termo">
+        <input type="checkbox" id="t3">
+        <label for="t3">Quero receber dicas, novidades e oportunidades de serviço pelo WhatsApp.</label>
+      </div>
+
+      <div class="btn-row" style="margin-top:20px;">
+        <button class="btn-sec" onclick="irPara(4)">Voltar</button>
+        <button class="btn-prim" onclick="finalizar()">
+          Finalizar cadastro
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+// ── SUPABASE CONFIG ──────────────────────────────────────────
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const SUPABASE_URL = 'https://tsjtsxbnrxsowhqrkmjz.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzanRzeGJucnhzb3docXJrbWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjI0OTcsImV4cCI6MjA5MTgzODQ5N30.2jhI37qyVF1qjy61RSRGTtZlHedekb8VMZzMdOJxVnc'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+// ── ESTADO DO FORMULÁRIO ─────────────────────────────────────
+let stepAtual = 1
+const estado = {
+  fotosPortfolio: [],
+  fotoDocumento:  null,
+  fotoSelfie:     null,
+}
+
+// ── NAVEGAÇÃO ENTRE STEPS ────────────────────────────────────
+window.irPara = function(n) {
+  // Valida step atual antes de avançar
+  if (n > stepAtual && !validarStep(stepAtual)) return
+
+  document.getElementById('step-' + stepAtual).classList.remove('visible')
+  document.getElementById('pi-' + stepAtual).classList.remove('active')
+  document.getElementById('pi-' + stepAtual).classList.add('done')
+
+  stepAtual = n
+  document.getElementById('step-' + n).classList.add('visible')
+
+  document.querySelectorAll('.prog-item').forEach((el, i) => {
+    const num = i + 1
+    el.classList.remove('active')
+    if (num < n) el.classList.add('done')
+    else if (num === n) { el.classList.add('active'); el.classList.remove('done') }
+    else el.classList.remove('done')
+  })
+
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// ── VALIDAÇÃO POR STEP ───────────────────────────────────────
+function validarStep(step) {
+  if (step === 1) {
+    const nome     = document.getElementById('f-nome')?.value?.trim()
+    const telefone = document.getElementById('f-telefone')?.value?.trim()
+    const cpf      = document.getElementById('f-cpf')?.value?.trim()
+    const cidade   = document.getElementById('f-cidade')?.value
+
+    if (!nome)     return mostrarErro('f-nome', 'Informe seu nome')
+    if (!telefone) return mostrarErro('f-telefone', 'Informe seu WhatsApp')
+    if (!cpf)      return mostrarErro('f-cpf', 'Informe seu CPF')
+    if (!cidade)   return mostrarErro('f-cidade', 'Selecione sua cidade')
+  }
+
+  if (step === 2) {
+    const especialidades = getEspecialidades()
+    const experiencia    = document.querySelector('.opc.sel[onclick*="exp"]')?.textContent
+
+    if (especialidades.length === 0) {
+      mostrarToast('Selecione ao menos uma especialidade', 'erro')
+      return false
+    }
+    if (!experiencia) {
+      mostrarToast('Informe seus anos de experiência', 'erro')
+      return false
+    }
+  }
+
+  return true
+}
+
+// ── HELPERS DE UI ────────────────────────────────────────────
+function mostrarErro(campoId, msg) {
+  const campo = document.getElementById(campoId)
+  if (campo) {
+    campo.style.borderColor = '#E8521A'
+    campo.focus()
+    mostrarToast(msg, 'erro')
+  }
+  return false
+}
+
+function mostrarToast(msg, tipo = 'info') {
+  const cores = { info: '#1D9E75', erro: '#E8521A', ok: '#1D9E75' }
+  const toast = document.createElement('div')
+  toast.textContent = msg
+  Object.assign(toast.style, {
+    position: 'fixed', bottom: '24px', left: '50%',
+    transform: 'translateX(-50%)',
+    background: cores[tipo] || '#1D9E75',
+    color: '#fff', padding: '12px 24px',
+    borderRadius: '8px', fontSize: '14px',
+    fontWeight: '500', zIndex: '9999',
+    transition: 'opacity .3s',
+  })
+  document.body.appendChild(toast)
+  setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300) }, 3000)
+}
+
+function setBotaoLoading(btn, loading) {
+  btn.disabled = loading
+  btn.textContent = loading ? 'Salvando...' : 'Finalizar cadastro'
+}
+
+// ── SELEÇÃO MÚLTIPLA (especialidades) ────────────────────────
+window.opc = function(el, grupo) {
+  el.closest('.opcoes').querySelectorAll('.opc').forEach(o => o.classList.remove('sel'))
+  el.classList.add('sel')
+}
+
+function getEspecialidades() {
+  const mapa = {
+    'Pedreiro':       'alvenaria',
+    'Eletricista':    'eletrica',
+    'Encanador':      'hidraulica',
+    'Pintor':         'pintura',
+    'Gesseiro':       'gesseiro',
+    'Azulejista':     'azulejista',
+    'Carpinteiro':    'carpintaria',
+    'Mestre de obras':'alvenaria',
+    'Serralheiro':    'serralheria',
+  }
+  return [...document.querySelectorAll('.espec-card.sel .espec-nome')]
+    .map(el => mapa[el.textContent.trim()])
+    .filter(Boolean)
+}
+
+function getDiasDisponiveis() {
+  return [...document.querySelectorAll('.dia.sel')]
+    .map(el => el.textContent.trim().toLowerCase())
+}
+
+function getAnosExperiencia() {
+  const txt = document.querySelector('.opc.sel[onclick*="exp"]')?.textContent?.trim() || ''
+  if (txt.includes('Menos de 1')) return 0
+  if (txt.includes('1 a 3'))     return 2
+  if (txt.includes('3 a 5'))     return 4
+  if (txt.includes('5 a 10'))    return 7
+  if (txt.includes('Mais de'))   return 12
+  return 0
+}
+
+// ── UPLOAD DE FOTOS ──────────────────────────────────────────
+async function uploadFoto(arquivo, pasta) {
+  const ext    = arquivo.name.split('.').pop()
+  const caminho = `${pasta}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+
+  const { error } = await supabase.storage
+    .from('fotos')
+    .upload(caminho, arquivo, { upsert: true })
+
+  if (error) throw error
+
+  const { data } = supabase.storage.from('fotos').getPublicUrl(caminho)
+  return data.publicUrl
+}
+
+// Configura áreas de upload clicáveis
+document.querySelectorAll('.upload-box').forEach((box, i) => {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/*'
+  input.multiple = i === 0   // só o primeiro aceita múltiplos (portfólio)
+  input.style.display = 'none'
+  box.appendChild(input)
+
+  box.addEventListener('click', () => input.click())
+
+  input.addEventListener('change', () => {
+    const arquivos = [...input.files]
+    if (!arquivos.length) return
+
+    if (i === 0) {
+      estado.fotosPortfolio = arquivos
+      box.querySelector('.upload-txt').innerHTML =
+        `<strong>${arquivos.length} foto(s) selecionada(s)</strong>Pronto para enviar ✓`
+    } else if (i === 1) {
+      estado.fotoDocumento = arquivos[0]
+      box.querySelector('.upload-txt').innerHTML =
+        `<strong>${arquivos[0].name}</strong>Documento selecionado ✓`
+    } else {
+      estado.fotoSelfie = arquivos[0]
+      box.querySelector('.upload-txt').innerHTML =
+        `<strong>Foto selecionada</strong>Selfie pronta ✓`
+    }
+  })
+})
+
+// ── FINALIZAR CADASTRO ───────────────────────────────────────
+window.finalizar = async function() {
+  if (!validarStep(5)) return
+
+  const termos = document.getElementById('t1')?.checked
+  if (!termos) {
+    mostrarToast('Aceite os termos de uso para continuar', 'erro')
+    return
+  }
+
+  const btn = document.querySelector('#step-5 .btn-prim')
+  setBotaoLoading(btn, true)
+
+  try {
+    // 1. Upload das fotos de portfólio
+    const portfolioUrls = []
+    for (const foto of estado.fotosPortfolio) {
+      const url = await uploadFoto(foto, 'portfolio')
+      portfolioUrls.push(url)
+    }
+
+    // 2. Upload do documento
+    let docUrl = null
+    if (estado.fotoDocumento) {
+      docUrl = await uploadFoto(estado.fotoDocumento, 'documentos')
+    }
+
+    // 3. Upload da selfie
+    let selfieUrl = null
+    if (estado.fotoSelfie) {
+      selfieUrl = await uploadFoto(estado.fotoSelfie, 'selfies')
+    }
+
+    // 4. Monta objeto do profissional
+    const nome      = document.getElementById('f-nome')?.value?.trim()
+    const sobrenome = document.getElementById('f-sobrenome')?.value?.trim()
+    const dados = {
+      nome:             `${nome} ${sobrenome}`.trim(),
+      telefone:         document.getElementById('f-telefone')?.value?.replace(/\D/g, ''),
+      cpf:              document.getElementById('f-cpf')?.value?.replace(/\D/g, ''),
+      cidade:           document.getElementById('f-cidade')?.value,
+      especialidades:   getEspecialidades(),
+      anos_experiencia: getAnosExperiencia(),
+      sobre:            document.getElementById('f-sobre')?.value?.trim() || null,
+      valor_diaria:     parseFloat(document.getElementById('f-diaria')?.value) || null,
+      raio_atendimento: parseInt(document.getElementById('f-raio')?.value) || 30,
+      dias_disponiveis: getDiasDisponiveis(),
+      horario:          document.querySelector('.opc.sel[onclick*="hor"]')?.textContent?.trim() || 'comercial',
+      chave_pix:        document.getElementById('f-pix')?.value?.trim() || null,
+      tem_mei:          document.querySelector('.opc.sel[onclick*="cnpj"]')?.textContent?.includes('MEI') || false,
+      foto_url:         selfieUrl,
+      portfolio_urls:   portfolioUrls,
+      ativo:            false,   // aguarda aprovação
+    }
+
+    // 5. Insere no Supabase
+    const { data, error } = await supabase
+      .from('profissionais')
+      .insert([dados])
+      .select()
+      .single()
+
+    if (error) throw error
+
+    // 6. Exibe sucesso
+    document.getElementById('form-area').style.display = 'none'
+    document.getElementById('sucesso').classList.add('visible')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+  } catch (err) {
+    console.error('Erro no cadastro:', err)
+    mostrarToast(
+      err.message?.includes('unique') ? 'Este telefone já está cadastrado.' : 'Erro ao salvar. Tente novamente.',
+      'erro'
+    )
+  } finally {
+    setBotaoLoading(btn, false)
+  }
+}
+</script>
+</body>
+</html>
