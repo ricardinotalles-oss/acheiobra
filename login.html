@@ -370,12 +370,27 @@ window.fazerLogin = async function() {
   localStorage.setItem('acheiobra_perfil', perfilAtivo)
   localStorage.setItem('acheiobra_user_id', data.user.id)
 
+  // Valida se o perfil selecionado existe no banco
+  if (perfilAtivo === 'profissional') {
+    const { data: prof } = await supabase
+      .from('profissionais')
+      .select('id, ativo')
+      .eq('email', data.user.email)
+      .maybeSingle()
+
+    if (!prof) {
+      await supabase.auth.signOut()
+      setBotao('btn-login', false, 'Entrar')
+      return mostrarAlerta('Você não tem cadastro como profissional. Complete seu cadastro primeiro ou entre como cliente.')
+    }
+  }
+
   mostrarAlerta('Login realizado! Redirecionando...', 'ok')
 
   // Salva perfil selecionado nos metadados
   await supabase.auth.updateUser({ data: { perfil: perfilAtivo } })
 
-  // Redireciona conforme perfil selecionado
+  // Redireciona conforme perfil validado
   setTimeout(() => {
     window.location.href = perfilAtivo === 'profissional' ? '/area-profissional' : '/minha-area'
   }, 1000)
