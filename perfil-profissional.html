@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcheiObra — Perfil do Profissional</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --laranja:#E8521A;--laranja-cl:#FF6B35;
+  --bg:#0F0F0F;--bg2:#1A1A1A;--bg3:#242424;
+  --branco:#FAFAF8;--muted:rgba(255,255,255,0.5);--dim:rgba(255,255,255,0.2);
+  --border:rgba(255,255,255,0.08);--syne:'Syne',sans-serif;--dm:'DM Sans',sans-serif;
+  --verde:#1D9E75;--amarelo:#EF9F27;
+}
+body{background:var(--bg);color:var(--branco);font-family:var(--dm);min-height:100vh;}
+
+nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;z-index:100;}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nav-icon{width:32px;height:32px;background:var(--laranja);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.nav-icon svg{width:18px;height:18px;}
+.nav-nome{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--branco);letter-spacing:-0.4px;}
+.nav-nome span{color:var(--laranja);}
+.nav-back{font-size:13px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.nav-back:hover{color:var(--branco);}
+.nav-back svg{width:16px;height:16px;}
+
+.page{max-width:680px;margin:0 auto;padding:32px 20px 80px;}
+
+/* LOADING */
+.loading{text-align:center;padding:80px 20px;color:var(--muted);}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--laranja);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* HERO DO PERFIL */
+.perfil-hero{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:16px;}
+.perfil-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;}
+.perfil-avatar{width:72px;height:72px;border-radius:16px;background:var(--laranja);display:flex;align-items:center;justify-content:center;font-family:var(--syne);font-size:28px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;}
+.perfil-avatar img{width:100%;height:100%;object-fit:cover;}
+.perfil-info{flex:1;}
+.perfil-nome{font-family:var(--syne);font-size:22px;font-weight:800;letter-spacing:-0.3px;margin-bottom:4px;}
+.perfil-cidade{font-size:13px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:4px;}
+.perfil-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.badge-mei{background:rgba(29,158,117,0.12);border:1px solid rgba(29,158,117,0.25);color:#5DCAA5;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.badge-verificado{background:rgba(55,138,221,0.12);border:1px solid rgba(55,138,221,0.25);color:#7BB8F5;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.badge-autonomo{background:rgba(239,159,39,0.12);border:1px solid rgba(239,159,39,0.25);color:var(--amarelo);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+
+/* NOTA DESTAQUE */
+.nota-destaque{display:flex;align-items:center;gap:16px;background:var(--bg3);border-radius:14px;padding:16px 20px;margin-bottom:16px;}
+.nota-numero{font-family:var(--syne);font-size:48px;font-weight:800;color:#F5A623;line-height:1;}
+.nota-info{}
+.nota-estrelas{font-size:20px;letter-spacing:2px;margin-bottom:4px;}
+.nota-total{font-size:13px;color:var(--muted);}
+.nota-barra-wrap{flex:1;}
+.barra-linha{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.barra-estrela{font-size:11px;color:var(--muted);width:12px;text-align:right;}
+.barra-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.barra-fill{height:100%;background:#F5A623;border-radius:3px;transition:width .5s;}
+.barra-count{font-size:11px;color:var(--muted);width:20px;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--bg3);border-radius:12px;padding:14px;text-align:center;}
+.stat-val{font-family:var(--syne);font-size:22px;font-weight:800;color:var(--branco);}
+.stat-val.laranja{color:var(--laranja);}
+.stat-val.verde{color:#5DCAA5;}
+.stat-label{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
+
+/* ESPECIALIDADES */
+.secao{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px;}
+.secao-titulo{font-family:var(--syne);font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.espec-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.espec-tag{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;color:var(--branco);}
+.sobre-txt{font-size:14px;color:var(--muted);line-height:1.7;}
+.info-linha{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:8px;}
+.info-linha:last-child{margin-bottom:0;}
+.info-linha svg{width:15px;height:15px;flex-shrink:0;opacity:0.6;}
+
+/* AVALIAÇÕES */
+.avaliacao-card{border-bottom:1px solid var(--border);padding:14px 0;}
+.avaliacao-card:last-child{border-bottom:none;padding-bottom:0;}
+.aval-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.aval-cliente{font-size:13px;font-weight:600;color:var(--branco);}
+.aval-nota{font-size:13px;color:#F5A623;}
+.aval-data{font-size:11px;color:var(--muted);}
+.aval-tipo{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.aval-comentario{font-size:13px;color:var(--muted);line-height:1.6;font-style:italic;}
+
+/* PORTFOLIO */
+.portfolio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.portfolio-img{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;background:var(--bg3);}
+
+/* SEM AVALIAÇÕES */
+.sem-avaliacoes{text-align:center;padding:24px;color:var(--muted);font-size:13px;}
+
+/* CTA */
+.cta-contratar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:15px;font-weight:700;padding:14px;border-radius:12px;border:none;cursor:pointer;width:100%;transition:background .15s;margin-top:4px;}
+.cta-contratar:hover{background:var(--laranja-cl);}
+
+@media(max-width:480px){
+  .nota-destaque{flex-wrap:wrap;}
+  .nota-barra-wrap{width:100%;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .portfolio-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-icon">
+      <svg viewBox="0 0 44 44" fill="none">
+        <path d="M8 20L22 8L36 20V38H28V28H16V38H8V20Z" fill="white" opacity="0.95"/>
+        <circle cx="32" cy="14" r="7" fill="white"/>
+        <path d="M29 14L31.5 16.5L35.5 11" stroke="#E8521A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="nav-nome">Achei<span>Obra</span></div>
+  </a>
+  <a href="javascript:history.back()" class="nav-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Voltar
+  </a>
+</nav>
+
+<div class="page">
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    Carregando perfil...
+  </div>
+  <div id="conteudo" style="display:none;"></div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const SUPABASE_URL = 'https://tsjtsxbnrxsowhqrkmjz.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzanRzeGJucnhzb3docXJrbWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjI0OTcsImV4cCI6MjA5MTgzODQ5N30.2jhI37qyVF1qjy61RSRGTtZlHedekb8VMZzMdOJxVnc'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+const ESPEC_LABEL = {
+  alvenaria:'Pedreiro', eletrica:'Eletricista', hidraulica:'Encanador',
+  pintura:'Pintor', gesseiro:'Gesseiro', azulejista:'Azulejista',
+  carpintaria:'Carpinteiro', serralheria:'Serralheiro', casa_nova:'Construção'
+}
+
+// Pega ID do profissional da URL: /perfil-profissional?id=UUID
+const params = new URLSearchParams(window.location.search)
+const profId = params.get('id')
+
+if (!profId) window.location.href = '/'
+
+// Busca dados completos
+const { data: prof } = await supabase
+  .from('profissionais')
+  .select('*')
+  .eq('id', profId)
+  .single()
+
+if (!prof) {
+  document.getElementById('loading').innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);">Profissional não encontrado.</div>'
+  document.getElementById('loading').style.display = 'block'
+  return
+}
+
+// Busca avaliações
+const { data: avaliacoes } = await supabase
+  .from('avaliacoes')
+  .select('nota, comentario, criado_em, clientes(nome), servicos(tipo)')
+  .eq('profissional_id', profId)
+  .order('criado_em', { ascending: false })
+
+// Busca total de serviços concluídos
+const { count: totalServicos } = await supabase
+  .from('servicos')
+  .select('*', { count: 'exact', head: true })
+  .eq('profissional_id', profId)
+  .eq('status', 'concluido')
+
+// Calcula distribuição de notas
+const distNotas = [5,4,3,2,1].map(n => ({
+  nota: n,
+  count: avaliacoes?.filter(a => a.nota === n).length || 0
+}))
+const totalAvals = avaliacoes?.length || 0
+const notaMedia  = totalAvals > 0
+  ? (avaliacoes.reduce((acc, a) => acc + a.nota, 0) / totalAvals).toFixed(1)
+  : null
+
+// Estrelas
+function estrelas(nota) {
+  const n = Math.round(nota)
+  return '★'.repeat(n) + '☆'.repeat(5 - n)
+}
+
+// Badge do tipo de cadastro
+function badgeTipo(tipo) {
+  if (tipo === 'mei')  return '<span class="badge-mei">✓ MEI</span>'
+  if (tipo === 'cnpj') return '<span class="badge-mei">✓ CNPJ</span>'
+  return '<span class="badge-autonomo">Autônomo</span>'
+}
+
+// Tempo na plataforma
+const mesesNaPlataforma = Math.max(1, Math.round(
+  (Date.now() - new Date(prof.criado_em)) / (1000 * 60 * 60 * 24 * 30)
+))
+
+// Monta HTML
+const html = `
+  <!-- HERO -->
+  <div class="perfil-hero">
+    <div class="perfil-top">
+      <div class="perfil-avatar">
+        ${prof.foto_url
+          ? `<img src="${prof.foto_url}" alt="${prof.nome}">`
+          : prof.nome[0].toUpperCase()}
+      </div>
+      <div class="perfil-info">
+        <div class="perfil-nome">${prof.nome}</div>
+        <div class="perfil-cidade">📍 ${prof.cidade}</div>
+        <div class="perfil-badges">
+          ${badgeTipo(prof.tipo_cadastro)}
+          <span class="badge-verificado">✓ Verificado</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTA DESTAQUE -->
+    ${totalAvals > 0 ? `
+    <div class="nota-destaque">
+      <div>
+        <div class="nota-numero">${notaMedia}</div>
+        <div class="nota-estrelas">${estrelas(parseFloat(notaMedia))}</div>
+        <div class="nota-total">${totalAvals} avaliação(ões)</div>
+      </div>
+      <div class="nota-barra-wrap">
+        ${distNotas.map(d => `
+          <div class="barra-linha">
+            <span class="barra-estrela">${d.nota}</span>
+            <div class="barra-bg">
+              <div class="barra-fill" style="width:${totalAvals > 0 ? Math.round(d.count/totalAvals*100) : 0}%"></div>
+            </div>
+            <span class="barra-count">${d.count}</span>
+          </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val laranja">${totalServicos || 0}</div>
+        <div class="stat-label">Serviços concluídos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val verde">${notaMedia || '—'}</div>
+        <div class="stat-label">Nota média</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">${mesesNaPlataforma}</div>
+        <div class="stat-label">Meses na plataforma</div>
+      </div>
+    </div>
+
+    <button class="cta-contratar" onclick="contratar()">
+      Solicitar orçamento deste profissional
+    </button>
+  </div>
+
+  <!-- ESPECIALIDADES -->
+  <div class="secao">
+    <div class="secao-titulo">🔨 Especialidades</div>
+    <div class="espec-tags">
+      ${(prof.especialidades || []).map(e =>
+        `<span class="espec-tag">${ESPEC_LABEL[e] || e}</span>`
+      ).join('')}
+    </div>
+  </div>
+
+  <!-- SOBRE -->
+  ${prof.sobre ? `
+  <div class="secao">
+    <div class="secao-titulo">👤 Sobre</div>
+    <div class="sobre-txt">${prof.sobre}</div>
+  </div>` : ''}
+
+  <!-- INFORMAÇÕES -->
+  <div class="secao">
+    <div class="secao-titulo">ℹ️ Informações</div>
+    ${prof.anos_experiencia ? `
+    <div class="info-linha">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      ${prof.anos_experiencia}+ anos de experiência
+    </div>` : ''}
+    ${prof.valor_diaria ? `
+    <div class="info-linha">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Diária a partir de R$ ${Number(prof.valor_diaria).toLocaleString('pt-BR', {minimumFractionDigits:2})}
+    </div>` : ''}
+    ${prof.raio_atendimento ? `
+    <div class="info-linha">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Atende em até ${prof.raio_atendimento}km de ${prof.cidade}
+    </div>` : ''}
+    ${prof.dias_disponiveis?.length ? `
+    <div class="info-linha">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Disponível: ${prof.dias_disponiveis.join(', ')}
+    </div>` : ''}
+  </div>
+
+  <!-- PORTFÓLIO -->
+  ${prof.portfolio_urls?.length ? `
+  <div class="secao">
+    <div class="secao-titulo">📸 Portfólio</div>
+    <div class="portfolio-grid">
+      ${prof.portfolio_urls.map(url =>
+        `<img class="portfolio-img" src="${url}" alt="Trabalho realizado">`
+      ).join('')}
+    </div>
+  </div>` : ''}
+
+  <!-- AVALIAÇÕES -->
+  <div class="secao">
+    <div class="secao-titulo">⭐ Avaliações dos clientes</div>
+    ${!avaliacoes || avaliacoes.length === 0
+      ? '<div class="sem-avaliacoes">Nenhuma avaliação ainda — este profissional está começando na plataforma.</div>'
+      : avaliacoes.map(a => {
+          const data = new Date(a.criado_em).toLocaleDateString('pt-BR')
+          return `
+            <div class="avaliacao-card">
+              <div class="aval-top">
+                <div>
+                  <div class="aval-cliente">${a.clientes?.nome || 'Cliente'}</div>
+                  <div class="aval-tipo">${ESPEC_LABEL[a.servicos?.tipo] || a.servicos?.tipo || 'Serviço'}</div>
+                </div>
+                <div style="text-align:right;">
+                  <div class="aval-nota">${'★'.repeat(a.nota)}${'☆'.repeat(5-a.nota)}</div>
+                  <div class="aval-data">${data}</div>
+                </div>
+              </div>
+              ${a.comentario ? `<div class="aval-comentario">"${a.comentario}"</div>` : ''}
+            </div>`
+        }).join('')
+    }
+  </div>
+`
+
+document.getElementById('loading').style.display = 'none'
+document.getElementById('conteudo').style.display = 'block'
+document.getElementById('conteudo').innerHTML = html
+
+document.title = `AcheiObra — ${prof.nome}`
+
+window.contratar = function() {
+  window.location.href = '/postar-servico'
+}
+</script>
+</body>
+</html>

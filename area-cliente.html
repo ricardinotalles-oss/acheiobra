@@ -380,8 +380,11 @@ function renderPropostas(s, propEnviadas, propAceita) {
       <div class="proposta" id="proposta-${p.id}">
         <div class="prop-avatar">${(prof?.nome || 'P')[0]}</div>
         <div class="prop-info">
-          <div class="prop-nome">${prof?.nome || 'Profissional'}</div>
-          <div class="prop-detalhe">Início: ${p.data_inicio ? new Date(p.data_inicio + 'T12:00:00').toLocaleDateString('pt-BR') : '—'} · Duração: ${p.prazo_dias} dia(s) · Nota: ${prof?.nota_media || 'Novo'} ★</div>
+          <div class="prop-nome">
+            <a href="/perfil-profissional?id=${prof?.id}" style="color:var(--branco);text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.15);" target="_blank">${prof?.nome || 'Profissional'}</a>
+            ${prof?.nota_media ? `<span style="font-size:11px;color:#F5A623;margin-left:6px;">★ ${prof.nota_media}</span>` : '<span style="font-size:11px;color:var(--muted);margin-left:6px;">Novo</span>'}
+          </div>
+          <div class="prop-detalhe">Início: ${p.data_inicio ? new Date(p.data_inicio + 'T12:00:00').toLocaleDateString('pt-BR') : '—'} · Duração: ${p.prazo_dias} dia(s)</div>
           ${p.mensagem ? `<div class="prop-msg">"${p.mensagem}"</div>` : ''}
           <div class="prop-acoes">
             <button class="btn-aceitar" onclick="aceitarProposta('${p.id}','${s.id}')">Aceitar proposta</button>
