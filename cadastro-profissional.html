@@ -240,14 +240,26 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
       </div>
 
       <div class="campo">
-        <label>Você tem CNPJ / MEI?</label>
+        <label>Situação profissional <span class="obrig">*</span></label>
         <div class="opcoes">
-          <div class="opc" onclick="opc(this,'cnpj')">Sim, tenho MEI</div>
-          <div class="opc" onclick="opc(this,'cnpj')">Sim, tenho CNPJ</div>
-          <div class="opc" onclick="opc(this,'cnpj')">Não, sou autônomo</div>
-          <div class="opc" onclick="opc(this,'cnpj')">Quero abrir MEI</div>
+          <div class="opc" onclick="selecionarTipo(this,'mei')">Tenho MEI</div>
+          <div class="opc" onclick="selecionarTipo(this,'cnpj')">Tenho CNPJ</div>
+          <div class="opc" onclick="selecionarTipo(this,'autonomo')">Sou autônomo</div>
         </div>
-        <div class="campo-hint">Autônomos também podem usar a plataforma.</div>
+      </div>
+
+      <div id="aviso-autonomo" style="display:none;background:rgba(239,159,39,0.08);border:1px solid rgba(239,159,39,0.25);border-radius:12px;padding:14px 16px;margin-top:-8px;">
+        <div style="font-size:13px;color:#EF9F27;line-height:1.6;">
+          <strong style="display:block;margin-bottom:4px;">⚠️ Atenção — prazo de formalização</strong>
+          Autônomos podem usar o AcheiObra por <strong>90 dias</strong>. Após esse prazo, sua conta será suspensa até que você se formalize como MEI.<br><br>
+          Abrir um MEI é <strong>gratuito e leva 5 minutos</strong> em <a href="https://gov.br/mei" target="_blank" style="color:#EF9F27;">gov.br/mei</a>. O custo mensal é de apenas R$ 75,60.
+        </div>
+      </div>
+
+      <div id="campo-cnpj-numero" style="display:none;" class="campo">
+        <label>Número do MEI / CNPJ</label>
+        <input type="text" id="f-cnpj-num" placeholder="00.000.000/0000-00">
+        <div class="campo-hint">Opcional — pode preencher depois no seu perfil.</div>
       </div>
 
       <div class="btn-row">
@@ -612,6 +624,17 @@ function setBotaoLoading(btn, loading) {
 }
 
 // ── SELEÇÃO MÚLTIPLA (especialidades) ────────────────────────
+window.selecionarTipo = function(el, tipo) {
+  // Desmarca todos
+  el.closest('.opcoes').querySelectorAll('.opc').forEach(o => o.classList.remove('sel'))
+  el.classList.add('sel')
+  // Mostra/oculta aviso e campo CNPJ
+  document.getElementById('aviso-autonomo').style.display    = tipo === 'autonomo' ? 'block' : 'none'
+  document.getElementById('campo-cnpj-numero').style.display = (tipo === 'mei' || tipo === 'cnpj') ? 'block' : 'none'
+  // Salva tipo selecionado
+  window._tipoCadastro = tipo
+}
+
 window.opc = function(el, grupo) {
   el.closest('.opcoes').querySelectorAll('.opc').forEach(o => o.classList.remove('sel'))
   el.classList.add('sel')
@@ -752,6 +775,11 @@ window.finalizar = async function() {
       tem_mei:          document.querySelector('.opc.sel[onclick*="cnpj"]')?.textContent?.includes('MEI') || false,
       foto_url:         selfieUrl,
       portfolio_urls:   portfolioUrls,
+      tipo_cadastro:    window._tipoCadastro || 'autonomo',
+      prazo_formalizacao: window._tipoCadastro === 'autonomo'
+        ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+        : null,
+      cnpj:             document.getElementById('f-cnpj-num')?.value?.replace(/\D/g,'') || null,
       ativo:            false,   // aguarda aprovação
     }
 

@@ -122,6 +122,14 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
   </div>
 </nav>
 
+<div id="banner-prazo" style="display:none;background:rgba(239,159,39,0.1);border-bottom:1px solid rgba(239,159,39,0.2);padding:12px 5%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+  <div style="font-size:13px;color:#EF9F27;line-height:1.5;">
+    <strong>⚠️ Formalização pendente — </strong>
+    <span id="banner-prazo-txt"></span>
+  </div>
+  <a href="https://gov.br/mei" target="_blank" style="font-size:12px;font-weight:700;color:#EF9F27;background:rgba(239,159,39,0.15);border:1px solid rgba(239,159,39,0.3);padding:6px 14px;border-radius:8px;text-decoration:none;white-space:nowrap;">Abrir MEI grátis →</a>
+</div>
+
 <div class="page">
 
   <div class="tabs-nav">
@@ -189,13 +197,29 @@ document.getElementById('nav-nome').textContent = user.user_metadata?.nome || us
 let prof = null
 const { data: profPorEmail } = await supabase
   .from('profissionais')
-  .select('id, nome, especialidades, cidade')
+  .select('id, nome, especialidades, cidade, tipo_cadastro, prazo_formalizacao')
   .eq('email', user.email)
   .maybeSingle()
 
 if (profPorEmail) {
   prof = profPorEmail
   profissionalId = prof.id
+
+  // Mostra banner de prazo se for autônomo
+  if (prof.tipo_cadastro === 'autonomo' && prof.prazo_formalizacao) {
+    const prazo    = new Date(prof.prazo_formalizacao)
+    const hoje     = new Date()
+    const diasRestantes = Math.ceil((prazo - hoje) / (1000 * 60 * 60 * 24))
+    const banner   = document.getElementById('banner-prazo')
+
+    if (diasRestantes > 0 && diasRestantes <= 90) {
+      banner.style.display = 'flex'
+      document.getElementById('banner-prazo-txt').textContent =
+        diasRestantes <= 30
+          ? `Faltam apenas ${diasRestantes} dias para você se formalizar como MEI. Após o prazo sua conta será suspensa.`
+          : `Você tem ${diasRestantes} dias para se formalizar como MEI e continuar usando o AcheiObra.`
+    }
+  }
 } else {
   // Tenta buscar pelo telefone como fallback (cadastros antigos sem email)
   const { data: profPorTelefone } = await supabase
