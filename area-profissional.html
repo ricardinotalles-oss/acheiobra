@@ -378,9 +378,10 @@ window.enviarProposta = async function(servicoId) {
 async function carregarMeusServicos() {
   const { data: servicos } = await supabase
     .from('servicos')
-    .select(`id, tipo, status, valor_combinado, prazo_combinado, iniciado_em,
-      clientes ( nome, telefone ),
-      pagamentos ( valor_profissional, status )`)
+    .select(`id, tipo, status, valor_combinado, prazo_combinado, iniciado_em, concluido_em,
+      clientes ( nome ),
+      pagamentos ( valor_profissional, status, liberado_em ),
+      avaliacoes ( nota, comentario )`)
     .eq('profissional_id', profissionalId)
     .in('status', ['em_andamento', 'concluido'])
     .order('iniciado_em', { ascending: false })
@@ -391,32 +392,94 @@ async function carregarMeusServicos() {
     return
   }
 
-  const html = servicos.map(s => {
-    const badge = s.status === 'em_andamento'
-      ? '<span class="badge-and">Em andamento</span>'
-      : '<span class="badge-conc">Concluído</span>'
-    const data = s.iniciado_em ? new Date(s.iniciado_em).toLocaleDateString('pt-BR') : '—'
-    const valorLiq = s.pagamentos?.[0]?.valor_profissional
-      ? 'R$ ' + Number(s.pagamentos[0].valor_profissional).toLocaleString('pt-BR')
-      : s.valor_combinado ? 'R$ ' + Number(s.valor_combinado * 0.85).toLocaleString('pt-BR') : '—'
+  // Calcula total recebido (só pagamentos liberados)
+  const totalRecebido = servicos
+    .filter(s => s.pagamentos?.[0]?.status === 'liberado')
+    .reduce((acc, s) => acc + Number(s.pagamentos[0].valor_profissional || 0), 0)
 
-    const concluirBtn = s.status === 'em_andamento'
-      ? `<button class="btn-concluir" onclick="marcarConcluido('${s.id}')">Marcar como concluído</button>` : ''
+  // Separa em andamento e concluídos
+  const emAndamento = servicos.filter(s => s.status === 'em_andamento')
+  const concluidos  = servicos.filter(s => s.status === 'concluido')
 
-    return `
-      <div class="meu-srv">
-        <div class="meu-srv-header">
-          <div>
-            <div class="meu-srv-nome">${TIPO_LABEL[s.tipo] || s.tipo} — ${s.clientes?.nome || 'Cliente'}</div>
-            <div class="meu-srv-meta">Iniciado em ${data} · Prazo: ${s.prazo_combinado || '—'} dias</div>
+  let html = ''
+
+  // ── EM ANDAMENTO ──
+  if (emAndamento.length > 0) {
+    html += `<div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">Em andamento</div>`
+    html += emAndamento.map(s => {
+      const dataInicio = s.iniciado_em ? new Date(s.iniciado_em).toLocaleDateString('pt-BR') : '—'
+      const valorLiq   = s.pagamentos?.[0]?.valor_profissional
+        ? 'R$ ' + Number(s.pagamentos[0].valor_profissional).toLocaleString('pt-BR', {minimumFractionDigits:2})
+        : s.valor_combinado ? 'R$ ' + Number(s.valor_combinado * 0.85).toLocaleString('pt-BR', {minimumFractionDigits:2}) : '—'
+
+      return `
+        <div class="meu-srv">
+          <div class="meu-srv-header">
+            <div>
+              <div class="meu-srv-nome">${TIPO_LABEL[s.tipo] || s.tipo}</div>
+              <div class="meu-srv-meta">Cliente: ${s.clientes?.nome || '—'} · Iniciado em ${dataInicio}</div>
+            </div>
+            <span class="badge-and">Em andamento</span>
           </div>
-          ${badge}
+          <div class="valor-destaque">${valorLiq}</div>
+          <div class="valor-sub">Valor líquido após comissão (15%)</div>
+          <button class="btn-concluir" onclick="marcarConcluido('${s.id}')">Marcar como concluído</button>
+        </div>`
+    }).join('')
+  }
+
+  // ── CONCLUÍDOS ──
+  if (concluidos.length > 0) {
+    html += `<div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin:20px 0 10px;">Histórico — concluídos</div>`
+
+    // Card de total recebido
+    html += `
+      <div style="background:rgba(29,158,117,0.08);border:1px solid rgba(29,158,117,0.2);border-radius:14px;padding:16px 20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div style="font-size:12px;color:#5DCAA5;margin-bottom:2px;">Total recebido</div>
+          <div style="font-family:var(--syne);font-size:22px;font-weight:800;color:#5DCAA5;">R$ ${totalRecebido.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
         </div>
-        <div class="valor-destaque">${valorLiq}</div>
-        <div class="valor-sub">Valor líquido (após comissão de 15%)</div>
-        ${concluirBtn}
+        <div style="font-size:13px;color:#5DCAA5;opacity:0.7;">${concluidos.length} serviço(s) concluído(s)</div>
       </div>`
-  }).join('')
+
+    html += concluidos.map(s => {
+      const dataInicio   = s.iniciado_em   ? new Date(s.iniciado_em).toLocaleDateString('pt-BR')   : '—'
+      const dataConclusao = s.concluido_em ? new Date(s.concluido_em).toLocaleDateString('pt-BR')  : '—'
+      const valorLiq     = s.pagamentos?.[0]?.valor_profissional
+        ? 'R$ ' + Number(s.pagamentos[0].valor_profissional).toLocaleString('pt-BR', {minimumFractionDigits:2})
+        : '—'
+      const pgtoStatus   = s.pagamentos?.[0]?.status === 'liberado'
+        ? '<span style="font-size:11px;font-weight:600;color:#5DCAA5;background:rgba(29,158,117,0.12);padding:3px 10px;border-radius:20px;">Recebido ✓</span>'
+        : '<span style="font-size:11px;font-weight:600;color:var(--amarelo);background:rgba(239,159,39,0.12);padding:3px 10px;border-radius:20px;">Aguardando liberação</span>'
+      const nota         = s.avaliacoes?.[0]?.nota
+      const notaHtml     = nota ? `<span style="font-size:12px;color:#F5A623;">★ ${nota}/5</span>` : ''
+      const comentario   = s.avaliacoes?.[0]?.comentario
+        ? `<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:6px;">"${s.avaliacoes[0].comentario}"</div>` : ''
+
+      return `
+        <div class="meu-srv" style="border-color:rgba(29,158,117,0.15);">
+          <div class="meu-srv-header">
+            <div>
+              <div class="meu-srv-nome">${TIPO_LABEL[s.tipo] || s.tipo}</div>
+              <div class="meu-srv-meta">
+                Cliente: ${s.clientes?.nome || '—'} · 
+                Início: ${dataInicio} · Conclusão: ${dataConclusao}
+              </div>
+            </div>
+            <span class="badge-conc">Concluído</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px;">
+            <div>
+              <div class="valor-destaque" style="font-size:18px;">${valorLiq}</div>
+              <div class="valor-sub">Valor líquido recebido</div>
+            </div>
+            ${pgtoStatus}
+            ${notaHtml}
+          </div>
+          ${comentario}
+        </div>`
+    }).join('')
+  }
 
   document.getElementById('tab-content-meus').innerHTML = html
 }
