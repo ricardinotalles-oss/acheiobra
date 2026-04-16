@@ -38,6 +38,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;background:rgba
 .btn-nav:hover{background:var(--laranja-cl);color:#fff;}
 .nav-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
 .nav-burger span{display:block;width:22px;height:2px;background:var(--branco);border-radius:2px;}
+.nav-mobile{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(15,15,15,0.98);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:16px 5%;z-index:99;flex-direction:column;gap:8px;}
+.nav-mobile.open{display:flex;}
+.nav-mobile a{font-size:15px;color:var(--txt-muted);text-decoration:none;padding:12px 0;border-bottom:1px solid var(--border);transition:color .2s;}
+.nav-mobile a:last-child{border-bottom:none;}
+.nav-mobile a:hover{color:var(--branco);}
+.nav-mobile .btn-mobile-cad{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:14px;font-weight:700;padding:12px 20px;border-radius:8px;text-align:center;margin-top:8px;border-bottom:none;}
 
 /* ── HERO ── */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 5% 80px;position:relative;overflow:hidden;}
@@ -236,10 +242,18 @@ footer{background:var(--preto);padding:40px 5%;border-top:1px solid var(--border
     <a href="/login" style="font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;padding:8px 14px;border-radius:8px;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Entrar</a>
     <a href="/login" class="btn-nav">Cadastre-se grátis</a>
   </div>
-  <div class="nav-burger">
+  <div class="nav-burger" onclick="toggleMenu()">
     <span></span><span></span><span></span>
   </div>
 </nav>
+
+<div class="nav-mobile" id="nav-mobile">
+  <a href="#como-funciona" onclick="fecharMenu()">Como funciona</a>
+  <a href="#profissionais" onclick="fecharMenu()">Para profissionais</a>
+  <a href="#clientes" onclick="fecharMenu()">Para clientes</a>
+  <a href="/login" onclick="fecharMenu()">Entrar</a>
+  <a href="/login" class="btn-mobile-cad" onclick="fecharMenu()">Cadastre-se grátis</a>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -607,6 +621,22 @@ function showSteps(tipo, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
 }
+</script>
+<script>
+function toggleMenu() {
+  document.getElementById('nav-mobile').classList.toggle('open')
+}
+function fecharMenu() {
+  document.getElementById('nav-mobile').classList.remove('open')
+}
+// Fecha ao clicar fora
+document.addEventListener('click', function(e) {
+  const menu   = document.getElementById('nav-mobile')
+  const burger = document.querySelector('.nav-burger')
+  if (!menu.contains(e.target) && !burger.contains(e.target)) {
+    menu.classList.remove('open')
+  }
+})
 </script>
 </body>
 </html>
