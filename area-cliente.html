@@ -330,7 +330,7 @@ document.getElementById('nav-nome').textContent = user.user_metadata?.nome || us
 const { data: clienteExistente, error: errBusca } = await supabase
   .from('clientes')
   .select('id')
-  .eq('email', user.email)
+  .eq('user_id', user.id)
   .maybeSingle()
 
 if (errBusca) {
@@ -347,6 +347,7 @@ if (errBusca) {
   const { data: novoCliente, error: errCriacao } = await supabase
     .from('clientes')
     .insert([{
+      user_id:  user.id,
       nome:     user.user_metadata?.nome || 'Cliente',
       telefone: user.phone || user.id.slice(0,11),
       email:    user.email,
