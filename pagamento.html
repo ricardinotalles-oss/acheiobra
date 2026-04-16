@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcheiObra — Pagamento</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --laranja:#E8521A;--laranja-cl:#FF6B35;
+  --bg:#0F0F0F;--bg2:#1A1A1A;--bg3:#242424;
+  --branco:#FAFAF8;--muted:rgba(255,255,255,0.5);
+  --border:rgba(255,255,255,0.08);
+  --verde:#1D9E75;
+  --syne:'Syne',sans-serif;--dm:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--branco);font-family:var(--dm);min-height:100vh;}
+nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;padding:0 5%;}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nav-icon{width:32px;height:32px;background:var(--laranja);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.nav-icon svg{width:18px;height:18px;}
+.nav-nome{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--branco);letter-spacing:-0.4px;}
+.nav-nome span{color:var(--laranja);}
+
+.page{max-width:480px;margin:0 auto;padding:40px 20px 80px;}
+
+/* STEPS DE PROGRESSO */
+.progress{display:flex;align-items:center;gap:0;margin-bottom:36px;}
+.prog-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;}
+.prog-step:not(:last-child)::after{content:'';position:absolute;top:12px;left:50%;width:100%;height:2px;background:var(--border);z-index:0;}
+.prog-step.done:not(:last-child)::after{background:var(--verde);}
+.prog-dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);position:relative;z-index:1;}
+.prog-step.done .prog-dot{background:var(--verde);border-color:var(--verde);color:#fff;}
+.prog-step.active .prog-dot{border-color:var(--laranja);color:var(--laranja);}
+.prog-lbl{font-size:10px;color:var(--muted);margin-top:4px;text-align:center;}
+.prog-step.active .prog-lbl{color:var(--branco);}
+
+/* CARD PRINCIPAL */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:16px;}
+.card-titulo{font-family:var(--syne);font-size:18px;font-weight:800;margin-bottom:4px;}
+.card-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5;}
+
+/* RESUMO DO SERVIÇO */
+.resumo{background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:20px;}
+.resumo-linha{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px;}
+.resumo-linha:last-child{margin-bottom:0;padding-top:8px;border-top:1px solid var(--border);font-weight:600;font-size:15px;}
+.resumo-label{color:var(--muted);}
+.resumo-val{color:var(--branco);}
+.resumo-val.laranja{color:var(--laranja);font-family:var(--syne);font-size:18px;font-weight:800;}
+
+/* PIX */
+.pix-wrap{text-align:center;}
+.qr-container{background:#fff;border-radius:16px;padding:16px;display:inline-block;margin:16px auto;}
+.qr-container img{width:200px;height:200px;display:block;}
+.qr-placeholder{width:200px;height:200px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:48px;}
+.pix-copia-cola{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:16px 0;display:flex;align-items:center;gap:10px;}
+.pix-codigo{font-size:11px;color:var(--muted);flex:1;word-break:break-all;font-family:monospace;}
+.btn-copiar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;transition:background .15s;}
+.btn-copiar:hover{background:var(--laranja-cl);}
+.btn-copiar.copiado{background:var(--verde);}
+.pix-instrucao{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+.timer{font-family:var(--syne);font-size:24px;font-weight:800;color:var(--laranja);margin:8px 0;}
+.timer-label{font-size:12px;color:var(--muted);}
+
+/* GARANTIA */
+.garantia{display:flex;gap:10px;align-items:flex-start;background:rgba(29,158,117,0.08);border:1px solid rgba(29,158,117,0.2);border-radius:12px;padding:14px;}
+.garantia-ico{font-size:20px;flex-shrink:0;}
+.garantia-txt{font-size:12px;color:#5DCAA5;line-height:1.55;}
+.garantia-txt strong{display:block;margin-bottom:2px;font-weight:600;}
+
+/* SUCESSO */
+.sucesso{display:none;text-align:center;padding:40px 0;}
+.sucesso.visible{display:block;}
+.sucesso-ico{font-size:64px;margin-bottom:16px;}
+.sucesso-titulo{font-family:var(--syne);font-size:22px;font-weight:800;margin-bottom:8px;}
+.sucesso-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:24px;}
+.btn-area{display:block;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:14px;font-weight:700;padding:14px;border-radius:10px;text-decoration:none;text-align:center;transition:background .15s;}
+.btn-area:hover{background:var(--laranja-cl);}
+
+/* LOADING */
+.loading{text-align:center;padding:40px;}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--laranja);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-icon">
+      <svg viewBox="0 0 44 44" fill="none">
+        <path d="M8 20L22 8L36 20V38H28V28H16V38H8V20Z" fill="white" opacity="0.95"/>
+        <circle cx="32" cy="14" r="7" fill="white"/>
+        <path d="M29 14L31.5 16.5L35.5 11" stroke="#E8521A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="nav-nome">Achei<span>Obra</span></div>
+  </a>
+</nav>
+
+<div class="page">
+
+  <!-- PROGRESSO -->
+  <div class="progress">
+    <div class="prog-step done">
+      <div class="prog-dot">✓</div>
+      <div class="prog-lbl">Proposta</div>
+    </div>
+    <div class="prog-step done">
+      <div class="prog-dot">✓</div>
+      <div class="prog-lbl">Aceite</div>
+    </div>
+    <div class="prog-step active">
+      <div class="prog-dot">3</div>
+      <div class="prog-lbl">Pagamento</div>
+    </div>
+    <div class="prog-step">
+      <div class="prog-dot">4</div>
+      <div class="prog-lbl">Execução</div>
+    </div>
+    <div class="prog-step">
+      <div class="prog-dot">5</div>
+      <div class="prog-lbl">Conclusão</div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div style="font-size:14px;color:var(--muted);">Gerando cobrança...</div>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div id="conteudo" style="display:none;">
+
+    <!-- RESUMO -->
+    <div class="card">
+      <div class="card-titulo">Resumo do pagamento</div>
+      <div class="card-sub">Seu dinheiro fica protegido até o serviço ser concluído.</div>
+
+      <div class="resumo">
+        <div class="resumo-linha">
+          <span class="resumo-label">Serviço</span>
+          <span class="resumo-val" id="resumo-tipo">—</span>
+        </div>
+        <div class="resumo-linha">
+          <span class="resumo-label">Profissional</span>
+          <span class="resumo-val" id="resumo-prof">—</span>
+        </div>
+        <div class="resumo-linha">
+          <span class="resumo-label">Prazo</span>
+          <span class="resumo-val" id="resumo-prazo">—</span>
+        </div>
+        <div class="resumo-linha">
+          <span class="resumo-label">Total a pagar</span>
+          <span class="resumo-val laranja" id="resumo-valor">R$ —</span>
+        </div>
+      </div>
+
+      <!-- PIX -->
+      <div class="pix-wrap">
+        <div class="pix-instrucao">
+          Escaneie o QR Code ou copie o código Pix para pagar. O pagamento expira em:
+        </div>
+        <div class="timer" id="timer">60:00</div>
+        <div class="timer-label">minutos restantes</div>
+
+        <div class="qr-container">
+          <div class="qr-placeholder" id="qr-placeholder">📱</div>
+          <img id="qr-img" style="display:none;" alt="QR Code Pix">
+        </div>
+
+        <div class="pix-copia-cola">
+          <div class="pix-codigo" id="pix-codigo">Gerando código Pix...</div>
+          <button class="btn-copiar" id="btn-copiar" onclick="copiarPix()">Copiar</button>
+        </div>
+      </div>
+
+      <div class="garantia">
+        <div class="garantia-ico">🔒</div>
+        <div class="garantia-txt">
+          <strong>Pagamento 100% seguro</strong>
+          O valor fica retido na plataforma e só é liberado ao profissional após você aprovar o serviço concluído.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SUCESSO -->
+  <div class="sucesso" id="sucesso">
+    <div class="sucesso-ico">✅</div>
+    <div class="sucesso-titulo">Pagamento confirmado!</div>
+    <div class="sucesso-sub">
+      O profissional foi notificado e já pode começar o serviço.<br>
+      Seu dinheiro está seguro e será liberado após a conclusão.
+    </div>
+    <a href="/minha-area" class="btn-area">Ver meu serviço</a>
+  </div>
+
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const SUPABASE_URL = 'https://tsjtsxbnrxsowhqrkmjz.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzanRzeGJucnhzb3docXJrbWp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjI0OTcsImV4cCI6MjA5MTgzODQ5N30.2jhI37qyVF1qjy61RSRGTtZlHedekb8VMZzMdOJxVnc'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+const TIPO_LABEL = {
+  pedra_calcada:'Assentamento de pedra', eletrica:'Elétrica',
+  hidraulica:'Hidráulica', pintura:'Pintura', alvenaria:'Alvenaria / muro',
+  outro:'Outro serviço'
+}
+
+// Pega propostaId da URL: /pagamento?proposta=UUID
+const params     = new URLSearchParams(window.location.search)
+const propostaId = params.get('proposta')
+
+if (!propostaId) window.location.href = '/minha-area'
+
+// Verifica login
+const { data: { session } } = await supabase.auth.getSession()
+if (!session) window.location.href = '/login'
+
+// Carrega dados da proposta
+const { data: proposta } = await supabase
+  .from('propostas')
+  .select(`
+    id, valor, prazo_dias, status,
+    servicos ( id, tipo, status ),
+    profissionais ( nome )
+  `)
+  .eq('id', propostaId)
+  .single()
+
+if (!proposta) { window.location.href = '/minha-area' }
+
+// Se serviço já está em andamento, mostra sucesso
+if (proposta.servicos?.status === 'em_andamento' || proposta.servicos?.status === 'concluido') {
+  document.getElementById('loading').style.display = 'none'
+  document.getElementById('sucesso').classList.add('visible')
+} else {
+  // Preenche resumo
+  document.getElementById('resumo-tipo').textContent  = TIPO_LABEL[proposta.servicos?.tipo] || proposta.servicos?.tipo
+  document.getElementById('resumo-prof').textContent  = proposta.profissionais?.nome || '—'
+  document.getElementById('resumo-prazo').textContent = `${proposta.prazo_dias} dia(s)`
+  document.getElementById('resumo-valor').textContent = `R$ ${Number(proposta.valor).toLocaleString('pt-BR', {minimumFractionDigits:2})}`
+
+  // Tenta gerar cobrança via Edge Function
+  // NOTA: quando o Pagar.me estiver configurado, descomentar o bloco abaixo
+  // e remover o modo de demonstração
+
+  // MODO DEMONSTRAÇÃO (sem Pagar.me ainda)
+  document.getElementById('loading').style.display = 'none'
+  document.getElementById('conteudo').style.display = 'block'
+
+  const pixDemo = '00020126580014br.gov.bcb.pix0136acheiobra-demo-' + propostaId.slice(0,8) + '5204000053039865802BR5913AcheiObra6009SAOJOAO62070503***6304DEMO'
+  document.getElementById('pix-codigo').textContent = pixDemo
+
+  // QR Code gerado via API pública (demo)
+  const qrImg = document.getElementById('qr-img')
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixDemo)}&color=141414&bgcolor=FFFFFF`
+  qrImg.src = qrUrl
+  qrImg.onload = () => {
+    document.getElementById('qr-placeholder').style.display = 'none'
+    qrImg.style.display = 'block'
+  }
+
+  // Timer regressivo (60 minutos)
+  let segundos = 3600
+  const timerEl = document.getElementById('timer')
+  const intervalo = setInterval(() => {
+    segundos--
+    if (segundos <= 0) { clearInterval(intervalo); timerEl.textContent = '00:00'; return }
+    const m = Math.floor(segundos / 60).toString().padStart(2, '0')
+    const s = (segundos % 60).toString().padStart(2, '0')
+    timerEl.textContent = `${m}:${s}`
+  }, 1000)
+
+  // Polling — verifica a cada 5s se o pagamento foi confirmado
+  const polling = setInterval(async () => {
+    const { data: srv } = await supabase
+      .from('servicos')
+      .select('status')
+      .eq('id', proposta.servicos?.id)
+      .single()
+
+    if (srv?.status === 'em_andamento') {
+      clearInterval(polling)
+      clearInterval(intervalo)
+      document.getElementById('conteudo').style.display = 'none'
+      document.getElementById('sucesso').classList.add('visible')
+    }
+  }, 5000)
+}
+
+// ── COPIAR PIX ────────────────────────────────────────────────
+window.copiarPix = function() {
+  const codigo = document.getElementById('pix-codigo').textContent
+  navigator.clipboard.writeText(codigo).then(() => {
+    const btn = document.getElementById('btn-copiar')
+    btn.textContent = 'Copiado!'
+    btn.classList.add('copiado')
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copiado') }, 2000)
+  })
+}
+
+// ── MODO PRODUÇÃO (descomentar quando Pagar.me estiver configurado) ──
+/*
+async function gerarCobranca() {
+  const { data: clienteData } = await supabase
+    .from('clientes')
+    .select('nome')
+    .eq('email', session.user.email)
+    .single()
+
+  const resp = await supabase.functions.invoke('criar-cobranca', {
+    body: {
+      propostaId,
+      clienteEmail: session.user.email,
+      clienteNome:  clienteData?.nome || 'Cliente',
+    }
+  })
+
+  if (resp.error) throw resp.error
+
+  const { qrCode, qrCodeUrl } = resp.data
+
+  document.getElementById('pix-codigo').textContent = qrCode
+  document.getElementById('qr-img').src = qrCodeUrl
+  document.getElementById('qr-placeholder').style.display = 'none'
+  document.getElementById('qr-img').style.display = 'block'
+  document.getElementById('loading').style.display = 'none'
+  document.getElementById('conteudo').style.display = 'block'
+}
+gerarCobranca()
+*/
+</script>
+</body>
+</html>
