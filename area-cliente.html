@@ -372,26 +372,25 @@ window.togglePropostas = function(id) {
 
 // ── ACEITAR PROPOSTA ──────────────────────────────────────────
 window.aceitarProposta = async function(propostaId, servicoId) {
-  if (!confirm('Confirma a aceitação desta proposta? O pagamento será retido até a conclusão.')) return
+  if (!confirm('Confirma a aceitação desta proposta? Você será redirecionado para o pagamento.')) return
 
   const { error } = await supabase
     .from('propostas')
     .update({ status: 'aceita', aceita_em: new Date().toISOString() })
     .eq('id', propostaId)
 
-  if (error) { alert('Erro ao aceitar proposta.'); return }
+  if (error) { toast('Erro ao aceitar proposta.', 'erro'); return }
 
-  // Recusa as outras
+  // Recusa as outras propostas do mesmo serviço
   await supabase.from('propostas').update({ status: 'recusada' })
     .eq('servico_id', servicoId).neq('id', propostaId)
 
-  // Atualiza serviço
-  await supabase.from('servicos')
-    .update({ status: 'em_andamento', iniciado_em: new Date().toISOString() })
-    .eq('id', servicoId)
+  toast('Proposta aceita! Redirecionando para pagamento...', 'ok')
 
-  toast('Proposta aceita! O profissional foi notificado.', 'ok')
-  carregarServicos()
+  // Redireciona para tela de pagamento
+  setTimeout(() => {
+    window.location.href = `/pagamento?proposta=${propostaId}`
+  }, 1000)
 }
 
 // ── RECUSAR PROPOSTA ──────────────────────────────────────────
