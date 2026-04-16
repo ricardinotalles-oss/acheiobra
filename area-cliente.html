@@ -374,15 +374,10 @@ async function carregarServicos() {
   document.getElementById('lista-servicos').innerHTML =
     '<div class="loading"><div class="spinner"></div>Carregando seus serviços...</div>'
 
+  // Busca serviços sem JOIN para evitar erro 500 de RLS aninhado
   const { data: servicos, error } = await supabase
     .from('servicos')
-    .select(`
-      id, tipo, status, urgencia, criado_em, descricao,
-      propostas (
-        id, valor, prazo_dias, data_inicio, mensagem, status, criado_em,
-        profissionais ( id, nome, nota_media, total_avaliacoes )
-      )
-    `)
+    .select('id, tipo, status, urgencia, criado_em, descricao')
     .eq('cliente_id', clienteId)
     .order('criado_em', { ascending: false })
 
@@ -395,6 +390,38 @@ async function carregarServicos() {
       carregarServicos
     )
     return
+  }
+
+  // Busca propostas separadamente para cada serviço
+  if (servicos && servicos.length > 0) {
+    const servicoIds = servicos.map(s => s.id)
+    const { data: todasPropostas } = await supabase
+      .from('propostas')
+      .select('id, valor, prazo_dias, data_inicio, mensagem, status, criado_em, servico_id, profissional_id')
+      .in('servico_id', servicoIds)
+
+    const propIds = (todasPropostas || []).map(p => p.profissional_id).filter(Boolean)
+    let profMap = {}
+    if (propIds.length > 0) {
+      const { data: profs } = await supabase
+        .from('profissionais')
+        .select('id, nome, nota_media, total_avaliacoes')
+        .in('id', propIds)
+      ;(profs || []).forEach(p => { profMap[p.id] = p })
+    }
+
+    // Monta propostas com profissional embutido
+    const propostasComProf = (todasPropostas || []).map(p => ({
+      ...p,
+      profissionais: profMap[p.profissional_id] || null
+    }))
+
+    // Vincula propostas a cada serviço
+    servicos.forEach(s => {
+      s.propostas = propostasComProf.filter(p => p.servico_id === s.id)
+    })
+  } else if (servicos) {
+    servicos.forEach(s => { s.propostas = [] })
   }
 
   // Stats
