@@ -92,6 +92,15 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
   .campo-row{grid-template-columns:1fr;}
   .sucesso-cards{grid-template-columns:1fr;}
 }
+
+.fase-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .15s;}
+.fase-card:hover{border-color:rgba(232,82,26,0.4);}
+.fase-card.sel{border-color:var(--laranja);background:rgba(232,82,26,0.08);}
+.fase-num{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:4px;letter-spacing:0.08em;}
+.fase-card.sel .fase-num{color:var(--laranja);}
+.fase-nome{font-family:var(--syne);font-size:13px;font-weight:700;color:var(--branco);margin-bottom:2px;}
+.fase-desc{font-size:11px;color:var(--muted);line-height:1.4;}
+@media(max-width:400px){#fases-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -165,6 +174,13 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
         <div class="srv-emoji">🏗️</div>
         <div class="srv-nome">Outro</div>
         <div class="srv-sub">Descrever serviço</div>
+      </div>
+      <div class="srv" onclick="selSrv('casa-nova',this)" style="grid-column:1/-1;display:flex;flex-direction:row;align-items:center;gap:12px;text-align:left;">
+        <div class="srv-emoji" style="font-size:32px;">🏠</div>
+        <div>
+          <div class="srv-nome">Construção de casa nova</div>
+          <div class="srv-sub">Selecione as fases que precisa</div>
+        </div>
       </div>
     </div>
 
@@ -541,6 +557,152 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
       </button>
     </div>
 
+
+    <!-- CASA NOVA -->
+    <div id="form-casa-nova" class="form-wrap">
+      <div class="dica"><strong>Dica AcheiObra:</strong> selecione as fases que você precisa — pode ser uma só ou todas. Os profissionais vão orçar exatamente o que você marcou.</div>
+
+      <div class="campo">
+        <label>Cidade <span style="color:#E8521A">*</span></label>
+        <select class="sel-cidade" style="width:100%;background:#1A1A1A;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:11px 14px;font-size:14px;color:#FAFAF8;font-family:inherit;outline:none;">
+          <option value="São João da Boa Vista">São João da Boa Vista</option>
+          <option value="Aguaí">Aguaí</option>
+          <option value="Casa Branca">Casa Branca</option>
+          <option value="Espírito Santo do Pinhal">Espírito Santo do Pinhal</option>
+          <option value="Mococa">Mococa</option>
+          <option value="São José do Rio Pardo">São José do Rio Pardo</option>
+          <option value="Vargem Grande do Sul">Vargem Grande do Sul</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Fases da obra <span class="obrig">*</span></label>
+        <div class="campo-hint" style="margin-bottom:12px;">Selecione uma ou mais fases — pode marcar quantas quiser.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="fases-grid">
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="terraplanagem">
+            <div class="fase-num">01</div>
+            <div class="fase-nome">Terraplanagem</div>
+            <div class="fase-desc">Nivelamento e preparação do terreno</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="alicerce">
+            <div class="fase-num">02</div>
+            <div class="fase-nome">Alicerce / fundação</div>
+            <div class="fase-desc">Escavação, sapatas e fundação</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="estrutura">
+            <div class="fase-num">03</div>
+            <div class="fase-nome">Estrutura / vigas</div>
+            <div class="fase-desc">Pilares, vigas e laje estrutural</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="paredes">
+            <div class="fase-num">04</div>
+            <div class="fase-nome">Erguer paredes</div>
+            <div class="fase-desc">Alvenaria, tijolos e blocos</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="reboco">
+            <div class="fase-num">05</div>
+            <div class="fase-nome">Reboco / emboço</div>
+            <div class="fase-desc">Revestimento interno e externo</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="laje">
+            <div class="fase-num">06</div>
+            <div class="fase-nome">Cobertura / laje</div>
+            <div class="fase-desc">Laje de cobertura concretada</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="telhado">
+            <div class="fase-num">07</div>
+            <div class="fase-nome">Telhado</div>
+            <div class="fase-desc">Madeiramento e telhas</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="eletrica">
+            <div class="fase-num">08</div>
+            <div class="fase-nome">Instalação elétrica</div>
+            <div class="fase-desc">Fiação, quadro e pontos</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="hidraulica">
+            <div class="fase-num">09</div>
+            <div class="fase-nome">Instalação hidráulica</div>
+            <div class="fase-desc">Encanamento e esgoto</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="contrapiso">
+            <div class="fase-num">10</div>
+            <div class="fase-nome">Contrapiso</div>
+            <div class="fase-desc">Preparo para piso acabado</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="azulejo_piso">
+            <div class="fase-num">11</div>
+            <div class="fase-nome">Azulejo e piso</div>
+            <div class="fase-desc">Revestimento de paredes e chão</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="pintura">
+            <div class="fase-num">12</div>
+            <div class="fase-nome">Pintura</div>
+            <div class="fase-desc">Interna e externa</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="forro">
+            <div class="fase-num">13</div>
+            <div class="fase-nome">Forro</div>
+            <div class="fase-desc">Gesso, PVC ou madeira</div>
+          </div>
+          <div class="fase-card" onclick="toggleFase(this)" data-fase="esquadrias">
+            <div class="fase-num">14</div>
+            <div class="fase-nome">Esquadrias</div>
+            <div class="fase-desc">Portas, janelas e portões</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Área total da construção (m²)</label>
+        <input type="number" placeholder="Ex: 80,00" step="0.01" min="0">
+      </div>
+
+      <div class="campo">
+        <label>Tem projeto / planta?</label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'proj')">Sim, tenho projeto aprovado</div>
+          <div class="opc" onclick="opc(this,'proj')">Tenho planta simples</div>
+          <div class="opc" onclick="opc(this,'proj')">Ainda não tenho</div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Material incluído?</label>
+        <div class="opcoes">
+          <div class="opc" onclick="opc(this,'mat_casa')">Já tenho / vou comprar</div>
+          <div class="opc" onclick="opc(this,'mat_casa')">Incluir no orçamento</div>
+          <div class="opc" onclick="opc(this,'mat_casa')">A definir por fase</div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Fotos do terreno</label>
+        <div class="upload-box">
+          <div class="upload-ico">📷</div>
+          <div class="upload-txt"><strong>Fotos do terreno</strong>Frente, fundo e laterais ajudam o profissional a orçar melhor.</div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Observações</label>
+        <textarea placeholder="Ex: terreno em aclive, precisa de muro de arrimo, acesso pela rua de trás..."></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Urgência <span class="obrig">*</span></label>
+        <div class="urgencia">
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">⚡</div><div class="urg-t">Urgente</div><div class="urg-s">Esta semana</div></div>
+          <div class="urg sel" onclick="urg(this)"><div class="urg-ico">📅</div><div class="urg-t">Normal</div><div class="urg-s">Próximas 2 semanas</div></div>
+          <div class="urg" onclick="urg(this)"><div class="urg-ico">🗓️</div><div class="urg-t">Sem pressa</div><div class="urg-s">Próximo mês</div></div>
+        </div>
+      </div>
+
+      <button class="btn-post" onclick="postar()">
+        Receber orçamentos gratuitos
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
     <!-- OUTRO -->
     <div id="form-outro" class="form-wrap">
       <div class="dica"><strong>Dica AcheiObra:</strong> quanto mais detalhes e fotos, mais preciso será o orçamento — e menor a chance de precisar de visita técnica.</div>
@@ -642,9 +804,19 @@ const TIPO_MAPA = {
   'pintura':   'pintura',
   'alvenaria': 'alvenaria',
   'outro':     'outro',
+  'casa-nova':  'casa_nova',
 }
 
 // ── SELECIONAR SERVIÇO ────────────────────────────────────────
+window.toggleFase = function(el) {
+  el.classList.toggle('sel')
+}
+
+function getFasesSelecionadas() {
+  return [...document.querySelectorAll('.fase-card.sel')]
+    .map(el => el.dataset.fase)
+}
+
 window.selSrv = function(id, btn) {
   document.querySelectorAll('.srv').forEach(s => s.classList.remove('active'))
   btn.classList.add('active')
@@ -702,6 +874,25 @@ function toast(msg, tipo = 'ok') {
 
 // ── COLETAR DETALHES DO FORMULÁRIO ATIVO ─────────────────────
 function coletarDetalhes() {
+  // Para casa nova, inclui as fases selecionadas
+  if (tipoAtivo === 'casa-nova') {
+    const fases = getFasesSelecionadas()
+    const detalhes = { fases }
+    const form = document.getElementById('form-casa-nova')
+    form.querySelectorAll('input[type=number]').forEach((inp, i) => {
+      if (inp.value) detalhes[`numero_${i}`] = parseFloat(inp.value)
+    })
+    form.querySelectorAll('.opc.sel').forEach(el => {
+      const grupo = el.getAttribute('onclick')?.match(/'([^']+)'\)/)?.[1] || 'opcao'
+      detalhes[grupo] = el.textContent.trim()
+    })
+    form.querySelectorAll('textarea').forEach((ta, i) => {
+      if (ta.value.trim()) detalhes[`obs_${i}`] = ta.value.trim()
+    })
+    return detalhes
+  }
+  // Para outros tipos, continua normal
+  const _coletarDetalhes = () => {
   const form    = document.getElementById(`form-${tipoAtivo}`)
   const detalhes = {}
 
@@ -720,6 +911,8 @@ function coletarDetalhes() {
   })
 
   return detalhes
+  }
+  return _coletarDetalhes()
 }
 
 function getUrgencia() {
