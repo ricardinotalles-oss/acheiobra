@@ -268,13 +268,20 @@ window.trocarTab = function(tab) {
 
 // ── SERVIÇOS DISPONÍVEIS ──────────────────────────────────────
 async function carregarDisponiveis() {
-  const { data: servicos } = await supabase
+  const { data: servicos, error: errServicos } = await supabase
     .from('servicos')
     .select(`id, tipo, status, urgencia, criado_em, detalhes, fotos_urls, cidade,
       clientes ( nome ),
       propostas ( id, profissional_id, status )`)
     .eq('status', 'aberto')
     .order('criado_em', { ascending: false })
+
+  if (errServicos) {
+    console.error('Erro ao buscar serviços:', errServicos)
+    document.getElementById('tab-content-disponiveis').innerHTML =
+      `<div class="vazio"><div class="vazio-ico">⚠️</div><div class="vazio-titulo">Erro ao carregar</div><div class="vazio-sub">${errServicos.message}</div></div>`
+    return
+  }
 
   // Stats
   const { data: minhasPropostas } = await supabase
@@ -292,7 +299,7 @@ async function carregarDisponiveis() {
 
   if (!servicos || servicos.length === 0) {
     document.getElementById('tab-content-disponiveis').innerHTML =
-      '<div class="vazio"><div class="vazio-ico">🔍</div><div class="vazio-titulo">Nenhum serviço disponível</div><div class="vazio-sub">Novos serviços aparecerão aqui assim que clientes postarem na sua região.</div></div>'
+      '<div class="vazio"><div class="vazio-ico">🔍</div><div class="vazio-titulo">Nenhum serviço disponível</div><div class="vazio-sub">Novos serviços aparecerão aqui assim que clientes postarem.</div></div>'
     return
   }
 
