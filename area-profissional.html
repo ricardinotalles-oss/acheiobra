@@ -349,18 +349,21 @@ window.fecharProposta = function(id) {
 }
 
 window.enviarProposta = async function(servicoId) {
-  const valor = parseFloat(document.getElementById('val-' + servicoId).value)
-  const prazo = parseInt(document.getElementById('prazo-' + servicoId).value)
-  const msg   = document.getElementById('msg-' + servicoId).value.trim()
+  const valor  = parseFloat(document.getElementById('val-'   + servicoId).value)
+  const prazo  = parseInt(document.getElementById('prazo-'  + servicoId).value)
+  const inicio = document.getElementById('inicio-' + servicoId).value
+  const msg    = document.getElementById('msg-'    + servicoId).value.trim()
 
   if (!valor || valor <= 0) { toast('Informe um valor válido', 'erro'); return }
-  if (!prazo || prazo <= 0) { toast('Informe o prazo em dias', 'erro'); return }
+  if (!prazo || prazo <= 0) { toast('Informe a duração em dias', 'erro'); return }
+  if (!inicio)              { toast('Informe a data de início', 'erro'); return }
 
   const { error } = await supabase.from('propostas').insert([{
     servico_id:      servicoId,
     profissional_id: profissionalId,
     valor,
     prazo_dias:      prazo,
+    data_inicio:     inicio,
     mensagem:        msg || null,
     status:          'enviada',
   }])

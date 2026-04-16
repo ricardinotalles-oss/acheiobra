@@ -249,7 +249,7 @@ async function carregarServicos() {
     .select(`
       id, tipo, status, urgencia, criado_em, descricao,
       propostas (
-        id, valor, prazo_dias, mensagem, status, criado_em,
+        id, valor, prazo_dias, data_inicio, mensagem, status, criado_em,
         profissionais ( id, nome, nota_media, total_avaliacoes )
       )
     `)
@@ -329,7 +329,7 @@ function renderPropostas(s, propEnviadas, propAceita) {
         <div class="prop-avatar">${(prof?.nome || 'P')[0]}</div>
         <div class="prop-info">
           <div class="prop-nome">${prof?.nome || 'Profissional'}</div>
-          <div class="prop-detalhe">Prazo: ${propAceita.prazo_dias} dias · Nota: ${prof?.nota_media || '—'} ★</div>
+          <div class="prop-detalhe">Início: ${propAceita.data_inicio ? new Date(propAceita.data_inicio + 'T12:00:00').toLocaleDateString('pt-BR') : '—'} · Duração: ${propAceita.prazo_dias} dia(s) · Nota: ${prof?.nota_media || '—'} ★</div>
           ${propAceita.mensagem ? `<div class="prop-msg">"${propAceita.mensagem}"</div>` : ''}
         </div>
         <div>
@@ -350,7 +350,7 @@ function renderPropostas(s, propEnviadas, propAceita) {
         <div class="prop-avatar">${(prof?.nome || 'P')[0]}</div>
         <div class="prop-info">
           <div class="prop-nome">${prof?.nome || 'Profissional'}</div>
-          <div class="prop-detalhe">Prazo: ${p.prazo_dias} dias · Nota: ${prof?.nota_media || 'Novo'} ★</div>
+          <div class="prop-detalhe">Início: ${p.data_inicio ? new Date(p.data_inicio + 'T12:00:00').toLocaleDateString('pt-BR') : '—'} · Duração: ${p.prazo_dias} dia(s) · Nota: ${prof?.nota_media || 'Novo'} ★</div>
           ${p.mensagem ? `<div class="prop-msg">"${p.mensagem}"</div>` : ''}
           <div class="prop-acoes">
             <button class="btn-aceitar" onclick="aceitarProposta('${p.id}','${s.id}')">Aceitar proposta</button>
