@@ -326,35 +326,46 @@ user = session.user
 document.getElementById('nav-nome').textContent = user.user_metadata?.nome || user.email
 
 // Busca ou cria cliente vinculado ao user
-try {
-  const { data: clienteExistente, error: errBusca } = await supabase
-    .from('clientes')
-    .select('id')
-    .eq('email', user.email)
-    .single()
+// Usa maybeSingle() para não lançar erro quando não encontrar
+const { data: clienteExistente, error: errBusca } = await supabase
+  .from('clientes')
+  .select('id')
+  .eq('email', user.email)
+  .maybeSingle()
 
-  if (clienteExistente) {
-    clienteId = clienteExistente.id
-  } else {
-    const { data: novoCliente, error: errCriacao } = await supabase
-      .from('clientes')
-      .insert([{
-        nome:     user.user_metadata?.nome || 'Cliente',
-        telefone: user.phone || user.id.slice(0,11),
-        email:    user.email,
-        cidade:   'São João da Boa Vista',
-      }])
-      .select()
-      .single()
-    if (errCriacao) throw errCriacao
-    clienteId = novoCliente?.id
-  }
-} catch (e) {
+if (errBusca) {
   mostrarErroBanco(
     document.getElementById('lista-servicos'),
     'Não foi possível carregar seu perfil. Verifique sua conexão.',
-    carregarServicos
+    () => window.location.reload()
   )
+} else if (clienteExistente) {
+  clienteId = clienteExistente.id
+  carregarServicos()
+  iniciarNotificacoes()
+} else {
+  const { data: novoCliente, error: errCriacao } = await supabase
+    .from('clientes')
+    .insert([{
+      nome:     user.user_metadata?.nome || 'Cliente',
+      telefone: user.phone || user.id.slice(0,11),
+      email:    user.email,
+      cidade:   'São João da Boa Vista',
+    }])
+    .select()
+    .single()
+
+  if (errCriacao) {
+    mostrarErroBanco(
+      document.getElementById('lista-servicos'),
+      'Não foi possível criar seu perfil. Tente novamente.',
+      () => window.location.reload()
+    )
+  } else {
+    clienteId = novoCliente?.id
+    carregarServicos()
+    iniciarNotificacoes()
+  }
 }
 
 // ── CARREGAR SERVIÇOS ─────────────────────────────────────────
@@ -781,8 +792,6 @@ async function iniciarNotificacoes() {
 
 window.addEventListener('beforeunload', () => supabase.removeAllChannels())
 
-carregarServicos()
-iniciarNotificacoes()
 </script>
 </body>
 </html>
