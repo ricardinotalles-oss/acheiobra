@@ -112,6 +112,23 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
   .stats{grid-template-columns:1fr 1fr;}
   .proposta{flex-wrap:wrap;}
 }
+
+/* CHAT */
+.chat-wrap{border-top:1px solid var(--border);padding:16px 20px;display:none;}
+.chat-wrap.open{display:block;}
+.chat-titulo{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;}
+.chat-msgs{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.chat-msgs:empty::after{content:'Nenhuma mensagem ainda. Pergunte ao profissional!';font-size:12px;color:var(--muted);text-align:center;padding:16px 0;}
+.msg{padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.5;max-width:85%;}
+.msg-cliente{background:rgba(232,82,26,0.12);border:1px solid rgba(232,82,26,0.2);color:var(--branco);align-self:flex-end;border-bottom-right-radius:4px;}
+.msg-profissional{background:var(--bg3);border:1px solid var(--border);color:var(--branco);align-self:flex-start;border-bottom-left-radius:4px;}
+.msg-nome{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:3px;}
+.msg-hora{font-size:10px;color:var(--muted);margin-top:3px;text-align:right;}
+.chat-input-wrap{display:flex;gap:8px;}
+.chat-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 13px;font-size:13px;color:var(--branco);font-family:var(--dm);outline:none;resize:none;height:40px;transition:border-color .15s;}
+.chat-input:focus{border-color:rgba(232,82,26,0.4);}
+.btn-chat-send{background:var(--laranja);color:#fff;border:none;border-radius:10px;padding:0 16px;cursor:pointer;font-size:18px;transition:background .15s;flex-shrink:0;}
+.btn-chat-send:hover{background:var(--laranja-cl);}
 </style>
 </head>
 <body>
@@ -316,6 +333,20 @@ function renderServico(s) {
       <div class="propostas-wrap" id="prop-${s.id}">
         ${propostasHtml}
         ${aprovarHtml}
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+          <button onclick="toggleChat('${s.id}')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--dm);transition:all .15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">
+            💬 Mensagens
+          </button>
+        </div>
+      </div>
+      <div class="chat-wrap" id="chat-${s.id}">
+        <div class="chat-titulo">Mensagens do serviço</div>
+        <div class="chat-msgs" id="msgs-${s.id}"></div>
+        <div class="chat-input-wrap">
+          <textarea class="chat-input" id="chat-input-${s.id}" placeholder="Escreva uma mensagem..." rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagem('${s.id}')}"></textarea>
+          <button class="btn-chat-send" onclick="enviarMensagem('${s.id}')">➤</button>
+        </div>
       </div>
     </div>`
 }
@@ -443,6 +474,66 @@ window.enviarAvaliacao = async function() {
 }
 
 // ── SAIR ──────────────────────────────────────────────────────
+// ── CHAT ─────────────────────────────────────────────────────
+window.toggleChat = async function(servicoId) {
+  const wrap = document.getElementById('chat-' + servicoId)
+  const isOpen = wrap.classList.toggle('open')
+  if (isOpen) await carregarMensagens(servicoId)
+}
+
+async function carregarMensagens(servicoId) {
+  const { data: msgs } = await supabase
+    .from('mensagens')
+    .select('*')
+    .eq('servico_id', servicoId)
+    .order('criado_em', { ascending: true })
+
+  const container = document.getElementById('msgs-' + servicoId)
+  if (!msgs || msgs.length === 0) { container.innerHTML = ''; return }
+
+  container.innerHTML = msgs.map(m => {
+    const hora = new Date(m.criado_em).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })
+    const cls  = m.tipo_remetente === 'cliente' ? 'msg-cliente' : 'msg-profissional'
+    return `<div class="msg ${cls}">
+      <div class="msg-nome">${m.remetente_nome}</div>
+      ${m.mensagem}
+      <div class="msg-hora">${hora}</div>
+    </div>`
+  }).join('')
+  container.scrollTop = container.scrollHeight
+}
+
+window.enviarMensagem = async function(servicoId) {
+  const input = document.getElementById('chat-input-' + servicoId)
+  const texto = input.value.trim()
+  if (!texto) return
+
+  const nomeCliente = user.user_metadata?.nome || user.email?.split('@')[0] || 'Cliente'
+
+  const { error } = await supabase.from('mensagens').insert([{
+    servico_id:      servicoId,
+    remetente_id:    user.id,
+    tipo_remetente:  'cliente',
+    remetente_nome:  nomeCliente,
+    mensagem:        texto,
+  }])
+
+  if (error) { toast('Erro ao enviar mensagem', 'erro'); return }
+
+  input.value = ''
+  await carregarMensagens(servicoId)
+}
+
+// Escuta mensagens em tempo real
+function escutarMensagens(servicoId) {
+  return supabase.channel('chat-' + servicoId)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'mensagens',
+      filter: `servico_id=eq.${servicoId}`
+    }, () => carregarMensagens(servicoId))
+    .subscribe()
+}
+
 window.sair = async function() {
   await supabase.auth.signOut()
   window.location.href = '/login'
