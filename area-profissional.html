@@ -16,6 +16,7 @@
 }
 body{background:var(--bg);color:var(--branco);font-family:var(--dm);min-height:100vh;}
 
+/* NAV */
 nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;z-index:100;}
 .nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
 .nav-icon{width:32px;height:32px;background:var(--laranja);border-radius:8px;display:flex;align-items:center;justify-content:center;}
@@ -24,114 +25,119 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
 .nav-nome span{color:var(--laranja);}
 .nav-dir{display:flex;align-items:center;gap:12px;}
 .nav-user{font-size:13px;color:var(--muted);}
-.btn-sair{font-size:12px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:var(--dm);transition:all .15s;}
+.btn-sair{font-size:12px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:var(--dm);}
 .btn-sair:hover{color:var(--branco);}
 
-.page{max-width:800px;margin:0 auto;padding:32px 20px 80px;}
+/* BANNER PRAZO */
+.banner-prazo{display:none;background:rgba(239,159,39,0.1);border-bottom:1px solid rgba(239,159,39,0.2);padding:10px 5%;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.banner-prazo.visible{display:flex;}
+.banner-prazo-txt{font-size:13px;color:var(--amarelo);}
+.btn-mei{font-size:12px;font-weight:700;color:var(--amarelo);background:rgba(239,159,39,0.15);border:1px solid rgba(239,159,39,0.3);padding:6px 14px;border-radius:8px;text-decoration:none;white-space:nowrap;}
 
 /* TABS */
-.tabs-nav{display:flex;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:24px;border:1px solid var(--border);}
+.page{max-width:800px;margin:0 auto;padding:28px 20px 80px;}
+.tabs-nav{display:flex;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:20px;border:1px solid var(--border);}
 .tab-btn{flex:1;font-family:var(--syne);font-size:13px;font-weight:700;padding:10px;border-radius:9px;cursor:pointer;color:var(--muted);transition:all .15s;text-align:center;border:none;background:none;}
 .tab-btn.active{background:var(--laranja);color:#fff;}
 
 /* STATS */
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
-.stat{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;}
-.stat-val{font-family:var(--syne);font-size:24px;font-weight:800;color:var(--branco);}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;}
+.stat-val{font-family:var(--syne);font-size:22px;font-weight:800;}
 .stat-val.laranja{color:var(--laranja);}
 .stat-label{font-size:12px;color:var(--muted);margin-top:3px;}
 
 /* LOADING / VAZIO */
 .loading{text-align:center;padding:60px 20px;color:var(--muted);}
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--laranja);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--laranja);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.vazio{text-align:center;padding:60px 20px;}
-.vazio-ico{font-size:48px;margin-bottom:12px;}
-.vazio-titulo{font-family:var(--syne);font-size:18px;font-weight:700;margin-bottom:6px;}
+.vazio{text-align:center;padding:50px 20px;}
+.vazio-ico{font-size:40px;margin-bottom:10px;}
+.vazio-titulo{font-family:var(--syne);font-size:17px;font-weight:700;margin-bottom:6px;}
 .vazio-sub{font-size:13px;color:var(--muted);line-height:1.6;}
 
-/* SERVIÇO DISPONÍVEL */
-.srv-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px;transition:border-color .15s;}
-.srv-card:hover{border-color:rgba(232,82,26,0.3);}
-.srv-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+/* CARD DE SERVIÇO DISPONÍVEL */
+.srv-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:12px;transition:border-color .15s;}
+.srv-card:hover{border-color:rgba(232,82,26,0.25);}
+.srv-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;}
 .srv-tipo{display:flex;align-items:center;gap:10px;}
-.srv-emoji{font-size:28px;}
-.srv-titulo{font-family:var(--syne);font-size:15px;font-weight:700;color:var(--branco);margin-bottom:3px;}
+.srv-emoji{font-size:26px;}
+.srv-titulo{font-family:var(--syne);font-size:15px;font-weight:700;margin-bottom:3px;}
 .srv-meta{font-size:12px;color:var(--muted);}
-.urg-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
+.urg-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
 .urg-urgente{background:rgba(226,75,74,0.15);color:#F09595;}
 .urg-normal{background:rgba(232,82,26,0.12);color:var(--laranja-cl);}
 .urg-sem_pressa{background:rgba(255,255,255,0.06);color:var(--muted);}
-.srv-detalhes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-.detalhe-pill{font-size:11px;padding:4px 10px;border-radius:20px;background:var(--bg3);color:var(--muted);border:1px solid var(--border);}
-.srv-fotos{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-.foto-thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;background:var(--bg3);border:1px solid var(--border);}
-.foto-placeholder{width:64px;height:64px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;}
-.srv-proposta-enviada{background:rgba(29,158,117,0.08);border:1px solid rgba(29,158,117,0.2);border-radius:10px;padding:10px 14px;font-size:13px;color:#5DCAA5;}
+.detalhes-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.detalhe-pill{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg3);color:var(--muted);border:1px solid var(--border);}
+.fotos-wrap{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.foto-thumb{width:60px;height:60px;border-radius:8px;object-fit:cover;background:var(--bg3);}
+.foto-placeholder{width:60px;height:60px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:18px;}
+
+/* PROPOSTA JÁ ENVIADA */
+.ja-proposta{background:rgba(29,158,117,0.08);border:1px solid rgba(29,158,117,0.2);border-radius:10px;padding:10px 14px;font-size:13px;color:#5DCAA5;margin-bottom:8px;}
+
+/* BOTÕES DE AÇÃO */
+.acoes-wrap{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.btn-proposta{background:rgba(232,82,26,0.1);color:var(--laranja-cl);font-family:var(--syne);font-size:13px;font-weight:700;padding:9px 16px;border-radius:8px;border:1px solid rgba(232,82,26,0.2);cursor:pointer;transition:all .15s;}
+.btn-proposta:hover{background:var(--laranja);color:#fff;}
+.btn-chat-toggle{background:none;color:var(--muted);font-size:12px;padding:8px 14px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-family:var(--dm);}
+.btn-chat-toggle:hover{color:var(--branco);}
 
 /* FORM PROPOSTA */
-.form-proposta{background:var(--bg3);border-radius:12px;padding:16px;margin-top:4px;display:none;}
+.form-proposta{background:var(--bg3);border-radius:12px;padding:16px;margin-top:10px;display:none;}
 .form-proposta.open{display:block;}
 .form-titulo{font-size:13px;font-weight:600;color:var(--branco);margin-bottom:12px;}
-.campo-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.campo-p{margin-bottom:12px;}
-.campo-p label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:0.05em;text-transform:uppercase;}
+.campo-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.campo-p{margin-bottom:10px;}
+.campo-p label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:0.04em;text-transform:uppercase;}
 .campo-p input,.campo-p textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--branco);font-family:var(--dm);outline:none;transition:border-color .15s;}
-.campo-p input:focus,.campo-p textarea:focus{border-color:rgba(232,82,26,0.5);}
+.campo-p input:focus,.campo-p textarea:focus{border-color:rgba(232,82,26,0.4);}
 .campo-p textarea{resize:vertical;min-height:60px;}
-.form-btns{display:flex;gap:8px;}
-.btn-enviar{flex:1;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:11px;border-radius:8px;border:none;cursor:pointer;transition:background .15s;}
+.form-btns{display:flex;gap:8px;margin-top:4px;}
+.btn-enviar{flex:1;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:11px;border-radius:8px;border:none;cursor:pointer;}
 .btn-enviar:hover{background:var(--laranja-cl);}
-.btn-cancelar{background:transparent;color:var(--muted);font-size:13px;padding:11px 14px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-family:var(--dm);}
-.btn-fazer-proposta{background:rgba(232,82,26,0.1);color:var(--laranja-cl);font-family:var(--syne);font-size:13px;font-weight:700;padding:10px 18px;border-radius:8px;border:1px solid rgba(232,82,26,0.2);cursor:pointer;transition:all .15s;}
-.btn-fazer-proposta:hover{background:var(--laranja);color:#fff;}
+.btn-cancelar-form{background:transparent;color:var(--muted);font-size:13px;padding:11px 14px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-family:var(--dm);}
 
-/* MEUS SERVIÇOS (em andamento) */
-.meu-srv{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px;}
-.meu-srv-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
-.meu-srv-nome{font-family:var(--syne);font-size:15px;font-weight:700;color:var(--branco);margin-bottom:3px;}
+/* CHAT */
+.chat-box{background:var(--bg3);border-radius:12px;padding:14px;margin-top:8px;display:none;}
+.chat-box.open{display:block;}
+.chat-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;}
+.chat-msgs{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:10px;min-height:40px;}
+.msg{padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.5;max-width:85%;}
+.msg-pro{background:rgba(232,82,26,0.12);border:1px solid rgba(232,82,26,0.2);align-self:flex-end;border-bottom-right-radius:3px;}
+.msg-cli{background:var(--bg2);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:3px;}
+.msg-nome{font-size:10px;color:var(--muted);margin-bottom:2px;}
+.msg-hora{font-size:10px;color:var(--muted);text-align:right;margin-top:2px;}
+.chat-input-row{display:flex;gap:6px;}
+.chat-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--branco);font-family:var(--dm);outline:none;resize:none;}
+.chat-input:focus{border-color:rgba(232,82,26,0.4);}
+.btn-send{background:var(--laranja);color:#fff;border:none;border-radius:8px;padding:0 14px;cursor:pointer;font-size:16px;}
+
+/* MEUS SERVIÇOS */
+.secao-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin:16px 0 10px;}
+.meu-srv{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:10px;}
+.meu-srv-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.meu-srv-titulo{font-family:var(--syne);font-size:14px;font-weight:700;margin-bottom:3px;}
 .meu-srv-meta{font-size:12px;color:var(--muted);}
-.badge-and{background:rgba(239,159,39,0.15);color:var(--amarelo);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
-.badge-conc{background:rgba(29,158,117,0.15);color:#5DCAA5;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
-.valor-destaque{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--laranja);margin-bottom:4px;}
+.badge-and{background:rgba(239,159,39,0.15);color:var(--amarelo);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.badge-conc{background:rgba(29,158,117,0.15);color:#5DCAA5;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.valor-liq{font-family:var(--syne);font-size:18px;font-weight:800;color:var(--laranja);margin-bottom:2px;}
 .valor-sub{font-size:11px;color:var(--muted);}
-.btn-concluir{background:var(--verde);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;margin-top:12px;}
+.pgto-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-top:6px;display:inline-block;}
+.pgto-liberado{background:rgba(29,158,117,0.12);color:#5DCAA5;}
+.pgto-retido{background:rgba(239,159,39,0.12);color:var(--amarelo);}
+.nota-aval{font-size:12px;color:#F5A623;margin-top:4px;}
+.comentario-aval{font-size:12px;color:var(--muted);font-style:italic;margin-top:4px;}
+.btn-concluir{background:var(--verde);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;margin-top:12px;}
+.total-recebido{background:rgba(29,158,117,0.08);border:1px solid rgba(29,158,117,0.2);border-radius:12px;padding:14px 18px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.total-val{font-family:var(--syne);font-size:20px;font-weight:800;color:#5DCAA5;}
+.total-label{font-size:12px;color:#5DCAA5;opacity:0.8;}
 
 @media(max-width:480px){
   .stats{grid-template-columns:1fr 1fr;}
   .campo-row{grid-template-columns:1fr;}
 }
-
-/* CHAT */
-.chat-wrap{background:var(--bg3);border-radius:12px;padding:14px;margin-top:10px;display:none;}
-
-/* ERRO */
-.erro-wrap{text-align:center;padding:48px 20px;}
-.erro-ico{font-size:44px;margin-bottom:14px;}
-.erro-titulo{font-family:var(--syne);font-size:17px;font-weight:700;color:var(--branco);margin-bottom:6px;}
-.erro-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:320px;margin-left:auto;margin-right:auto;}
-.btn-tentar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:10px 22px;border-radius:10px;border:none;cursor:pointer;transition:background .15s;}
-.btn-tentar:hover{background:var(--laranja-cl);}
-
-/* SESSÃO EXPIRADA */
-.sessao-banner{position:fixed;top:0;left:0;right:0;z-index:9999;background:#1A1A1A;border-bottom:1px solid rgba(232,82,26,0.4);padding:14px 5%;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.sessao-banner.visible{display:flex;}
-.sessao-txt{font-size:13px;color:var(--branco);line-height:1.5;}
-.sessao-txt strong{color:var(--laranja-cl);}
-.btn-reconectar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;}
-.chat-wrap.open{display:block;}
-.chat-titulo{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
-.chat-msgs{max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
-.msg{padding:9px 12px;border-radius:10px;font-size:13px;line-height:1.5;max-width:85%;}
-.msg-profissional{background:rgba(232,82,26,0.12);border:1px solid rgba(232,82,26,0.2);color:var(--branco);align-self:flex-end;border-bottom-right-radius:4px;}
-.msg-cliente{background:var(--bg2);border:1px solid var(--border);color:var(--branco);align-self:flex-start;border-bottom-left-radius:4px;}
-.msg-nome{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:2px;}
-.msg-hora{font-size:10px;color:var(--muted);margin-top:3px;text-align:right;}
-.chat-input-wrap{display:flex;gap:8px;}
-.chat-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--branco);font-family:var(--dm);outline:none;resize:none;height:38px;transition:border-color .15s;}
-.chat-input:focus{border-color:rgba(232,82,26,0.4);}
-.btn-chat-send{background:var(--laranja);color:#fff;border:none;border-radius:8px;padding:0 14px;cursor:pointer;font-size:16px;flex-shrink:0;}
-.btn-chat-send:hover{background:var(--laranja-cl);}
 </style>
 </head>
 <body>
@@ -148,52 +154,38 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
     <div class="nav-nome">Achei<span>Obra</span></div>
   </a>
   <div class="nav-dir">
-    <span class="nav-user" id="nav-nome">Carregando...</span>
+    <span class="nav-user" id="nav-nome">...</span>
     <button class="btn-sair" onclick="sair()">Sair</button>
   </div>
 </nav>
 
-<!-- BANNER SESSÃO EXPIRADA -->
-<div class="sessao-banner" id="sessao-banner">
-  <div class="sessao-txt"><strong>Sua sessão expirou.</strong> Faça login novamente para continuar.</div>
-  <button class="btn-reconectar" onclick="window.location.href='/login'">Entrar novamente</button>
-</div>
-
-<div id="banner-prazo" style="display:none;background:rgba(239,159,39,0.1);border-bottom:1px solid rgba(239,159,39,0.2);padding:12px 5%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-  <div style="font-size:13px;color:#EF9F27;line-height:1.5;">
-    <strong>⚠️ Formalização pendente — </strong>
-    <span id="banner-prazo-txt"></span>
-  </div>
-  <a href="https://gov.br/mei" target="_blank" style="font-size:12px;font-weight:700;color:#EF9F27;background:rgba(239,159,39,0.15);border:1px solid rgba(239,159,39,0.3);padding:6px 14px;border-radius:8px;text-decoration:none;white-space:nowrap;">Abrir MEI grátis →</a>
+<!-- BANNER PRAZO FORMALIZAÇÃO -->
+<div class="banner-prazo" id="banner-prazo">
+  <span class="banner-prazo-txt" id="banner-txt"></span>
+  <a href="https://gov.br/mei" target="_blank" class="btn-mei">Abrir MEI grátis →</a>
 </div>
 
 <div class="page">
 
+  <!-- TABS -->
   <div class="tabs-nav">
-    <button class="tab-btn active" id="tab-disponiveis" onclick="trocarTab('disponiveis')">Serviços disponíveis</button>
-    <button class="tab-btn" id="tab-meus" onclick="trocarTab('meus')">Meus serviços</button>
+    <button class="tab-btn active" id="tab-btn-disponiveis" onclick="trocarTab('disponiveis')">Serviços disponíveis</button>
+    <button class="tab-btn" id="tab-btn-meus" onclick="trocarTab('meus')">Meus serviços</button>
   </div>
 
+  <!-- STATS -->
   <div class="stats">
-    <div class="stat">
-      <div class="stat-val laranja" id="stat-propostas">0</div>
-      <div class="stat-label">Propostas enviadas</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val" id="stat-andamento">0</div>
-      <div class="stat-label">Em andamento</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val" id="stat-ganhos">R$ 0</div>
-      <div class="stat-label">Total ganho</div>
-    </div>
+    <div class="stat"><div class="stat-val laranja" id="stat-propostas">0</div><div class="stat-label">Propostas enviadas</div></div>
+    <div class="stat"><div class="stat-val" id="stat-andamento">0</div><div class="stat-label">Em andamento</div></div>
+    <div class="stat"><div class="stat-val" id="stat-ganhos">R$ 0</div><div class="stat-label">Total recebido</div></div>
   </div>
 
-  <div id="tab-content-disponiveis">
+  <!-- CONTEÚDO TABS -->
+  <div id="tab-disponiveis">
     <div class="loading"><div class="spinner"></div>Buscando serviços...</div>
   </div>
 
-  <div id="tab-content-meus" style="display:none;">
+  <div id="tab-meus" style="display:none;">
     <div class="loading"><div class="spinner"></div>Carregando...</div>
   </div>
 
@@ -207,196 +199,115 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const TIPO_LABEL = {
-  pedra_calcada:'Assentamento de pedra', eletrica:'Elétrica',
-  hidraulica:'Hidráulica', pintura:'Pintura', alvenaria:'Alvenaria / muro',
-  gesseiro:'Gesseiro', azulejista:'Azulejista', carpintaria:'Carpintaria',
-  serralheria:'Serralheria', outro:'Outro serviço'
+  pedra_calcada:'Pedra / calçada', eletrica:'Elétrica', hidraulica:'Hidráulica',
+  pintura:'Pintura', alvenaria:'Alvenaria', gesseiro:'Gesseiro',
+  azulejista:'Azulejista', carpintaria:'Carpintaria', serralheria:'Serralheria',
+  casa_nova:'Construção de casa nova', outro:'Outro serviço'
 }
 const TIPO_EMOJI = {
   pedra_calcada:'🪨', eletrica:'⚡', hidraulica:'🔧', pintura:'🖌️',
   alvenaria:'🧱', gesseiro:'🪟', azulejista:'🪨', carpintaria:'🪚',
-  serralheria:'🔩', outro:'🏗️'
+  serralheria:'🔩', casa_nova:'🏠', outro:'🏗️'
 }
 const URG_LABEL = { urgente:'Urgente', normal:'Normal', sem_pressa:'Sem pressa' }
 
 let user = null
+let prof = null
 let profissionalId = null
-let tabAtiva = 'disponiveis'
-
-// ── HELPERS DE ERRO ───────────────────────────────────────────
-function mostrarErroBanco(containerEl, mensagem, onRetry) {
-  const msg = mensagem || 'Não foi possível carregar os dados.'
-  containerEl.innerHTML = `
-    <div class="erro-wrap">
-      <div class="erro-ico">⚠️</div>
-      <div class="erro-titulo">Algo deu errado</div>
-      <div class="erro-sub">${msg}</div>
-      <button class="btn-tentar" onclick="(${onRetry.toString()})()">Tentar novamente</button>
-    </div>`
-}
-
-function mostrarSessaoExpirada() {
-  document.getElementById('sessao-banner').classList.add('visible')
-  const container = document.getElementById('tab-content-' + tabAtiva)
-  if (container) container.innerHTML = `
-    <div class="erro-wrap">
-      <div class="erro-ico">🔒</div>
-      <div class="erro-titulo">Sessão expirada</div>
-      <div class="erro-sub">Sua sessão expirou por inatividade. Faça login novamente para continuar.</div>
-      <button class="btn-tentar" onclick="window.location.href='/login'">Entrar novamente</button>
-    </div>`
-}
-
-function isAuthError(error) {
-  return error?.code === 'PGRST301' || error?.message?.includes('JWT') || error?.status === 401
-}
-
-// Detecta sessão expirada em tempo real
-supabase.auth.onAuthStateChange((event) => {
-  if (event === 'SIGNED_OUT' && user) mostrarSessaoExpirada()
-})
 
 // ── AUTH ─────────────────────────────────────────────────────
-let session
-try {
-  const { data, error } = await supabase.auth.getSession()
-  if (error) throw error
-  session = data.session
-} catch (e) {
-  window.location.href = '/login'
-}
-if (!session) { window.location.href = '/login' }
-
+const { data: { session } } = await supabase.auth.getSession()
+if (!session) { window.location.href = '/login'; }
 user = session.user
 document.getElementById('nav-nome').textContent = user.user_metadata?.nome || user.email
 
-// Busca profissional vinculado pelo email
-let prof = null
-try {
-  const { data: profPorEmail, error: errProf } = await supabase
-    .from('profissionais')
-    .select('id, nome, especialidades, cidade, tipo_cadastro, prazo_formalizacao')
-    .eq('email', user.email)
-    .maybeSingle()
+// ── BUSCA PROFISSIONAL ────────────────────────────────────────
+const { data: profData } = await supabase
+  .from('profissionais')
+  .select('*')
+  .eq('email', user.email)
+  .maybeSingle()
 
-  if (errProf) throw errProf
+if (!profData) {
+  window.location.href = '/cadastro-profissional'
+}
 
-  if (profPorEmail) {
-    prof = profPorEmail
-    profissionalId = prof.id
+prof = profData
+profissionalId = prof.id
 
-    if (prof.tipo_cadastro === 'autonomo' && prof.prazo_formalizacao) {
-      const prazo = new Date(prof.prazo_formalizacao)
-      const hoje  = new Date()
-      const diasRestantes = Math.ceil((prazo - hoje) / (1000 * 60 * 60 * 24))
-      const banner = document.getElementById('banner-prazo')
-
-      if (diasRestantes > 0 && diasRestantes <= 90) {
-        banner.style.display = 'flex'
-        document.getElementById('banner-prazo-txt').textContent =
-          diasRestantes <= 30
-            ? `Faltam apenas ${diasRestantes} dias para você se formalizar como MEI. Após o prazo sua conta será suspensa.`
-            : `Você tem ${diasRestantes} dias para se formalizar como MEI e continuar usando o AcheiObra.`
-      }
-    }
-  } else {
-    window.location.href = '/cadastro-profissional'
-  }
-} catch (e) {
-  if (isAuthError(e)) {
-    mostrarSessaoExpirada()
-  } else {
-    mostrarErroBanco(
-      document.getElementById('tab-content-disponiveis'),
-      'Não foi possível carregar seu perfil. Verifique sua conexão.',
-      carregarDisponiveis
-    )
+// ── BANNER PRAZO ──────────────────────────────────────────────
+if (prof.tipo_cadastro === 'autonomo' && prof.prazo_formalizacao) {
+  const dias = Math.ceil((new Date(prof.prazo_formalizacao) - new Date()) / 86400000)
+  if (dias > 0 && dias <= 90) {
+    document.getElementById('banner-prazo').classList.add('visible')
+    document.getElementById('banner-txt').textContent =
+      dias <= 30
+        ? `⚠️ Faltam ${dias} dias para regularizar seu MEI — após o prazo sua conta será suspensa.`
+        : `⚠️ Você tem ${dias} dias para abrir seu MEI e continuar usando o AcheiObra.`
   }
 }
 
 // ── TABS ─────────────────────────────────────────────────────
 window.trocarTab = function(tab) {
-  tabAtiva = tab
-  document.getElementById('tab-disponiveis').classList.toggle('active', tab === 'disponiveis')
-  document.getElementById('tab-meus').classList.toggle('active', tab === 'meus')
-  document.getElementById('tab-content-disponiveis').style.display = tab === 'disponiveis' ? 'block' : 'none'
-  document.getElementById('tab-content-meus').style.display        = tab === 'meus'        ? 'block' : 'none'
+  document.getElementById('tab-btn-disponiveis').classList.toggle('active', tab === 'disponiveis')
+  document.getElementById('tab-btn-meus').classList.toggle('active', tab === 'meus')
+  document.getElementById('tab-disponiveis').style.display = tab === 'disponiveis' ? 'block' : 'none'
+  document.getElementById('tab-meus').style.display        = tab === 'meus'        ? 'block' : 'none'
   if (tab === 'meus') carregarMeusServicos()
 }
 
-// ── SERVIÇOS DISPONÍVEIS ──────────────────────────────────────
+// ── CARREGAR SERVIÇOS DISPONÍVEIS ─────────────────────────────
 async function carregarDisponiveis() {
-  document.getElementById('tab-content-disponiveis').innerHTML =
-    '<div class="loading"><div class="spinner"></div>Buscando serviços...</div>'
+  const [{ data: servicos, error }, { data: minhasPropostas }, { data: meusServicos }, { data: pgtos }] = await Promise.all([
+    supabase.from('servicos')
+      .select('id, tipo, status, urgencia, criado_em, detalhes, fotos_urls, cidade, clientes(nome), propostas(id, profissional_id, status)')
+      .eq('status', 'aberto')
+      .order('criado_em', { ascending: false }),
+    supabase.from('propostas').select('id, status').eq('profissional_id', profissionalId),
+    supabase.from('servicos').select('id, status').eq('profissional_id', profissionalId),
+    supabase.from('pagamentos').select('valor_profissional').eq('profissional_id', profissionalId).eq('status', 'liberado'),
+  ])
 
-  const { data: servicos, error: errServicos } = await supabase
-    .from('servicos')
-    .select(`id, tipo, status, urgencia, criado_em, detalhes, fotos_urls, cidade,
-      clientes ( nome ),
-      propostas ( id, profissional_id, status )`)
-    .eq('status', 'aberto')
-    .order('criado_em', { ascending: false })
-
-  if (errServicos) {
-    if (isAuthError(errServicos)) { mostrarSessaoExpirada(); return }
-    mostrarErroBanco(
-      document.getElementById('tab-content-disponiveis'),
-      'Não foi possível buscar os serviços disponíveis. Verifique sua conexão.',
-      carregarDisponiveis
-    )
+  if (error) {
+    document.getElementById('tab-disponiveis').innerHTML =
+      `<div class="vazio"><div class="vazio-ico">⚠️</div><div class="vazio-titulo">Erro ao carregar</div><div class="vazio-sub">${error.message}</div></div>`
     return
   }
 
-  // Stats
-  const { data: minhasPropostas } = await supabase
-    .from('propostas').select('id, status').eq('profissional_id', profissionalId)
-  const { data: meusServicos } = await supabase
-    .from('servicos').select('id, status').eq('profissional_id', profissionalId)
-
+  // Atualiza stats
   document.getElementById('stat-propostas').textContent = minhasPropostas?.length || 0
   document.getElementById('stat-andamento').textContent = meusServicos?.filter(s => s.status === 'em_andamento').length || 0
-
-  const { data: pgtos } = await supabase.from('pagamentos')
-    .select('valor_profissional').eq('profissional_id', profissionalId).eq('status', 'liberado')
   const total = pgtos?.reduce((acc, p) => acc + Number(p.valor_profissional), 0) || 0
-  document.getElementById('stat-ganhos').textContent = 'R$ ' + total.toLocaleString('pt-BR')
+  document.getElementById('stat-ganhos').textContent = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits:2})
 
   if (!servicos || servicos.length === 0) {
-    document.getElementById('tab-content-disponiveis').innerHTML =
-      '<div class="vazio"><div class="vazio-ico">🔍</div><div class="vazio-titulo">Nenhum serviço disponível</div><div class="vazio-sub">Novos serviços aparecerão aqui assim que clientes postarem.</div></div>'
+    document.getElementById('tab-disponiveis').innerHTML =
+      '<div class="vazio"><div class="vazio-ico">🔍</div><div class="vazio-titulo">Nenhum serviço disponível</div><div class="vazio-sub">Novos serviços aparecerão aqui quando clientes postarem.</div></div>'
     return
   }
 
-  const html = servicos.map(s => renderDisponivel(s)).join('')
-  document.getElementById('tab-content-disponiveis').innerHTML = html
+  document.getElementById('tab-disponiveis').innerHTML = servicos.map(s => renderServico(s)).join('')
 }
 
-function renderDisponivel(s) {
-  const data   = new Date(s.criado_em).toLocaleDateString('pt-BR')
-  const urgCls = `urg-${s.urgencia}`
-  const jaPropus = s.propostas?.some(p => p.profissional_id === profissionalId)
-  const detalhes = s.detalhes ? Object.entries(s.detalhes)
-    .filter(([k,v]) => v && !k.startsWith('obs'))
-    .slice(0,4)
-    .map(([k,v]) => `<span class="detalhe-pill">${v}</span>`).join('') : ''
+function renderServico(s) {
+  const data      = new Date(s.criado_em).toLocaleDateString('pt-BR')
+  const jaPropus  = s.propostas?.some(p => p.profissional_id === profissionalId)
+  const urgCls    = 'urg-' + (s.urgencia || 'normal')
+  const urgLabel  = URG_LABEL[s.urgencia] || 'Normal'
 
-  const fotos = (s.fotos_urls || []).slice(0,4).map(url =>
-    `<img class="foto-thumb" src="${url}" alt="foto">`).join('') ||
-    `<div class="foto-placeholder">📷</div>`
+  const detalhesHTML = s.detalhes
+    ? Object.entries(s.detalhes).filter(([k,v]) => v && !k.startsWith('obs')).slice(0,4)
+        .map(([,v]) => `<span class="detalhe-pill">${Array.isArray(v) ? v.join(', ') : v}</span>`).join('')
+    : ''
 
-  const chatHtml = `<button onclick="toggleChatPro('${s.id}')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--dm);margin-top:8px;display:inline-block;">💬 Perguntar ao cliente</button>
-    <div class="chat-wrap" id="chat-${s.id}"><div class="chat-titulo">Mensagens</div><div class="chat-msgs" id="msgs-${s.id}"></div><div class="chat-input-wrap"><textarea class="chat-input" id="chat-input-${s.id}" placeholder="Faça uma pergunta ao cliente..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();enviarMsgPro(\'${s.id}\')}"></textarea><button class="btn-chat-send" onclick="enviarMsgPro(\'${s.id}\')">➤</button></div></div>`
+  const fotosHTML = s.fotos_urls?.length
+    ? s.fotos_urls.slice(0,4).map(url => `<img class="foto-thumb" src="${url}" alt="foto">`).join('')
+    : '<div class="foto-placeholder">📷</div>'
 
-  const propHtml = `<button class="btn-fazer-proposta" onclick="abrirProposta(\'${s.id}\')">Fazer proposta</button>
-    <div class="form-proposta" id="form-${s.id}"><div class="form-titulo">Sua proposta</div><div class="campo-row"><div class="campo-p"><label>Valor (R$) *</label><input type="number" id="val-${s.id}" placeholder="Ex: 450,00" step="0.01" min="0"></div><div class="campo-p"><label>Duração (dias) *</label><input type="number" id="prazo-${s.id}" placeholder="Ex: 2" step="1" min="1"></div></div><div class="campo-p"><label>Data de início *</label><input type="date" id="inicio-${s.id}"></div><div class="campo-p"><label>Mensagem (opcional)</label><textarea id="msg-${s.id}" placeholder="Experiência com esse tipo de serviço, materiais inclusos..."></textarea></div><div class="form-btns"><button class="btn-cancelar" onclick="fecharProposta(\'${s.id}\')">Cancelar</button><button class="btn-enviar" onclick="enviarProposta(\'${s.id}\')">Enviar proposta</button></div></div>`
-
-  const acaoHtml = jaPropus
-    ? `<div class="srv-proposta-enviada">✓ Você já enviou uma proposta para este serviço</div>${chatHtml}`
-    : `${propHtml}${chatHtml}`
-
+  const id = s.id
 
   return `
-    <div class="srv-card" id="srv-${s.id}">
+    <div class="srv-card" id="srv-${id}">
       <div class="srv-top">
         <div class="srv-tipo">
           <div class="srv-emoji">${TIPO_EMOJI[s.tipo] || '🏗️'}</div>
@@ -405,11 +316,50 @@ function renderDisponivel(s) {
             <div class="srv-meta">${s.cidade} · ${data} · ${s.clientes?.nome || 'Cliente'}</div>
           </div>
         </div>
-        <span class="urg-badge ${urgCls}">${URG_LABEL[s.urgencia]}</span>
+        <span class="urg-badge ${urgCls}">${urgLabel}</span>
       </div>
-      ${detalhes ? `<div class="srv-detalhes">${detalhes}</div>` : ''}
-      <div class="srv-fotos">${fotos}</div>
-      ${acaoHtml}
+      ${detalhesHTML ? `<div class="detalhes-wrap">${detalhesHTML}</div>` : ''}
+      <div class="fotos-wrap">${fotosHTML}</div>
+      <div class="acoes-wrap">
+        ${jaPropus
+          ? `<div class="ja-proposta">✓ Proposta enviada</div>`
+          : `<button class="btn-proposta" onclick="abrirProposta('${id}')">Fazer proposta</button>`
+        }
+        <button class="btn-chat-toggle" onclick="toggleChat('${id}')">💬 Mensagens</button>
+      </div>
+      <div class="form-proposta" id="form-${id}">
+        <div class="form-titulo">Sua proposta</div>
+        <div class="campo-row">
+          <div class="campo-p">
+            <label>Valor (R$) *</label>
+            <input type="number" id="val-${id}" placeholder="Ex: 450,00" step="0.01" min="0">
+          </div>
+          <div class="campo-p">
+            <label>Duração (dias) *</label>
+            <input type="number" id="prazo-${id}" placeholder="Ex: 2" step="1" min="1">
+          </div>
+        </div>
+        <div class="campo-p">
+          <label>Data de início *</label>
+          <input type="date" id="inicio-${id}">
+        </div>
+        <div class="campo-p">
+          <label>Mensagem (opcional)</label>
+          <textarea id="msg-${id}" placeholder="Experiência, disponibilidade, materiais inclusos..."></textarea>
+        </div>
+        <div class="form-btns">
+          <button class="btn-cancelar-form" onclick="fecharProposta('${id}')">Cancelar</button>
+          <button class="btn-enviar" onclick="enviarProposta('${id}')">Enviar proposta</button>
+        </div>
+      </div>
+      <div class="chat-box" id="chat-${id}">
+        <div class="chat-label">Mensagens</div>
+        <div class="chat-msgs" id="msgs-${id}"></div>
+        <div class="chat-input-row">
+          <textarea class="chat-input" id="chat-input-${id}" placeholder="Escreva uma mensagem..." rows="1"></textarea>
+          <button class="btn-send" onclick="enviarMsg('${id}')">➤</button>
+        </div>
+      </div>
     </div>`
 }
 
@@ -421,21 +371,18 @@ window.fecharProposta = function(id) {
   document.getElementById('form-' + id).classList.remove('open')
 }
 
-window.enviarProposta = async function(servicoId) {
-  const valor  = parseFloat(document.getElementById('val-'   + servicoId).value)
-  const prazo  = parseInt(document.getElementById('prazo-'  + servicoId).value)
-  const inicio = document.getElementById('inicio-' + servicoId).value
-  const msg    = document.getElementById('msg-'    + servicoId).value.trim()
+window.enviarProposta = async function(id) {
+  const valor  = parseFloat(document.getElementById('val-' + id).value)
+  const prazo  = parseInt(document.getElementById('prazo-' + id).value)
+  const inicio = document.getElementById('inicio-' + id).value
+  const msg    = document.getElementById('msg-' + id).value.trim()
 
   if (!valor || valor <= 0) { toast('Informe um valor válido', 'erro'); return }
   if (!prazo || prazo <= 0) { toast('Informe a duração em dias', 'erro'); return }
   if (!inicio)              { toast('Informe a data de início', 'erro'); return }
 
-  const btn = document.querySelector(`#form-${servicoId} .btn-enviar`)
-  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...' }
-
   const { error } = await supabase.from('propostas').insert([{
-    servico_id:      servicoId,
+    servico_id:      id,
     profissional_id: profissionalId,
     valor,
     prazo_dias:      prazo,
@@ -444,236 +391,167 @@ window.enviarProposta = async function(servicoId) {
     status:          'enviada',
   }])
 
-  if (btn) { btn.disabled = false; btn.textContent = 'Enviar proposta' }
-
   if (error) {
-    if (isAuthError(error)) { mostrarSessaoExpirada(); return }
-    toast(error.message?.includes('unique') ? 'Você já enviou uma proposta.' : 'Erro ao enviar. Tente novamente.', 'erro')
+    toast(error.message?.includes('unique') ? 'Você já enviou uma proposta.' : 'Erro ao enviar.', 'erro')
     return
   }
 
-  toast('Proposta enviada! O cliente será notificado.', 'ok')
+  toast('Proposta enviada! O cliente foi notificado.', 'ok')
   carregarDisponiveis()
+}
+
+// ── CHAT ─────────────────────────────────────────────────────
+window.toggleChat = async function(id) {
+  const box = document.getElementById('chat-' + id)
+  const open = box.classList.toggle('open')
+  if (open) await carregarMsgs(id)
+}
+
+async function carregarMsgs(id) {
+  const { data: msgs } = await supabase
+    .from('mensagens')
+    .select('*')
+    .eq('servico_id', id)
+    .order('criado_em', { ascending: true })
+
+  const container = document.getElementById('msgs-' + id)
+  if (!msgs?.length) { container.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px;">Nenhuma mensagem ainda.</div>'; return }
+
+  container.innerHTML = msgs.map(m => {
+    const hora = new Date(m.criado_em).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})
+    const cls  = m.tipo_remetente === 'profissional' ? 'msg-pro' : 'msg-cli'
+    return `<div class="msg ${cls}"><div class="msg-nome">${m.remetente_nome}</div>${m.mensagem}<div class="msg-hora">${hora}</div></div>`
+  }).join('')
+  container.scrollTop = container.scrollHeight
+}
+
+window.enviarMsg = async function(id) {
+  const input = document.getElementById('chat-input-' + id)
+  const texto = input.value.trim()
+  if (!texto) return
+
+  await supabase.from('mensagens').insert([{
+    servico_id:     id,
+    remetente_id:   user.id,
+    tipo_remetente: 'profissional',
+    remetente_nome: prof.nome || 'Profissional',
+    mensagem:       texto,
+  }])
+
+  input.value = ''
+  await carregarMsgs(id)
 }
 
 // ── MEUS SERVIÇOS ─────────────────────────────────────────────
 async function carregarMeusServicos() {
-  document.getElementById('tab-content-meus').innerHTML =
-    '<div class="loading"><div class="spinner"></div>Carregando...</div>'
-
-  const { data: servicos, error } = await supabase
+  const { data: servicos } = await supabase
     .from('servicos')
-    .select(`id, tipo, status, valor_combinado, prazo_combinado, iniciado_em, concluido_em,
-      clientes ( nome ),
-      pagamentos ( valor_profissional, status, liberado_em ),
-      avaliacoes ( nota, comentario )`)
+    .select('id, tipo, status, valor_combinado, prazo_combinado, iniciado_em, concluido_em, clientes(nome), pagamentos(valor_profissional, status, liberado_em), avaliacoes(nota, comentario)')
     .eq('profissional_id', profissionalId)
     .in('status', ['em_andamento', 'concluido'])
     .order('iniciado_em', { ascending: false })
 
-  if (error) {
-    if (isAuthError(error)) { mostrarSessaoExpirada(); return }
-    mostrarErroBanco(
-      document.getElementById('tab-content-meus'),
-      'Não foi possível carregar seus serviços. Verifique sua conexão.',
-      carregarMeusServicos
-    )
-    return
-  }
-
-  if (!servicos || servicos.length === 0) {
-    document.getElementById('tab-content-meus').innerHTML =
+  if (!servicos?.length) {
+    document.getElementById('tab-meus').innerHTML =
       '<div class="vazio"><div class="vazio-ico">📋</div><div class="vazio-titulo">Nenhum serviço ainda</div><div class="vazio-sub">Quando um cliente aceitar sua proposta, o serviço aparecerá aqui.</div></div>'
     return
   }
 
-  // Calcula total recebido (só pagamentos liberados)
-  const totalRecebido = servicos
-    .filter(s => s.pagamentos?.[0]?.status === 'liberado')
-    .reduce((acc, s) => acc + Number(s.pagamentos[0].valor_profissional || 0), 0)
-
-  // Separa em andamento e concluídos
   const emAndamento = servicos.filter(s => s.status === 'em_andamento')
   const concluidos  = servicos.filter(s => s.status === 'concluido')
+  const totalRecebido = concluidos.reduce((acc, s) => acc + Number(s.pagamentos?.[0]?.valor_profissional || 0), 0)
 
   let html = ''
 
-  // ── EM ANDAMENTO ──
-  if (emAndamento.length > 0) {
-    html += `<div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">Em andamento</div>`
+  if (emAndamento.length) {
+    html += '<div class="secao-label">Em andamento</div>'
     html += emAndamento.map(s => {
-      const dataInicio = s.iniciado_em ? new Date(s.iniciado_em).toLocaleDateString('pt-BR') : '—'
-      const valorLiq   = s.pagamentos?.[0]?.valor_profissional
-        ? 'R$ ' + Number(s.pagamentos[0].valor_profissional).toLocaleString('pt-BR', {minimumFractionDigits:2})
-        : s.valor_combinado ? 'R$ ' + Number(s.valor_combinado * 0.85).toLocaleString('pt-BR', {minimumFractionDigits:2}) : '—'
-
+      const valorLiq = s.valor_combinado
+        ? 'R$ ' + (s.valor_combinado * 0.85).toLocaleString('pt-BR', {minimumFractionDigits:2})
+        : '—'
       return `
         <div class="meu-srv">
-          <div class="meu-srv-header">
+          <div class="meu-srv-top">
             <div>
-              <div class="meu-srv-nome">${TIPO_LABEL[s.tipo] || s.tipo}</div>
-              <div class="meu-srv-meta">Cliente: ${s.clientes?.nome || '—'} · Iniciado em ${dataInicio}</div>
+              <div class="meu-srv-titulo">${TIPO_LABEL[s.tipo] || s.tipo}</div>
+              <div class="meu-srv-meta">Cliente: ${s.clientes?.nome || '—'} · Iniciado: ${s.iniciado_em ? new Date(s.iniciado_em).toLocaleDateString('pt-BR') : '—'}</div>
             </div>
             <span class="badge-and">Em andamento</span>
           </div>
-          <div class="valor-destaque">${valorLiq}</div>
+          <div class="valor-liq">${valorLiq}</div>
           <div class="valor-sub">Valor líquido após comissão (15%)</div>
           <button class="btn-concluir" onclick="marcarConcluido('${s.id}')">Marcar como concluído</button>
         </div>`
     }).join('')
   }
 
-  // ── CONCLUÍDOS ──
-  if (concluidos.length > 0) {
-    html += `<div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin:20px 0 10px;">Histórico — concluídos</div>`
-
-    // Card de total recebido
+  if (concluidos.length) {
+    html += '<div class="secao-label" style="margin-top:20px;">Histórico</div>'
     html += `
-      <div style="background:rgba(29,158,117,0.08);border:1px solid rgba(29,158,117,0.2);border-radius:14px;padding:16px 20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-        <div>
-          <div style="font-size:12px;color:#5DCAA5;margin-bottom:2px;">Total recebido</div>
-          <div style="font-family:var(--syne);font-size:22px;font-weight:800;color:#5DCAA5;">R$ ${totalRecebido.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
-        </div>
-        <div style="font-size:13px;color:#5DCAA5;opacity:0.7;">${concluidos.length} serviço(s) concluído(s)</div>
+      <div class="total-recebido">
+        <div><div class="total-label">Total recebido</div><div class="total-val">R$ ${totalRecebido.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div></div>
+        <div style="font-size:13px;color:#5DCAA5;opacity:0.7;">${concluidos.length} serviço(s)</div>
       </div>`
 
     html += concluidos.map(s => {
-      const dataInicio   = s.iniciado_em   ? new Date(s.iniciado_em).toLocaleDateString('pt-BR')   : '—'
-      const dataConclusao = s.concluido_em ? new Date(s.concluido_em).toLocaleDateString('pt-BR')  : '—'
-      const valorLiq     = s.pagamentos?.[0]?.valor_profissional
+      const valorLiq = s.pagamentos?.[0]?.valor_profissional
         ? 'R$ ' + Number(s.pagamentos[0].valor_profissional).toLocaleString('pt-BR', {minimumFractionDigits:2})
         : '—'
-      const pgtoStatus   = s.pagamentos?.[0]?.status === 'liberado'
-        ? '<span style="font-size:11px;font-weight:600;color:#5DCAA5;background:rgba(29,158,117,0.12);padding:3px 10px;border-radius:20px;">Recebido ✓</span>'
-        : '<span style="font-size:11px;font-weight:600;color:var(--amarelo);background:rgba(239,159,39,0.12);padding:3px 10px;border-radius:20px;">Aguardando liberação</span>'
-      const nota         = s.avaliacoes?.[0]?.nota
-      const notaHtml     = nota ? `<span style="font-size:12px;color:#F5A623;">★ ${nota}/5</span>` : ''
-      const comentario   = s.avaliacoes?.[0]?.comentario
-        ? `<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:6px;">"${s.avaliacoes[0].comentario}"</div>` : ''
+      const pgtoTag = s.pagamentos?.[0]?.status === 'liberado'
+        ? '<span class="pgto-tag pgto-liberado">Recebido ✓</span>'
+        : '<span class="pgto-tag pgto-retido">Aguardando liberação</span>'
+      const nota = s.avaliacoes?.[0]?.nota
+      const comentario = s.avaliacoes?.[0]?.comentario
 
       return `
-        <div class="meu-srv" style="border-color:rgba(29,158,117,0.15);">
-          <div class="meu-srv-header">
+        <div class="meu-srv">
+          <div class="meu-srv-top">
             <div>
-              <div class="meu-srv-nome">${TIPO_LABEL[s.tipo] || s.tipo}</div>
-              <div class="meu-srv-meta">
-                Cliente: ${s.clientes?.nome || '—'} · 
-                Início: ${dataInicio} · Conclusão: ${dataConclusao}
-              </div>
+              <div class="meu-srv-titulo">${TIPO_LABEL[s.tipo] || s.tipo}</div>
+              <div class="meu-srv-meta">Cliente: ${s.clientes?.nome || '—'} · Concluído: ${s.concluido_em ? new Date(s.concluido_em).toLocaleDateString('pt-BR') : '—'}</div>
             </div>
             <span class="badge-conc">Concluído</span>
           </div>
-          <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px;">
-            <div>
-              <div class="valor-destaque" style="font-size:18px;">${valorLiq}</div>
-              <div class="valor-sub">Valor líquido recebido</div>
-            </div>
-            ${pgtoStatus}
-            ${notaHtml}
-          </div>
-          ${comentario}
+          <div class="valor-liq">${valorLiq}</div>
+          <div class="valor-sub">Valor líquido recebido</div>
+          ${pgtoTag}
+          ${nota ? `<div class="nota-aval">${'★'.repeat(nota)}${'☆'.repeat(5-nota)} ${nota}/5</div>` : ''}
+          ${comentario ? `<div class="comentario-aval">"${comentario}"</div>` : ''}
         </div>`
     }).join('')
   }
 
-  document.getElementById('tab-content-meus').innerHTML = html
+  document.getElementById('tab-meus').innerHTML = html
 }
 
-window.marcarConcluido = async function(servicoId) {
+window.marcarConcluido = async function(id) {
   if (!confirm('Confirma que o serviço foi concluído? O cliente receberá uma notificação para aprovar.')) return
-
-  const { error } = await supabase.from('servicos')
-    .update({ status: 'em_andamento' })
-    .eq('id', servicoId)
-
-  if (error) {
-    if (isAuthError(error)) { mostrarSessaoExpirada(); return }
-    toast('Erro ao atualizar status. Tente novamente.', 'erro')
-    return
-  }
-
+  await supabase.from('servicos').update({ status: 'em_andamento' }).eq('id', id)
   toast('Cliente notificado para aprovar o serviço.', 'ok')
   carregarMeusServicos()
 }
 
 // ── SAIR ──────────────────────────────────────────────────────
-// ── CHAT ─────────────────────────────────────────────────────
-window.toggleChatPro = async function(servicoId) {
-  const wrap = document.getElementById('chat-' + servicoId)
-  const isOpen = wrap.classList.toggle('open')
-  if (isOpen) await carregarMsgsPro(servicoId)
-}
-
-async function carregarMsgsPro(servicoId) {
-  const { data: msgs } = await supabase
-    .from('mensagens')
-    .select('*')
-    .eq('servico_id', servicoId)
-    .order('criado_em', { ascending: true })
-
-  const container = document.getElementById('msgs-' + servicoId)
-  if (!msgs || msgs.length === 0) { container.innerHTML = ''; return }
-
-  container.innerHTML = msgs.map(m => {
-    const hora = new Date(m.criado_em).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })
-    const cls  = m.tipo_remetente === 'profissional' ? 'msg-profissional' : 'msg-cliente'
-    return `<div class="msg ${cls}">
-      <div class="msg-nome">${m.remetente_nome}</div>
-      ${m.mensagem}
-      <div class="msg-hora">${hora}</div>
-    </div>`
-  }).join('')
-  container.scrollTop = container.scrollHeight
-}
-
-window.enviarMsgPro = async function(servicoId) {
-  const input = document.getElementById('chat-input-' + servicoId)
-  const texto = input.value.trim()
-  if (!texto) return
-
-  const nomePro = prof?.nome || user.user_metadata?.nome || 'Profissional'
-  const btn = input.nextElementSibling
-  btn.disabled = true
-
-  const { error } = await supabase.from('mensagens').insert([{
-    servico_id:     servicoId,
-    remetente_id:   user.id,
-    tipo_remetente: 'profissional',
-    remetente_nome: nomePro,
-    mensagem:       texto,
-  }])
-
-  btn.disabled = false
-
-  if (error) {
-    if (isAuthError(error)) { mostrarSessaoExpirada(); return }
-    toast('Erro ao enviar mensagem. Tente novamente.', 'erro')
-    return
-  }
-
-  input.value = ''
-  await carregarMsgsPro(servicoId)
-}
-
 window.sair = async function() {
   await supabase.auth.signOut()
   window.location.href = '/login'
 }
 
+// ── TOAST ─────────────────────────────────────────────────────
 function toast(msg, tipo = 'ok') {
-  const cores = { ok:'#1D9E75', erro:'#E8521A', info:'#378ADD' }
   const el = document.createElement('div')
   el.textContent = msg
   Object.assign(el.style, {
     position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
-    background: cores[tipo] || cores.ok, color:'#fff', padding:'12px 24px',
-    borderRadius:'8px', fontSize:'14px', fontWeight:'500', zIndex:'9999',
-    maxWidth:'90vw', textAlign:'center', lineHeight:'1.4',
+    background: tipo === 'ok' ? '#1D9E75' : '#E8521A',
+    color:'#fff', padding:'12px 24px', borderRadius:'8px',
+    fontSize:'14px', fontWeight:'500', zIndex:'9999',
   })
   document.body.appendChild(el)
-  setTimeout(() => el.remove(), 3500)
+  setTimeout(() => el.remove(), 3000)
 }
 
+// ── INIT ──────────────────────────────────────────────────────
 carregarDisponiveis()
 </script>
 </body>
