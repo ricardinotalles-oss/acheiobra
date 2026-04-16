@@ -320,54 +320,16 @@ function renderDisponivel(s) {
     `<img class="foto-thumb" src="${url}" alt="foto">`).join('') ||
     `<div class="foto-placeholder">📷</div>`
 
+  const chatHtml = `<button onclick="toggleChatPro('${s.id}')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--dm);margin-top:8px;display:inline-block;">💬 Perguntar ao cliente</button>
+    <div class="chat-wrap" id="chat-${s.id}"><div class="chat-titulo">Mensagens</div><div class="chat-msgs" id="msgs-${s.id}"></div><div class="chat-input-wrap"><textarea class="chat-input" id="chat-input-${s.id}" placeholder="Faça uma pergunta ao cliente..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();enviarMsgPro(\'${s.id}\')}"></textarea><button class="btn-chat-send" onclick="enviarMsgPro(\'${s.id}\')">➤</button></div></div>`
+
+  const propHtml = `<button class="btn-fazer-proposta" onclick="abrirProposta(\'${s.id}\')">Fazer proposta</button>
+    <div class="form-proposta" id="form-${s.id}"><div class="form-titulo">Sua proposta</div><div class="campo-row"><div class="campo-p"><label>Valor (R$) *</label><input type="number" id="val-${s.id}" placeholder="Ex: 450,00" step="0.01" min="0"></div><div class="campo-p"><label>Duração (dias) *</label><input type="number" id="prazo-${s.id}" placeholder="Ex: 2" step="1" min="1"></div></div><div class="campo-p"><label>Data de início *</label><input type="date" id="inicio-${s.id}"></div><div class="campo-p"><label>Mensagem (opcional)</label><textarea id="msg-${s.id}" placeholder="Experiência com esse tipo de serviço, materiais inclusos..."></textarea></div><div class="form-btns"><button class="btn-cancelar" onclick="fecharProposta(\'${s.id}\')">Cancelar</button><button class="btn-enviar" onclick="enviarProposta(\'${s.id}\')">Enviar proposta</button></div></div>`
+
   const acaoHtml = jaPropus
-    ? `<div class="srv-proposta-enviada">✓ Você já enviou uma proposta para este serviço</div>
-       <button onclick="toggleChatPro('${s.id}')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--dm);margin-top:8px;transition:all .15s;">💬 Perguntar ao cliente</button>
-       <div class="chat-wrap" id="chat-${s.id}">
-         <div class="chat-titulo">Mensagens</div>
-         <div class="chat-msgs" id="msgs-${s.id}"></div>
-         <div class="chat-input-wrap">
-           <textarea class="chat-input" id="chat-input-${s.id}" placeholder="Faça uma pergunta ao cliente..."
-             onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMsgPro('${s.id}')}"></textarea>
-           <button class="btn-chat-send" onclick="enviarMsgPro('${s.id}')">➤</button>
-         </div>
-       </div>`
-    : `<button class="btn-fazer-proposta" onclick="abrirProposta('${s.id}')">Fazer proposta</button>
-       <button onclick="toggleChatPro('${s.id}')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--dm);margin-top:8px;display:block;transition:all .15s;">💬 Perguntar ao cliente</button>
-       <div class="chat-wrap" id="chat-${s.id}">
-         <div class="chat-titulo">Mensagens</div>
-         <div class="chat-msgs" id="msgs-${s.id}"></div>
-         <div class="chat-input-wrap">
-           <textarea class="chat-input" id="chat-input-${s.id}" placeholder="Faça uma pergunta ao cliente..."
-             onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMsgPro('${s.id}')}"></textarea>
-           <button class="btn-chat-send" onclick="enviarMsgPro('${s.id}')">➤</button>
-         </div>
-       </div>`
-       <div class="form-proposta" id="form-${s.id}">
-         <div class="form-titulo">Sua proposta</div>
-         <div class="campo-row">
-           <div class="campo-p">
-             <label>Valor (R$) *</label>
-             <input type="number" id="val-${s.id}" placeholder="Ex: 450,00" step="0.01" min="0">
-           </div>
-           <div class="campo-p">
-             <label>Duração (dias) *</label>
-             <input type="number" id="prazo-${s.id}" placeholder="Ex: 2" step="1" min="1">
-           </div>
-         </div>
-         <div class="campo-p">
-           <label>Data de início *</label>
-           <input type="date" id="inicio-${s.id}" min="${new Date().toISOString().split('T')[0]}">
-         </div>
-         <div class="campo-p">
-           <label>Mensagem (opcional)</label>
-           <textarea id="msg-${s.id}" placeholder="Experiência com esse tipo de serviço, materiais inclusos..."></textarea>
-         </div>
-         <div class="form-btns">
-           <button class="btn-cancelar" onclick="fecharProposta('${s.id}')">Cancelar</button>
-           <button class="btn-enviar" onclick="enviarProposta('${s.id}')">Enviar proposta</button>
-         </div>
-       </div>`
+    ? `<div class="srv-proposta-enviada">✓ Você já enviou uma proposta para este serviço</div>${chatHtml}`
+    : `${propHtml}${chatHtml}`
+
 
   return `
     <div class="srv-card" id="srv-${s.id}">
