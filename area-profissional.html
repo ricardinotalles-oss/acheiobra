@@ -104,6 +104,21 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
 
 /* CHAT */
 .chat-wrap{background:var(--bg3);border-radius:12px;padding:14px;margin-top:10px;display:none;}
+
+/* ERRO */
+.erro-wrap{text-align:center;padding:48px 20px;}
+.erro-ico{font-size:44px;margin-bottom:14px;}
+.erro-titulo{font-family:var(--syne);font-size:17px;font-weight:700;color:var(--branco);margin-bottom:6px;}
+.erro-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:320px;margin-left:auto;margin-right:auto;}
+.btn-tentar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:10px 22px;border-radius:10px;border:none;cursor:pointer;transition:background .15s;}
+.btn-tentar:hover{background:var(--laranja-cl);}
+
+/* SESSÃO EXPIRADA */
+.sessao-banner{position:fixed;top:0;left:0;right:0;z-index:9999;background:#1A1A1A;border-bottom:1px solid rgba(232,82,26,0.4);padding:14px 5%;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.sessao-banner.visible{display:flex;}
+.sessao-txt{font-size:13px;color:var(--branco);line-height:1.5;}
+.sessao-txt strong{color:var(--laranja-cl);}
+.btn-reconectar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;}
 .chat-wrap.open{display:block;}
 .chat-titulo{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
 .chat-msgs{max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
@@ -137,6 +152,12 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
     <button class="btn-sair" onclick="sair()">Sair</button>
   </div>
 </nav>
+
+<!-- BANNER SESSÃO EXPIRADA -->
+<div class="sessao-banner" id="sessao-banner">
+  <div class="sessao-txt"><strong>Sua sessão expirou.</strong> Faça login novamente para continuar.</div>
+  <button class="btn-reconectar" onclick="window.location.href='/login'">Entrar novamente</button>
+</div>
 
 <div id="banner-prazo" style="display:none;background:rgba(239,159,39,0.1);border-bottom:1px solid rgba(239,159,39,0.2);padding:12px 5%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
   <div style="font-size:13px;color:#EF9F27;line-height:1.5;">
@@ -202,8 +223,48 @@ let user = null
 let profissionalId = null
 let tabAtiva = 'disponiveis'
 
+// ── HELPERS DE ERRO ───────────────────────────────────────────
+function mostrarErroBanco(containerEl, mensagem, onRetry) {
+  const msg = mensagem || 'Não foi possível carregar os dados.'
+  containerEl.innerHTML = `
+    <div class="erro-wrap">
+      <div class="erro-ico">⚠️</div>
+      <div class="erro-titulo">Algo deu errado</div>
+      <div class="erro-sub">${msg}</div>
+      <button class="btn-tentar" onclick="(${onRetry.toString()})()">Tentar novamente</button>
+    </div>`
+}
+
+function mostrarSessaoExpirada() {
+  document.getElementById('sessao-banner').classList.add('visible')
+  const container = document.getElementById('tab-content-' + tabAtiva)
+  if (container) container.innerHTML = `
+    <div class="erro-wrap">
+      <div class="erro-ico">🔒</div>
+      <div class="erro-titulo">Sessão expirada</div>
+      <div class="erro-sub">Sua sessão expirou por inatividade. Faça login novamente para continuar.</div>
+      <button class="btn-tentar" onclick="window.location.href='/login'">Entrar novamente</button>
+    </div>`
+}
+
+function isAuthError(error) {
+  return error?.code === 'PGRST301' || error?.message?.includes('JWT') || error?.status === 401
+}
+
+// Detecta sessão expirada em tempo real
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_OUT' && user) mostrarSessaoExpirada()
+})
+
 // ── AUTH ─────────────────────────────────────────────────────
-const { data: { session } } = await supabase.auth.getSession()
+let session
+try {
+  const { data, error } = await supabase.auth.getSession()
+  if (error) throw error
+  session = data.session
+} catch (e) {
+  window.location.href = '/login'
+}
 if (!session) { window.location.href = '/login' }
 
 user = session.user
@@ -211,48 +272,45 @@ document.getElementById('nav-nome').textContent = user.user_metadata?.nome || us
 
 // Busca profissional vinculado pelo email
 let prof = null
-const { data: profPorEmail } = await supabase
-  .from('profissionais')
-  .select('id, nome, especialidades, cidade, tipo_cadastro, prazo_formalizacao')
-  .eq('email', user.email)
-  .maybeSingle()
-
-if (profPorEmail) {
-  prof = profPorEmail
-  profissionalId = prof.id
-
-  // Mostra banner de prazo se for autônomo
-  if (prof.tipo_cadastro === 'autonomo' && prof.prazo_formalizacao) {
-    const prazo    = new Date(prof.prazo_formalizacao)
-    const hoje     = new Date()
-    const diasRestantes = Math.ceil((prazo - hoje) / (1000 * 60 * 60 * 24))
-    const banner   = document.getElementById('banner-prazo')
-
-    if (diasRestantes > 0 && diasRestantes <= 90) {
-      banner.style.display = 'flex'
-      document.getElementById('banner-prazo-txt').textContent =
-        diasRestantes <= 30
-          ? `Faltam apenas ${diasRestantes} dias para você se formalizar como MEI. Após o prazo sua conta será suspensa.`
-          : `Você tem ${diasRestantes} dias para se formalizar como MEI e continuar usando o AcheiObra.`
-    }
-  }
-} else {
-  // Tenta buscar pelo telefone como fallback (cadastros antigos sem email)
-  const { data: profPorTelefone } = await supabase
+try {
+  const { data: profPorEmail, error: errProf } = await supabase
     .from('profissionais')
-    .select('id, nome, especialidades, cidade')
-    .limit(1)
+    .select('id, nome, especialidades, cidade, tipo_cadastro, prazo_formalizacao')
+    .eq('email', user.email)
     .maybeSingle()
 
-  if (profPorTelefone) {
-    prof = profPorTelefone
+  if (errProf) throw errProf
+
+  if (profPorEmail) {
+    prof = profPorEmail
     profissionalId = prof.id
-    // Atualiza email no registro
-    await supabase.from('profissionais')
-      .update({ email: user.email })
-      .eq('id', prof.id)
+
+    if (prof.tipo_cadastro === 'autonomo' && prof.prazo_formalizacao) {
+      const prazo = new Date(prof.prazo_formalizacao)
+      const hoje  = new Date()
+      const diasRestantes = Math.ceil((prazo - hoje) / (1000 * 60 * 60 * 24))
+      const banner = document.getElementById('banner-prazo')
+
+      if (diasRestantes > 0 && diasRestantes <= 90) {
+        banner.style.display = 'flex'
+        document.getElementById('banner-prazo-txt').textContent =
+          diasRestantes <= 30
+            ? `Faltam apenas ${diasRestantes} dias para você se formalizar como MEI. Após o prazo sua conta será suspensa.`
+            : `Você tem ${diasRestantes} dias para se formalizar como MEI e continuar usando o AcheiObra.`
+      }
+    }
   } else {
     window.location.href = '/cadastro-profissional'
+  }
+} catch (e) {
+  if (isAuthError(e)) {
+    mostrarSessaoExpirada()
+  } else {
+    mostrarErroBanco(
+      document.getElementById('tab-content-disponiveis'),
+      'Não foi possível carregar seu perfil. Verifique sua conexão.',
+      carregarDisponiveis
+    )
   }
 }
 
@@ -268,6 +326,9 @@ window.trocarTab = function(tab) {
 
 // ── SERVIÇOS DISPONÍVEIS ──────────────────────────────────────
 async function carregarDisponiveis() {
+  document.getElementById('tab-content-disponiveis').innerHTML =
+    '<div class="loading"><div class="spinner"></div>Buscando serviços...</div>'
+
   const { data: servicos, error: errServicos } = await supabase
     .from('servicos')
     .select(`id, tipo, status, urgencia, criado_em, detalhes, fotos_urls, cidade,
@@ -277,9 +338,12 @@ async function carregarDisponiveis() {
     .order('criado_em', { ascending: false })
 
   if (errServicos) {
-    console.error('Erro ao buscar serviços:', errServicos)
-    document.getElementById('tab-content-disponiveis').innerHTML =
-      `<div class="vazio"><div class="vazio-ico">⚠️</div><div class="vazio-titulo">Erro ao carregar</div><div class="vazio-sub">${errServicos.message}</div></div>`
+    if (isAuthError(errServicos)) { mostrarSessaoExpirada(); return }
+    mostrarErroBanco(
+      document.getElementById('tab-content-disponiveis'),
+      'Não foi possível buscar os serviços disponíveis. Verifique sua conexão.',
+      carregarDisponiveis
+    )
     return
   }
 
@@ -367,6 +431,9 @@ window.enviarProposta = async function(servicoId) {
   if (!prazo || prazo <= 0) { toast('Informe a duração em dias', 'erro'); return }
   if (!inicio)              { toast('Informe a data de início', 'erro'); return }
 
+  const btn = document.querySelector(`#form-${servicoId} .btn-enviar`)
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...' }
+
   const { error } = await supabase.from('propostas').insert([{
     servico_id:      servicoId,
     profissional_id: profissionalId,
@@ -377,8 +444,11 @@ window.enviarProposta = async function(servicoId) {
     status:          'enviada',
   }])
 
+  if (btn) { btn.disabled = false; btn.textContent = 'Enviar proposta' }
+
   if (error) {
-    toast(error.message?.includes('unique') ? 'Você já enviou uma proposta.' : 'Erro ao enviar.', 'erro')
+    if (isAuthError(error)) { mostrarSessaoExpirada(); return }
+    toast(error.message?.includes('unique') ? 'Você já enviou uma proposta.' : 'Erro ao enviar. Tente novamente.', 'erro')
     return
   }
 
@@ -388,7 +458,10 @@ window.enviarProposta = async function(servicoId) {
 
 // ── MEUS SERVIÇOS ─────────────────────────────────────────────
 async function carregarMeusServicos() {
-  const { data: servicos } = await supabase
+  document.getElementById('tab-content-meus').innerHTML =
+    '<div class="loading"><div class="spinner"></div>Carregando...</div>'
+
+  const { data: servicos, error } = await supabase
     .from('servicos')
     .select(`id, tipo, status, valor_combinado, prazo_combinado, iniciado_em, concluido_em,
       clientes ( nome ),
@@ -397,6 +470,16 @@ async function carregarMeusServicos() {
     .eq('profissional_id', profissionalId)
     .in('status', ['em_andamento', 'concluido'])
     .order('iniciado_em', { ascending: false })
+
+  if (error) {
+    if (isAuthError(error)) { mostrarSessaoExpirada(); return }
+    mostrarErroBanco(
+      document.getElementById('tab-content-meus'),
+      'Não foi possível carregar seus serviços. Verifique sua conexão.',
+      carregarMeusServicos
+    )
+    return
+  }
 
   if (!servicos || servicos.length === 0) {
     document.getElementById('tab-content-meus').innerHTML =
@@ -498,9 +581,17 @@ async function carregarMeusServicos() {
 
 window.marcarConcluido = async function(servicoId) {
   if (!confirm('Confirma que o serviço foi concluído? O cliente receberá uma notificação para aprovar.')) return
-  await supabase.from('servicos')
+
+  const { error } = await supabase.from('servicos')
     .update({ status: 'em_andamento' })
     .eq('id', servicoId)
+
+  if (error) {
+    if (isAuthError(error)) { mostrarSessaoExpirada(); return }
+    toast('Erro ao atualizar status. Tente novamente.', 'erro')
+    return
+  }
+
   toast('Cliente notificado para aprovar o serviço.', 'ok')
   carregarMeusServicos()
 }
@@ -541,6 +632,8 @@ window.enviarMsgPro = async function(servicoId) {
   if (!texto) return
 
   const nomePro = prof?.nome || user.user_metadata?.nome || 'Profissional'
+  const btn = input.nextElementSibling
+  btn.disabled = true
 
   const { error } = await supabase.from('mensagens').insert([{
     servico_id:     servicoId,
@@ -550,7 +643,13 @@ window.enviarMsgPro = async function(servicoId) {
     mensagem:       texto,
   }])
 
-  if (error) { toast('Erro ao enviar mensagem', 'erro'); return }
+  btn.disabled = false
+
+  if (error) {
+    if (isAuthError(error)) { mostrarSessaoExpirada(); return }
+    toast('Erro ao enviar mensagem. Tente novamente.', 'erro')
+    return
+  }
 
   input.value = ''
   await carregarMsgsPro(servicoId)
@@ -567,11 +666,12 @@ function toast(msg, tipo = 'ok') {
   el.textContent = msg
   Object.assign(el.style, {
     position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
-    background: cores[tipo], color:'#fff', padding:'12px 24px',
+    background: cores[tipo] || cores.ok, color:'#fff', padding:'12px 24px',
     borderRadius:'8px', fontSize:'14px', fontWeight:'500', zIndex:'9999',
+    maxWidth:'90vw', textAlign:'center', lineHeight:'1.4',
   })
   document.body.appendChild(el)
-  setTimeout(() => el.remove(), 3000)
+  setTimeout(() => el.remove(), 3500)
 }
 
 carregarDisponiveis()
