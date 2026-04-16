@@ -783,20 +783,19 @@ window.finalizar = async function() {
       ativo:            false,   // aguarda aprovação
     }
 
-    // 5. Insere ou atualiza no Supabase
+    // 5. Insere no Supabase
     const { data, error } = await supabase
       .from('profissionais')
-      .upsert([dados], { onConflict: 'email' })
+      .insert([dados])
       .select()
       .single()
 
     if (error) throw error
 
-    // 6. Exibe sucesso e redireciona
+    // 6. Exibe sucesso
     document.getElementById('form-area').style.display = 'none'
     document.getElementById('sucesso').classList.add('visible')
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    setTimeout(() => { window.location.href = '/area-profissional' }, 3000)
 
   } catch (err) {
     console.error('Erro no cadastro:', err)
