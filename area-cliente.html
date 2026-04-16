@@ -113,6 +113,21 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
   .proposta{flex-wrap:wrap;}
 }
 
+/* ERRO */
+.erro-wrap{text-align:center;padding:48px 20px;}
+.erro-ico{font-size:44px;margin-bottom:14px;}
+.erro-titulo{font-family:var(--syne);font-size:17px;font-weight:700;color:var(--branco);margin-bottom:6px;}
+.erro-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:320px;margin-left:auto;margin-right:auto;}
+.btn-tentar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:10px 22px;border-radius:10px;border:none;cursor:pointer;transition:background .15s;}
+.btn-tentar:hover{background:var(--laranja-cl);}
+
+/* SESSÃO EXPIRADA */
+.sessao-banner{position:fixed;top:0;left:0;right:0;z-index:9999;background:#1A1A1A;border-bottom:1px solid rgba(232,82,26,0.4);padding:14px 5%;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.sessao-banner.visible{display:flex;}
+.sessao-txt{font-size:13px;color:var(--branco);line-height:1.5;}
+.sessao-txt strong{color:var(--laranja-cl);}
+.btn-reconectar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;}
+
 /* CHAT */
 .chat-wrap{border-top:1px solid var(--border);padding:16px 20px;display:none;}
 .chat-wrap.open{display:block;}
@@ -149,6 +164,12 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
     <button class="btn-sair" onclick="sair()">Sair</button>
   </div>
 </nav>
+
+<!-- BANNER SESSÃO EXPIRADA -->
+<div class="sessao-banner" id="sessao-banner">
+  <div class="sessao-txt"><strong>Sua sessão expirou.</strong> Faça login novamente para continuar.</div>
+  <button class="btn-reconectar" onclick="window.location.href='/login'">Entrar novamente</button>
+</div>
 
 <div class="page">
   <div class="page-header">
@@ -229,38 +250,87 @@ let clienteId = null
 let servicoAvaliar = null
 let notaSelecionada = 0
 
+// ── HELPERS DE ERRO ───────────────────────────────────────────
+function mostrarErroBanco(containerEl, mensagem, onRetry) {
+  const msg = mensagem || 'Não foi possível carregar os dados.'
+  containerEl.innerHTML = `
+    <div class="erro-wrap">
+      <div class="erro-ico">⚠️</div>
+      <div class="erro-titulo">Algo deu errado</div>
+      <div class="erro-sub">${msg}</div>
+      <button class="btn-tentar" onclick="(${onRetry.toString()})()">Tentar novamente</button>
+    </div>`
+}
+
+function mostrarSessaoExpirada() {
+  document.getElementById('sessao-banner').classList.add('visible')
+  document.getElementById('lista-servicos').innerHTML = `
+    <div class="erro-wrap">
+      <div class="erro-ico">🔒</div>
+      <div class="erro-titulo">Sessão expirada</div>
+      <div class="erro-sub">Sua sessão expirou por inatividade. Faça login novamente para continuar.</div>
+      <button class="btn-tentar" onclick="window.location.href='/login'">Entrar novamente</button>
+    </div>`
+}
+
+// Detecta sessão expirada em tempo real
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+    if (event === 'SIGNED_OUT' && user) mostrarSessaoExpirada()
+  }
+})
+
 // ── AUTH ─────────────────────────────────────────────────────
-const { data: { session } } = await supabase.auth.getSession()
-if (!session) { window.location.href = '/login'; }
+let session
+try {
+  const { data, error } = await supabase.auth.getSession()
+  if (error) throw error
+  session = data.session
+} catch (e) {
+  window.location.href = '/login'
+}
+if (!session) { window.location.href = '/login' }
 
 user = session.user
 document.getElementById('nav-nome').textContent = user.user_metadata?.nome || user.email
 
 // Busca ou cria cliente vinculado ao user
-const { data: clienteExistente } = await supabase
-  .from('clientes')
-  .select('id')
-  .eq('email', user.email)
-  .single()
-
-if (clienteExistente) {
-  clienteId = clienteExistente.id
-} else {
-  const { data: novoCliente } = await supabase
+try {
+  const { data: clienteExistente, error: errBusca } = await supabase
     .from('clientes')
-    .insert([{
-      nome:     user.user_metadata?.nome || 'Cliente',
-      telefone: user.phone || user.id.slice(0,11),
-      email:    user.email,
-      cidade:   'São João da Boa Vista',
-    }])
-    .select()
+    .select('id')
+    .eq('email', user.email)
     .single()
-  clienteId = novoCliente?.id
+
+  if (clienteExistente) {
+    clienteId = clienteExistente.id
+  } else {
+    const { data: novoCliente, error: errCriacao } = await supabase
+      .from('clientes')
+      .insert([{
+        nome:     user.user_metadata?.nome || 'Cliente',
+        telefone: user.phone || user.id.slice(0,11),
+        email:    user.email,
+        cidade:   'São João da Boa Vista',
+      }])
+      .select()
+      .single()
+    if (errCriacao) throw errCriacao
+    clienteId = novoCliente?.id
+  }
+} catch (e) {
+  mostrarErroBanco(
+    document.getElementById('lista-servicos'),
+    'Não foi possível carregar seu perfil. Verifique sua conexão.',
+    carregarServicos
+  )
 }
 
 // ── CARREGAR SERVIÇOS ─────────────────────────────────────────
 async function carregarServicos() {
+  document.getElementById('lista-servicos').innerHTML =
+    '<div class="loading"><div class="spinner"></div>Carregando seus serviços...</div>'
+
   const { data: servicos, error } = await supabase
     .from('servicos')
     .select(`
@@ -273,9 +343,14 @@ async function carregarServicos() {
     .eq('cliente_id', clienteId)
     .order('criado_em', { ascending: false })
 
-  if (error || !servicos) {
-    document.getElementById('lista-servicos').innerHTML =
-      '<div class="vazio"><div class="vazio-ico">😕</div><div class="vazio-titulo">Erro ao carregar</div><div class="vazio-sub">Tente recarregar a página.</div></div>'
+  if (error) {
+    const isAuth = error.code === 'PGRST301' || error.message?.includes('JWT')
+    if (isAuth) { mostrarSessaoExpirada(); return }
+    mostrarErroBanco(
+      document.getElementById('lista-servicos'),
+      'Não foi possível carregar seus serviços. Verifique sua conexão.',
+      carregarServicos
+    )
     return
   }
 
@@ -413,7 +488,12 @@ window.aceitarProposta = async function(propostaId, servicoId) {
     .update({ status: 'aceita', aceita_em: new Date().toISOString() })
     .eq('id', propostaId)
 
-  if (error) { toast('Erro ao aceitar proposta.', 'erro'); return }
+  if (error) {
+    const isAuth = error.code === 'PGRST301' || error.message?.includes('JWT')
+    if (isAuth) { mostrarSessaoExpirada(); return }
+    toast('Erro ao aceitar proposta. Tente novamente.', 'erro')
+    return
+  }
 
   // Recusa as outras propostas do mesmo serviço
   await supabase.from('propostas').update({ status: 'recusada' })
@@ -459,11 +539,18 @@ window.enviarAvaliacao = async function() {
 
   const comentario = document.getElementById('avaliacao-comentario').value.trim()
 
-  await supabase.from('servicos')
+  const { error: errServico } = await supabase.from('servicos')
     .update({ status: 'concluido', concluido_em: new Date().toISOString() })
     .eq('id', servicoAvaliar.servicoId)
 
-  await supabase.from('avaliacoes').insert([{
+  if (errServico) {
+    const isAuth = errServico.code === 'PGRST301' || errServico.message?.includes('JWT')
+    if (isAuth) { fecharModal(); mostrarSessaoExpirada(); return }
+    toast('Erro ao concluir serviço. Tente novamente.', 'erro')
+    return
+  }
+
+  const { error: errAval } = await supabase.from('avaliacoes').insert([{
     servico_id:      servicoAvaliar.servicoId,
     cliente_id:      clienteId,
     profissional_id: servicoAvaliar.profissionalId,
@@ -471,8 +558,13 @@ window.enviarAvaliacao = async function() {
     comentario:      comentario || null,
   }])
 
+  if (errAval) {
+    toast('Serviço concluído! Mas houve um erro ao salvar a avaliação.', 'info')
+  } else {
+    toast('Avaliação enviada! Obrigado.', 'ok')
+  }
+
   fecharModal()
-  toast('Avaliação enviada! Obrigado.', 'ok')
   carregarServicos()
 }
 
@@ -512,6 +604,8 @@ window.enviarMensagem = async function(servicoId) {
   if (!texto) return
 
   const nomeCliente = user.user_metadata?.nome || user.email?.split('@')[0] || 'Cliente'
+  const btn = input.nextElementSibling
+  btn.disabled = true
 
   const { error } = await supabase.from('mensagens').insert([{
     servico_id:      servicoId,
@@ -521,7 +615,14 @@ window.enviarMensagem = async function(servicoId) {
     mensagem:        texto,
   }])
 
-  if (error) { toast('Erro ao enviar mensagem', 'erro'); return }
+  btn.disabled = false
+
+  if (error) {
+    const isAuth = error.code === 'PGRST301' || error.message?.includes('JWT')
+    if (isAuth) { mostrarSessaoExpirada(); return }
+    toast('Erro ao enviar mensagem. Tente novamente.', 'erro')
+    return
+  }
 
   input.value = ''
   await carregarMensagens(servicoId)
@@ -549,11 +650,12 @@ function toast(msg, tipo = 'ok') {
   el.textContent = msg
   Object.assign(el.style, {
     position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
-    background: cores[tipo], color:'#fff', padding:'12px 24px',
+    background: cores[tipo] || cores.ok, color:'#fff', padding:'12px 24px',
     borderRadius:'8px', fontSize:'14px', fontWeight:'500', zIndex:'9999',
+    maxWidth:'90vw', textAlign:'center', lineHeight:'1.4',
   })
   document.body.appendChild(el)
-  setTimeout(() => el.remove(), 3000)
+  setTimeout(() => el.remove(), 3500)
 }
 
 carregarServicos()
