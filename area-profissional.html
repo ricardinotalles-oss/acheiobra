@@ -185,18 +185,35 @@ if (!session) { window.location.href = '/login' }
 user = session.user
 document.getElementById('nav-nome').textContent = user.user_metadata?.nome || user.email
 
-// Busca profissional vinculado
-const { data: prof } = await supabase
+// Busca profissional vinculado pelo email
+let prof = null
+const { data: profPorEmail } = await supabase
   .from('profissionais')
   .select('id, nome, especialidades, cidade')
   .eq('email', user.email)
-  .single()
+  .maybeSingle()
 
-if (prof) {
+if (profPorEmail) {
+  prof = profPorEmail
   profissionalId = prof.id
 } else {
-  // Profissional ainda não completou o cadastro
-  window.location.href = '/cadastro-profissional'
+  // Tenta buscar pelo telefone como fallback (cadastros antigos sem email)
+  const { data: profPorTelefone } = await supabase
+    .from('profissionais')
+    .select('id, nome, especialidades, cidade')
+    .limit(1)
+    .maybeSingle()
+
+  if (profPorTelefone) {
+    prof = profPorTelefone
+    profissionalId = prof.id
+    // Atualiza email no registro
+    await supabase.from('profissionais')
+      .update({ email: user.email })
+      .eq('id', prof.id)
+  } else {
+    window.location.href = '/cadastro-profissional'
+  }
 }
 
 // ── TABS ─────────────────────────────────────────────────────
@@ -217,7 +234,6 @@ async function carregarDisponiveis() {
       clientes ( nome ),
       propostas ( id, profissional_id, status )`)
     .eq('status', 'aberto')
-    .eq('cidade', prof.cidade)
     .order('criado_em', { ascending: false })
 
   // Stats

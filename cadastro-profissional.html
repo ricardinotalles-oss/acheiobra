@@ -697,6 +697,10 @@ document.querySelectorAll('.upload-box').forEach((box, i) => {
 
 // ── FINALIZAR CADASTRO ───────────────────────────────────────
 window.finalizar = async function() {
+  const { data: { session: sess } } = await supabase.auth.getSession()
+  const user = sess?.user
+  if (!user) { window.location.href = '/login'; return }
+
   if (!validarStep(5)) return
 
   const termos = document.getElementById('t1')?.checked
@@ -733,6 +737,7 @@ window.finalizar = async function() {
     const sobrenome = document.getElementById('f-sobrenome')?.value?.trim()
     const dados = {
       nome:             `${nome} ${sobrenome}`.trim(),
+      email:            user.email,
       telefone:         document.getElementById('f-telefone')?.value?.replace(/\D/g, ''),
       cpf:              document.getElementById('f-cpf')?.value?.replace(/\D/g, ''),
       cidade:           document.getElementById('f-cidade')?.value,
