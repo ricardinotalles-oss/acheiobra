@@ -527,6 +527,7 @@ function renderServico(s) {
 function renderPropostas(s, propEnviadas, propAceita) {
   if (propAceita) {
     const prof = propAceita.profissionais
+    const precisaPagar = s.status === 'aberto' // proposta aceita mas ainda não pago
     return `
       <div class="propostas-titulo">Profissional contratado</div>
       <div class="proposta">
@@ -540,7 +541,15 @@ function renderPropostas(s, propEnviadas, propAceita) {
           <div class="prop-valor">R$ ${Number(propAceita.valor).toLocaleString('pt-BR')}</div>
           <div class="prop-aceita-tag" style="margin-top:6px;">Aceita ✓</div>
         </div>
-      </div>`
+      </div>
+      ${precisaPagar ? `
+        <div style="margin-top:12px;background:rgba(232,82,26,0.08);border:1px solid rgba(232,82,26,0.2);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div style="font-size:13px;color:var(--laranja-cl);line-height:1.5;">
+            <strong>Pagamento pendente.</strong> Realize o pagamento para iniciar o serviço.
+          </div>
+          <a href="/pagamento?proposta=${propAceita.id}" class="btn-aceitar" style="text-decoration:none;display:inline-block;">Pagar agora →</a>
+        </div>
+      ` : ''}`
   }
 
   if (propEnviadas.length === 0) {
