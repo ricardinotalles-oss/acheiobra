@@ -113,6 +113,35 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
   .proposta{flex-wrap:wrap;}
 }
 
+/* ERRO */
+.erro-wrap{text-align:center;padding:48px 20px;}
+.erro-ico{font-size:44px;margin-bottom:14px;}
+.erro-titulo{font-family:var(--syne);font-size:17px;font-weight:700;color:var(--branco);margin-bottom:6px;}
+.erro-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:320px;margin-left:auto;margin-right:auto;}
+.btn-tentar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:13px;font-weight:700;padding:10px 22px;border-radius:10px;border:none;cursor:pointer;transition:background .15s;}
+.btn-tentar:hover{background:var(--laranja-cl);}
+
+/* SESSÃO EXPIRADA */
+.sessao-banner{position:fixed;top:0;left:0;right:0;z-index:9999;background:#1A1A1A;border-bottom:1px solid rgba(232,82,26,0.4);padding:14px 5%;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.sessao-banner.visible{display:flex;}
+.sessao-txt{font-size:13px;color:var(--branco);line-height:1.5;}
+.sessao-txt strong{color:var(--laranja-cl);}
+.btn-reconectar{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;}
+
+/* BADGE DE NOTIFICAÇÃO */
+.notif-badge{display:none;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:20px;padding:0 5px;align-items:center;justify-content:center;line-height:1;margin-left:6px;vertical-align:middle;}
+.notif-badge.visible{display:inline-flex;}
+
+/* TOAST DE PROPOSTA NOVA */
+.toast-proposta{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2);border:1px solid rgba(232,82,26,0.4);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;z-index:9998;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:360px;width:calc(100% - 40px);box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+.toast-proposta.visible{transform:translateX(-50%) translateY(0);}
+.toast-prop-ico{width:36px;height:36px;background:rgba(232,82,26,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.toast-prop-info{flex:1;min-width:0;}
+.toast-prop-titulo{font-family:var(--syne);font-size:13px;font-weight:700;color:var(--branco);margin-bottom:2px;}
+.toast-prop-sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.toast-prop-btn{background:var(--laranja);color:#fff;font-family:var(--syne);font-size:11px;font-weight:700;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background .15s;}
+.toast-prop-btn:hover{background:var(--laranja-cl);}
+
 /* CHAT */
 .chat-wrap{border-top:1px solid var(--border);padding:16px 20px;display:none;}
 .chat-wrap.open{display:block;}
@@ -150,9 +179,18 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
   </div>
 </nav>
 
+<!-- BANNER SESSÃO EXPIRADA -->
+<div class="sessao-banner" id="sessao-banner">
+  <div class="sessao-txt"><strong>Sua sessão expirou.</strong> Faça login novamente para continuar.</div>
+  <button class="btn-reconectar" onclick="window.location.href='/login'">Entrar novamente</button>
+</div>
+
 <div class="page">
   <div class="page-header">
-    <div class="page-titulo">Meus serviços</div>
+    <div class="page-titulo">
+      Meus serviços
+      <span class="notif-badge" id="badge-propostas" title="Novas propostas">0</span>
+    </div>
     <a href="/postar-servico" class="btn-novo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
       Novo serviço
@@ -180,6 +218,16 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
       Carregando seus serviços...
     </div>
   </div>
+</div>
+
+<!-- TOAST PROPOSTA NOVA -->
+<div class="toast-proposta" id="toast-proposta">
+  <div class="toast-prop-ico">🔔</div>
+  <div class="toast-prop-info">
+    <div class="toast-prop-titulo">Nova proposta recebida!</div>
+    <div class="toast-prop-sub" id="toast-prop-sub">Um profissional enviou uma proposta.</div>
+  </div>
+  <button class="toast-prop-btn" id="toast-prop-btn" onclick="verProposta()">Ver</button>
 </div>
 
 <!-- MODAL AVALIAÇÃO -->
@@ -228,27 +276,78 @@ let user = null
 let clienteId = null
 let servicoAvaliar = null
 let notaSelecionada = 0
+let servicosCache = []         // cache local para o Realtime referenciar
+let novasPropostas = 0         // contador do badge
+let toastTimeout = null        // controle do auto-dismiss do toast
+let servicoNovaPropostaId = null  // para o botão "Ver" do toast
+
+// ── HELPERS DE ERRO ───────────────────────────────────────────
+function mostrarErroBanco(containerEl, mensagem, onRetry) {
+  const msg = mensagem || 'Não foi possível carregar os dados.'
+  containerEl.innerHTML = `
+    <div class="erro-wrap">
+      <div class="erro-ico">⚠️</div>
+      <div class="erro-titulo">Algo deu errado</div>
+      <div class="erro-sub">${msg}</div>
+      <button class="btn-tentar" onclick="(${onRetry.toString()})()">Tentar novamente</button>
+    </div>`
+}
+
+function mostrarSessaoExpirada() {
+  document.getElementById('sessao-banner').classList.add('visible')
+  document.getElementById('lista-servicos').innerHTML = `
+    <div class="erro-wrap">
+      <div class="erro-ico">🔒</div>
+      <div class="erro-titulo">Sessão expirada</div>
+      <div class="erro-sub">Sua sessão expirou por inatividade. Faça login novamente para continuar.</div>
+      <button class="btn-tentar" onclick="window.location.href='/login'">Entrar novamente</button>
+    </div>`
+}
+
+// Detecta sessão expirada em tempo real
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+    if (event === 'SIGNED_OUT' && user) mostrarSessaoExpirada()
+  }
+})
 
 // ── AUTH ─────────────────────────────────────────────────────
-const { data: { session } } = await supabase.auth.getSession()
-if (!session) { window.location.href = '/login'; }
+let session
+try {
+  const { data, error } = await supabase.auth.getSession()
+  if (error) throw error
+  session = data.session
+} catch (e) {
+  window.location.href = '/login'
+}
+if (!session) { window.location.href = '/login' }
 
 user = session.user
 document.getElementById('nav-nome').textContent = user.user_metadata?.nome || user.email
 
 // Busca ou cria cliente vinculado ao user
-const { data: clienteExistente } = await supabase
+// Usa maybeSingle() para não lançar erro quando não encontrar
+const { data: clienteExistente, error: errBusca } = await supabase
   .from('clientes')
   .select('id')
-  .eq('email', user.email)
-  .single()
+  .eq('user_id', user.id)
+  .maybeSingle()
 
-if (clienteExistente) {
+if (errBusca) {
+  mostrarErroBanco(
+    document.getElementById('lista-servicos'),
+    'Não foi possível carregar seu perfil. Verifique sua conexão.',
+    () => window.location.reload()
+  )
+} else if (clienteExistente) {
   clienteId = clienteExistente.id
+  carregarServicos()
+  iniciarNotificacoes()
 } else {
-  const { data: novoCliente } = await supabase
+  const { data: novoCliente, error: errCriacao } = await supabase
     .from('clientes')
     .insert([{
+      user_id:  user.id,
       nome:     user.user_metadata?.nome || 'Cliente',
       telefone: user.phone || user.id.slice(0,11),
       email:    user.email,
@@ -256,26 +355,66 @@ if (clienteExistente) {
     }])
     .select()
     .single()
-  clienteId = novoCliente?.id
+
+  if (errCriacao) {
+    mostrarErroBanco(
+      document.getElementById('lista-servicos'),
+      'Não foi possível criar seu perfil. Tente novamente.',
+      () => window.location.reload()
+    )
+  } else {
+    clienteId = novoCliente?.id
+    carregarServicos()
+    iniciarNotificacoes()
+  }
 }
 
 // ── CARREGAR SERVIÇOS ─────────────────────────────────────────
 async function carregarServicos() {
+  document.getElementById('lista-servicos').innerHTML =
+    '<div class="loading"><div class="spinner"></div>Carregando seus serviços...</div>'
+
+  // Busca serviços + propostas (sem JOIN aninhado em profissionais para evitar erro 500 do PostgREST com RLS)
   const { data: servicos, error } = await supabase
     .from('servicos')
     .select(`
       id, tipo, status, urgencia, criado_em, descricao,
       propostas (
         id, valor, prazo_dias, data_inicio, mensagem, status, criado_em,
-        profissionais ( id, nome, nota_media, total_avaliacoes )
+        profissional_id
       )
     `)
     .eq('cliente_id', clienteId)
     .order('criado_em', { ascending: false })
 
-  if (error || !servicos) {
-    document.getElementById('lista-servicos').innerHTML =
-      '<div class="vazio"><div class="vazio-ico">😕</div><div class="vazio-titulo">Erro ao carregar</div><div class="vazio-sub">Tente recarregar a página.</div></div>'
+  if (!error && servicos?.length) {
+    // Coleta todos os profissional_ids únicos das propostas
+    const profIds = [...new Set(
+      servicos.flatMap(s => (s.propostas || []).map(p => p.profissional_id).filter(Boolean))
+    )]
+    if (profIds.length) {
+      const { data: profs } = await supabase
+        .from('profissionais')
+        .select('id, nome, nota_media, total_avaliacoes')
+        .in('id', profIds)
+      // Injeta dados do profissional em cada proposta
+      const profMap = Object.fromEntries((profs || []).map(p => [p.id, p]))
+      servicos.forEach(s => {
+        (s.propostas || []).forEach(p => {
+          p.profissionais = profMap[p.profissional_id] || null
+        })
+      })
+    }
+  }
+
+  if (error) {
+    const isAuth = error.code === 'PGRST301' || error.message?.includes('JWT')
+    if (isAuth) { mostrarSessaoExpirada(); return }
+    mostrarErroBanco(
+      document.getElementById('lista-servicos'),
+      'Não foi possível carregar seus serviços. Verifique sua conexão.',
+      carregarServicos
+    )
     return
   }
 
@@ -297,6 +436,9 @@ async function carregarServicos() {
 
   const html = servicos.map(s => renderServico(s)).join('')
   document.getElementById('lista-servicos').innerHTML = html
+
+  // Atualiza cache local (usado pelo Realtime para enriquecer notificações)
+  servicosCache = servicos
 }
 
 function renderServico(s) {
@@ -413,7 +555,12 @@ window.aceitarProposta = async function(propostaId, servicoId) {
     .update({ status: 'aceita', aceita_em: new Date().toISOString() })
     .eq('id', propostaId)
 
-  if (error) { toast('Erro ao aceitar proposta.', 'erro'); return }
+  if (error) {
+    const isAuth = error.code === 'PGRST301' || error.message?.includes('JWT')
+    if (isAuth) { mostrarSessaoExpirada(); return }
+    toast('Erro ao aceitar proposta. Tente novamente.', 'erro')
+    return
+  }
 
   // Recusa as outras propostas do mesmo serviço
   await supabase.from('propostas').update({ status: 'recusada' })
@@ -459,11 +606,18 @@ window.enviarAvaliacao = async function() {
 
   const comentario = document.getElementById('avaliacao-comentario').value.trim()
 
-  await supabase.from('servicos')
+  const { error: errServico } = await supabase.from('servicos')
     .update({ status: 'concluido', concluido_em: new Date().toISOString() })
     .eq('id', servicoAvaliar.servicoId)
 
-  await supabase.from('avaliacoes').insert([{
+  if (errServico) {
+    const isAuth = errServico.code === 'PGRST301' || errServico.message?.includes('JWT')
+    if (isAuth) { fecharModal(); mostrarSessaoExpirada(); return }
+    toast('Erro ao concluir serviço. Tente novamente.', 'erro')
+    return
+  }
+
+  const { error: errAval } = await supabase.from('avaliacoes').insert([{
     servico_id:      servicoAvaliar.servicoId,
     cliente_id:      clienteId,
     profissional_id: servicoAvaliar.profissionalId,
@@ -471,8 +625,13 @@ window.enviarAvaliacao = async function() {
     comentario:      comentario || null,
   }])
 
+  if (errAval) {
+    toast('Serviço concluído! Mas houve um erro ao salvar a avaliação.', 'info')
+  } else {
+    toast('Avaliação enviada! Obrigado.', 'ok')
+  }
+
   fecharModal()
-  toast('Avaliação enviada! Obrigado.', 'ok')
   carregarServicos()
 }
 
@@ -512,6 +671,8 @@ window.enviarMensagem = async function(servicoId) {
   if (!texto) return
 
   const nomeCliente = user.user_metadata?.nome || user.email?.split('@')[0] || 'Cliente'
+  const btn = input.nextElementSibling
+  btn.disabled = true
 
   const { error } = await supabase.from('mensagens').insert([{
     servico_id:      servicoId,
@@ -521,7 +682,14 @@ window.enviarMensagem = async function(servicoId) {
     mensagem:        texto,
   }])
 
-  if (error) { toast('Erro ao enviar mensagem', 'erro'); return }
+  btn.disabled = false
+
+  if (error) {
+    const isAuth = error.code === 'PGRST301' || error.message?.includes('JWT')
+    if (isAuth) { mostrarSessaoExpirada(); return }
+    toast('Erro ao enviar mensagem. Tente novamente.', 'erro')
+    return
+  }
 
   input.value = ''
   await carregarMensagens(servicoId)
@@ -549,14 +717,103 @@ function toast(msg, tipo = 'ok') {
   el.textContent = msg
   Object.assign(el.style, {
     position:'fixed', bottom:'24px', left:'50%', transform:'translateX(-50%)',
-    background: cores[tipo], color:'#fff', padding:'12px 24px',
+    background: cores[tipo] || cores.ok, color:'#fff', padding:'12px 24px',
     borderRadius:'8px', fontSize:'14px', fontWeight:'500', zIndex:'9999',
+    maxWidth:'90vw', textAlign:'center', lineHeight:'1.4',
   })
   document.body.appendChild(el)
-  setTimeout(() => el.remove(), 3000)
+  setTimeout(() => el.remove(), 3500)
 }
 
-carregarServicos()
+// ── NOTIFICAÇÕES EM TEMPO REAL ────────────────────────────────
+
+function atualizarBadge(delta = 1) {
+  novasPropostas += delta
+  const badge = document.getElementById('badge-propostas')
+  if (novasPropostas > 0) {
+    badge.textContent = novasPropostas > 9 ? '9+' : novasPropostas
+    badge.classList.add('visible')
+  } else {
+    novasPropostas = 0
+    badge.classList.remove('visible')
+  }
+}
+
+function mostrarToastProposta(proposta) {
+  const servico = servicosCache.find(s => s.id === proposta.servico_id)
+  const tipoServico = servico ? (TIPO_LABEL[servico.tipo] || servico.tipo) : 'seu serviço'
+  const valor = proposta.valor
+    ? ` · R$ ${Number(proposta.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+    : ''
+
+  servicoNovaPropostaId = proposta.servico_id
+  document.getElementById('toast-prop-sub').textContent = `Para: ${tipoServico}${valor}`
+
+  const el = document.getElementById('toast-proposta')
+  el.classList.add('visible')
+
+  clearTimeout(toastTimeout)
+  toastTimeout = setTimeout(() => el.classList.remove('visible'), 6000)
+}
+
+window.verProposta = function() {
+  document.getElementById('toast-proposta').classList.remove('visible')
+  novasPropostas = 0
+  document.getElementById('badge-propostas').classList.remove('visible')
+
+  if (!servicoNovaPropostaId) return
+
+  const propWrap = document.getElementById('prop-' + servicoNovaPropostaId)
+  if (propWrap) {
+    propWrap.classList.add('open')
+    propWrap.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  } else {
+    carregarServicos().then(() => {
+      const el = document.getElementById('prop-' + servicoNovaPropostaId)
+      if (el) { el.classList.add('open'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }) }
+    })
+  }
+}
+
+function iniciarRealtimePropostas(listaServicoIds) {
+  if (!listaServicoIds.length) return
+
+  const filtro = `servico_id=in.(${listaServicoIds.join(',')})`
+
+  return supabase
+    .channel('propostas-cliente-' + clienteId)
+    .on('postgres_changes', {
+      event:  'INSERT',
+      schema: 'public',
+      table:  'propostas',
+      filter: filtro,
+    }, (payload) => {
+      const novaProposta = payload.new
+
+      const servico = servicosCache.find(s => s.id === novaProposta.servico_id)
+      if (servico?.status !== 'aberto') return
+
+      atualizarBadge(1)
+      mostrarToastProposta(novaProposta)
+      carregarServicos()
+    })
+    .subscribe()
+}
+
+async function iniciarNotificacoes() {
+  const { data: servicos } = await supabase
+    .from('servicos')
+    .select('id')
+    .eq('cliente_id', clienteId)
+    .eq('status', 'aberto')
+
+  if (servicos?.length) {
+    iniciarRealtimePropostas(servicos.map(s => s.id))
+  }
+}
+
+window.addEventListener('beforeunload', () => supabase.removeAllChannels())
+
 </script>
 </body>
 </html>
