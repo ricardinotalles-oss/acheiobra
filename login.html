@@ -355,13 +355,20 @@ window.fazerLogin = async function() {
   setBotao('btn-login', true, 'Entrar')
   limparAlerta()
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha })
+  let data, error
+  try {
+    ;({ data, error } = await supabase.auth.signInWithPassword({ email, password: senha }))
+  } catch (e) {
+    setBotao('btn-login', false, 'Entrar')
+    return mostrarAlerta('Sem conexão com o servidor. Verifique sua internet e tente novamente.')
+  }
 
   if (error) {
     setBotao('btn-login', false, 'Entrar')
     const msgs = {
       'Invalid login credentials': 'Email ou senha incorretos.',
       'Email not confirmed':       'Confirme seu email antes de entrar. Verifique sua caixa de entrada.',
+      'Too many requests':         'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.',
     }
     return mostrarAlerta(msgs[error.message] || 'Erro ao entrar. Tente novamente.')
   }
@@ -412,23 +419,27 @@ window.fazerCadastro = async function() {
   limparAlerta()
   emailCadastro = email
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password: senha,
-    options: {
-      data: {
-        nome,
-        perfil: perfilAtivo,
-      },
-      emailRedirectTo: 'https://acheiobra.com.br/login',
-    }
-  })
+  let data, error
+  try {
+    ;({ data, error } = await supabase.auth.signUp({
+      email,
+      password: senha,
+      options: {
+        data: { nome, perfil: perfilAtivo },
+        emailRedirectTo: 'https://acheiobra.com.br/login',
+      }
+    }))
+  } catch (e) {
+    setBotao('btn-cad', false, 'Criar conta')
+    return mostrarAlerta('Sem conexão com o servidor. Verifique sua internet e tente novamente.')
+  }
 
   setBotao('btn-cad', false, 'Criar conta')
 
   if (error) {
     const msgs = {
       'User already registered': 'Este email já está cadastrado. Faça login.',
+      'Password should be at least 6 characters': 'A senha deve ter ao menos 8 caracteres.',
     }
     return mostrarAlerta(msgs[error.message] || 'Erro ao criar conta. Tente novamente.')
   }
@@ -472,9 +483,14 @@ window.enviarReset = async function() {
   const email = document.getElementById('reset-email').value.trim()
   if (!email) return mostrarAlerta('Informe seu email.')
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://acheiobra.com.br/login',
-  })
+  let error
+  try {
+    ;({ error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://acheiobra.com.br/login',
+    }))
+  } catch (e) {
+    return mostrarAlerta('Sem conexão com o servidor. Tente novamente.')
+  }
 
   if (error) return mostrarAlerta('Erro ao enviar. Verifique o email informado.')
 
@@ -489,10 +505,20 @@ window.reenviarEmail = async function() {
 }
 
 // ── VERIFICA SE JÁ ESTÁ LOGADO ────────────────────────────────
-const { data: { session } } = await supabase.auth.getSession()
-if (session) {
-  // Não redireciona automaticamente — deixa o usuário escolher o perfil
-  // para poder alternar entre área do cliente e área do profissional
+try {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session) {
+    // Se já está logado, redireciona para a área correta
+    const perfil = session.user.user_metadata?.perfil || localStorage.getItem('acheiobra_perfil')
+    if (perfil === 'profissional') {
+      window.location.href = '/area-profissional'
+    } else if (perfil === 'cliente') {
+      window.location.href = '/minha-area'
+    }
+    // Se perfil indefinido, deixa o usuário escolher
+  }
+} catch (e) {
+  // Sem conexão — mantém na tela de login normalmente
 }
 
 // Enter para submeter

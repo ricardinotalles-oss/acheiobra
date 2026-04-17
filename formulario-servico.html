@@ -924,11 +924,14 @@ function getUrgencia() {
 }
 
 // ── VERIFICA LOGIN ────────────────────────────────────────────
-const { data: { session } } = await supabase.auth.getSession()
-if (!session) {
+let userLogado
+try {
+  const { data: { session }, error } = await supabase.auth.getSession()
+  if (error || !session) { window.location.href = '/login'; }
+  userLogado = session.user
+} catch (e) {
   window.location.href = '/login'
 }
-const userLogado = session.user
 
 // ── GARANTE CLIENTE NO BANCO ──────────────────────────────────
 async function garantirCliente() {
@@ -968,14 +971,20 @@ window.postar = async function() {
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando...' }
 
   try {
-    // 1. Pega clienteId do usuário logado (sem pedir dados)
+    // 1. Pega clienteId do usuário logado
     const clienteId = await garantirCliente()
+    if (!clienteId) throw new Error('Não foi possível identificar seu perfil.')
 
     // 2. Upload das fotos
     const fotosUrls = []
     for (const foto of fotosAnexadas) {
-      const url = await uploadFoto(foto)
-      fotosUrls.push(url)
+      try {
+        const url = await uploadFoto(foto)
+        fotosUrls.push(url)
+      } catch (errFoto) {
+        console.warn('Erro no upload de foto, continuando sem ela:', errFoto)
+        // Não bloqueia o envio se uma foto falhar
+      }
     }
 
     // 3. Insere serviço no banco
@@ -993,19 +1002,28 @@ window.postar = async function() {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      if (error.code === 'PGRST301' || error.message?.includes('JWT')) {
+        toast('Sua sessão expirou. Faça login novamente.', 'erro')
+        setTimeout(() => { window.location.href = '/login' }, 1500)
+        return
+      }
+      throw error
+    }
 
-    // 4. Redireciona para área do cliente após sucesso
+    // 4. Sucesso
     document.getElementById('form-area').style.display = 'none'
     document.getElementById('sucesso').classList.add('visible')
     window.scrollTo({ top: 0, behavior: 'smooth' })
 
-    // Redireciona para minha-area após 2 segundos
     setTimeout(() => { window.location.href = '/minha-area' }, 2500)
 
   } catch (err) {
     console.error('Erro ao postar serviço:', err)
-    toast('Erro ao postar serviço. Tente novamente.', 'erro')
+    const msg = err.message?.includes('conexão') || err.message?.includes('network')
+      ? 'Sem conexão com o servidor. Verifique sua internet.'
+      : 'Erro ao postar serviço. Tente novamente.'
+    toast(msg, 'erro')
     if (btn) { btn.disabled = false; btn.textContent = 'Receber orçamentos gratuitos →' }
   }
 }

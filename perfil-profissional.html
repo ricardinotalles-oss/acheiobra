@@ -168,9 +168,25 @@ if (!prof) {
 // Busca avaliações
 const { data: avaliacoes } = await supabase
   .from('avaliacoes')
-  .select('nota, comentario, criado_em, clientes(nome), servicos(tipo)')
+  .select('nota, comentario, criado_em, cliente_id, servico_id')
   .eq('profissional_id', profId)
   .order('criado_em', { ascending: false })
+
+// Enriquece avaliações com nome do cliente e tipo do serviço
+  if (avaliacoes?.length) {
+    const cIds = [...new Set(avaliacoes.map(a => a.cliente_id).filter(Boolean))]
+    const sIds = [...new Set(avaliacoes.map(a => a.servico_id).filter(Boolean))]
+    const [{ data: cls }, { data: svs }] = await Promise.all([
+      supabase.from('clientes').select('id, nome').in('id', cIds),
+      supabase.from('servicos').select('id, tipo').in('id', sIds)
+    ])
+    const cMap = Object.fromEntries((cls||[]).map(c=>[c.id,c]))
+    const sMap = Object.fromEntries((svs||[]).map(s=>[s.id,s]))
+    avaliacoes.forEach(a => {
+      a.clientes = cMap[a.cliente_id] || null
+      a.servicos = sMap[a.servico_id] || null
+    })
+  }
 
 // Busca total de serviços concluídos
 const { count: totalServicos } = await supabase
