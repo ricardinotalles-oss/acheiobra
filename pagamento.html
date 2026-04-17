@@ -291,24 +291,36 @@ if (proposta.servicos?.status === 'em_andamento' || proposta.servicos?.status ==
   document.getElementById('resumo-prazo').textContent = `${proposta.prazo_dias} dia(s)`
   document.getElementById('resumo-valor').textContent = `R$ ${Number(proposta.valor).toLocaleString('pt-BR', {minimumFractionDigits:2})}`
 
-  // Tenta gerar cobrança via Edge Function
-  // NOTA: quando o Pagar.me estiver configurado, descomentar o bloco abaixo
-  // e remover o modo de demonstração
+  // Gera cobrança via Edge Function (Pagar.me)
+  try {
+    const { data: pgResp, error: pgErr } = await supabase.functions.invoke('criar-pagamento', {
+      body: { propostaId: propostaId, metodo: 'pix' }
+    })
 
-  // MODO DEMONSTRAÇÃO (sem Pagar.me ainda)
-  document.getElementById('loading').style.display = 'none'
-  document.getElementById('conteudo').style.display = 'block'
+    if (pgErr || !pgResp?.qr_code) {
+      console.error('Erro pagamento:', pgErr, pgResp)
+      mostrarErroPagamento('Não foi possível gerar o pagamento. Tente novamente em alguns instantes.')
+      throw new Error('Falha ao gerar cobrança')
+    }
 
-  const pixDemo = '00020126580014br.gov.bcb.pix0136acheiobra-demo-' + propostaId.slice(0,8) + '5204000053039865802BR5913AcheiObra6009SAOJOAO62070503***6304DEMO'
-  document.getElementById('pix-codigo').textContent = pixDemo
+    document.getElementById('loading').style.display = 'none'
+    document.getElementById('conteudo').style.display = 'block'
 
-  // QR Code gerado via API pública (demo)
-  const qrImg = document.getElementById('qr-img')
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixDemo)}&color=141414&bgcolor=FFFFFF`
-  qrImg.src = qrUrl
-  qrImg.onload = () => {
-    document.getElementById('qr-placeholder').style.display = 'none'
-    qrImg.style.display = 'block'
+    // Código Pix para copiar
+    document.getElementById('pix-codigo').textContent = pgResp.qr_code
+
+    // QR Code gerado a partir do código Pix
+    const qrImg = document.getElementById('qr-img')
+    const qrUrl = pgResp.qr_code_url ||
+      `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pgResp.qr_code)}&color=141414&bgcolor=FFFFFF`
+    qrImg.src = qrUrl
+    qrImg.onload = () => {
+      document.getElementById('qr-placeholder').style.display = 'none'
+      qrImg.style.display = 'block'
+    }
+  } catch (e) {
+    console.error('Erro ao gerar cobrança:', e)
+    return
   }
 
   // Timer regressivo (60 minutos)
