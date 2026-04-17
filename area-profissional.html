@@ -132,6 +132,7 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
 .chat-input:focus{border-color:rgba(232,82,26,0.4);}
 .btn-chat-send{background:var(--laranja);color:#fff;border:none;border-radius:8px;padding:0 14px;cursor:pointer;font-size:16px;flex-shrink:0;}
 .btn-chat-send:hover{background:var(--laranja-cl);}
+.btn-chat-badge{display:inline-flex;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:20px;padding:0 5px;align-items:center;justify-content:center;line-height:1;margin-left:6px;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -473,13 +474,27 @@ async function carregarMeusServicos() {
 
   const { data: servicos, error } = await supabase
     .from('servicos')
-    .select(`id, tipo, status, valor_combinado, prazo_combinado, iniciado_em, concluido_em,
-      clientes ( nome ),
-      pagamentos ( valor_profissional, status, liberado_em ),
-      avaliacoes ( nota, comentario )`)
+    .select(`id, tipo, status, valor_combinado, prazo_combinado, iniciado_em, concluido_em, cliente_id`)
     .eq('profissional_id', profissionalId)
     .in('status', ['em_andamento', 'concluido'])
     .order('iniciado_em', { ascending: false })
+
+  // Busca cliente, pagamentos e avaliacoes separadamente para evitar erro 500 com JOIN aninhado
+  if (!error && servicos?.length) {
+    const sIds = servicos.map(s => s.id)
+    const cIds = [...new Set(servicos.map(s => s.cliente_id).filter(Boolean))]
+    const [{ data: cls }, { data: pgs }, { data: avs }] = await Promise.all([
+      supabase.from('clientes').select('id, nome').in('id', cIds),
+      supabase.from('pagamentos').select('servico_id, valor_profissional, status, liberado_em').in('servico_id', sIds),
+      supabase.from('avaliacoes').select('servico_id, nota, comentario').in('servico_id', sIds)
+    ])
+    const cMap = Object.fromEntries((cls||[]).map(c=>[c.id,c]))
+    servicos.forEach(s => {
+      s.clientes = cMap[s.cliente_id] || null
+      s.pagamentos = (pgs||[]).filter(p => p.servico_id === s.id)
+      s.avaliacoes = (avs||[]).filter(a => a.servico_id === s.id)
+    })
+  }
 
   if (error) {
     if (isAuthError(error)) { mostrarSessaoExpirada(); return }
@@ -587,6 +602,11 @@ async function carregarMeusServicos() {
   }
 
   document.getElementById('tab-content-meus').innerHTML = html
+
+  // Atualiza badges de mensagens não lidas e inicia Realtime
+  const meusIds = (emAndamento.concat(concluidos)).map(s => s.id)
+  await atualizarBadgesNaoLidasPro(meusIds)
+  iniciarRealtimeMsgsPro(meusIds)
 }
 
 window.marcarConcluido = async function(servicoId) {
@@ -611,7 +631,64 @@ window.marcarConcluido = async function(servicoId) {
 window.toggleChatPro = async function(servicoId) {
   const wrap = document.getElementById('chat-' + servicoId)
   const isOpen = wrap.classList.toggle('open')
-  if (isOpen) await carregarMsgsPro(servicoId)
+  if (isOpen) {
+    await carregarMsgsPro(servicoId)
+    await marcarComoLidasPro(servicoId)
+  }
+}
+
+async function marcarComoLidasPro(servicoId) {
+  await supabase.from('mensagens')
+    .update({ lida: true })
+    .eq('servico_id', servicoId)
+    .eq('lida', false)
+    .neq('remetente_id', user.id)
+  const badge = document.getElementById('badge-chat-' + servicoId)
+  if (badge) badge.style.display = 'none'
+}
+
+async function atualizarBadgesNaoLidasPro(servicoIds) {
+  if (!servicoIds?.length) return
+  const { data: msgs } = await supabase.from('mensagens')
+    .select('servico_id')
+    .in('servico_id', servicoIds)
+    .eq('lida', false)
+    .neq('remetente_id', user.id)
+  const counts = {}
+  ;(msgs || []).forEach(m => { counts[m.servico_id] = (counts[m.servico_id] || 0) + 1 })
+  servicoIds.forEach(sid => {
+    const badge = document.getElementById('badge-chat-' + sid)
+    if (!badge) return
+    const n = counts[sid] || 0
+    if (n > 0) {
+      badge.textContent = n
+      badge.style.display = 'inline-flex'
+    } else {
+      badge.style.display = 'none'
+    }
+  })
+}
+
+let canalMsgsPro = null
+function iniciarRealtimeMsgsPro(servicoIds) {
+  if (canalMsgsPro) supabase.removeChannel(canalMsgsPro)
+  if (!servicoIds.length) return
+  canalMsgsPro = supabase
+    .channel('msgs-pro-' + profissionalId)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'mensagens',
+      filter: `servico_id=in.(${servicoIds.join(',')})`
+    }, async (payload) => {
+      if (payload.new.remetente_id !== user.id) {
+        await atualizarBadgesNaoLidasPro(servicoIds)
+      }
+      const wrap = document.getElementById('chat-' + payload.new.servico_id)
+      if (wrap?.classList.contains('open')) {
+        await carregarMsgsPro(payload.new.servico_id)
+        await marcarComoLidasPro(payload.new.servico_id)
+      }
+    })
+    .subscribe()
 }
 
 async function carregarMsgsPro(servicoId) {

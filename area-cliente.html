@@ -130,6 +130,7 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
 
 /* BADGE DE NOTIFICAÇÃO */
 .notif-badge{display:none;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:20px;padding:0 5px;align-items:center;justify-content:center;line-height:1;margin-left:6px;vertical-align:middle;}
+.btn-chat-badge{display:inline-flex;background:var(--laranja);color:#fff;font-family:var(--syne);font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:20px;padding:0 5px;align-items:center;justify-content:center;line-height:1;margin-left:6px;vertical-align:middle;}
 .notif-badge.visible{display:inline-flex;}
 
 /* TOAST DE PROPOSTA NOVA */
@@ -439,6 +440,36 @@ async function carregarServicos() {
 
   // Atualiza cache local (usado pelo Realtime para enriquecer notificações)
   servicosCache = servicos
+
+  // Atualiza badges de mensagens não lidas
+  await atualizarBadgesNaoLidas()
+
+  // Escuta mudanças em tempo real nas mensagens de todos os serviços
+  iniciarRealtimeMensagens(servicos.map(s => s.id))
+}
+
+let canalMensagens = null
+function iniciarRealtimeMensagens(servicoIds) {
+  if (canalMensagens) supabase.removeChannel(canalMensagens)
+  if (!servicoIds.length) return
+  canalMensagens = supabase
+    .channel('msgs-cliente-' + clienteId)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'mensagens',
+      filter: `servico_id=in.(${servicoIds.join(',')})`
+    }, async (payload) => {
+      // Se a mensagem é de outra pessoa, atualiza badge
+      if (payload.new.remetente_id !== user.id) {
+        await atualizarBadgesNaoLidas()
+      }
+      // Se o chat está aberto, recarrega mensagens E marca como lida
+      const wrap = document.getElementById('chat-' + payload.new.servico_id)
+      if (wrap?.classList.contains('open')) {
+        await carregarMensagens(payload.new.servico_id)
+        await marcarComoLidas(payload.new.servico_id)
+      }
+    })
+    .subscribe()
 }
 
 function renderServico(s) {
@@ -477,7 +508,7 @@ function renderServico(s) {
         ${aprovarHtml}
         <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
           <button onclick="toggleChat('${s.id}')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--dm);transition:all .15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color=''">
-            💬 Mensagens
+            💬 Mensagens<span class="btn-chat-badge" id="badge-chat-${s.id}" style="display:none;">0</span>
           </button>
         </div>
       </div>
@@ -640,7 +671,46 @@ window.enviarAvaliacao = async function() {
 window.toggleChat = async function(servicoId) {
   const wrap = document.getElementById('chat-' + servicoId)
   const isOpen = wrap.classList.toggle('open')
-  if (isOpen) await carregarMensagens(servicoId)
+  if (isOpen) {
+    await carregarMensagens(servicoId)
+    await marcarComoLidas(servicoId)
+  }
+}
+
+async function marcarComoLidas(servicoId) {
+  await supabase.from('mensagens')
+    .update({ lida: true })
+    .eq('servico_id', servicoId)
+    .eq('lida', false)
+    .neq('remetente_id', user.id)
+  // esconde o badge
+  const badge = document.getElementById('badge-chat-' + servicoId)
+  if (badge) badge.style.display = 'none'
+}
+
+async function atualizarBadgesNaoLidas() {
+  if (!servicosCache?.length) return
+  const ids = servicosCache.map(s => s.id)
+  const { data: msgs } = await supabase.from('mensagens')
+    .select('servico_id')
+    .in('servico_id', ids)
+    .eq('lida', false)
+    .neq('remetente_id', user.id)
+  // conta por servico
+  const counts = {}
+  ;(msgs || []).forEach(m => { counts[m.servico_id] = (counts[m.servico_id] || 0) + 1 })
+  // atualiza cada badge
+  servicosCache.forEach(s => {
+    const badge = document.getElementById('badge-chat-' + s.id)
+    if (!badge) return
+    const n = counts[s.id] || 0
+    if (n > 0) {
+      badge.textContent = n
+      badge.style.display = 'inline-flex'
+    } else {
+      badge.style.display = 'none'
+    }
+  })
 }
 
 async function carregarMensagens(servicoId) {
