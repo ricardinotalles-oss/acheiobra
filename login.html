@@ -202,6 +202,18 @@ nav{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);border-bottom:1px 
         <input type="email" id="cad-email" placeholder="seu@email.com" autocomplete="email">
       </div>
       <div class="campo">
+        <label>Telefone (celular)</label>
+        <input type="tel" id="cad-telefone" placeholder="(00) 00000-0000" autocomplete="tel" maxlength="15" oninput="mascaraTelefone(this)">
+      </div>
+      <div class="campo">
+        <label>CPF</label>
+        <input type="text" id="cad-cpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" oninput="mascaraCpf(this)">
+      </div>
+      <div class="campo">
+        <label>Cidade</label>
+        <input type="text" id="cad-cidade" placeholder="Sua cidade" autocomplete="address-level2">
+      </div>
+      <div class="campo">
         <label>Senha</label>
         <div class="senha-wrap">
           <input type="password" id="cad-senha" placeholder="Mínimo 8 caracteres" autocomplete="new-password" oninput="verificarForca(this.value)">
@@ -403,15 +415,56 @@ window.fazerLogin = async function() {
   }, 1000)
 }
 
+// ── MÁSCARAS E VALIDAÇÕES ─────────────────────────────────────
+window.mascaraTelefone = function(el) {
+  let v = el.value.replace(/\D/g, '').slice(0, 11)
+  if (v.length > 10)      v = v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3')
+  else if (v.length > 5)  v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3')
+  else if (v.length > 2)  v = v.replace(/^(\d{2})(\d{0,5}).*/, '($1) $2')
+  else if (v.length > 0)  v = v.replace(/^(\d{0,2}).*/, '($1')
+  el.value = v
+}
+
+window.mascaraCpf = function(el) {
+  let v = el.value.replace(/\D/g, '').slice(0, 11)
+  v = v.replace(/(\d{3})(\d)/, '$1.$2')
+  v = v.replace(/(\d{3})(\d)/, '$1.$2')
+  v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+  el.value = v
+}
+
+function validarCpf(cpf) {
+  cpf = cpf.replace(/\D/g, '')
+  if (cpf.length !== 11) return false
+  if (/^(\d)\1{10}$/.test(cpf)) return false // todos iguais
+  let soma = 0, resto
+  for (let i = 1; i <= 9; i++) soma += parseInt(cpf.charAt(i-1)) * (11 - i)
+  resto = (soma * 10) % 11
+  if (resto === 10 || resto === 11) resto = 0
+  if (resto !== parseInt(cpf.charAt(9))) return false
+  soma = 0
+  for (let i = 1; i <= 10; i++) soma += parseInt(cpf.charAt(i-1)) * (12 - i)
+  resto = (soma * 10) % 11
+  if (resto === 10 || resto === 11) resto = 0
+  if (resto !== parseInt(cpf.charAt(10))) return false
+  return true
+}
+
 // ── CADASTRO ──────────────────────────────────────────────────
 window.fazerCadastro = async function() {
-  const nome   = document.getElementById('cad-nome').value.trim()
-  const email  = document.getElementById('cad-email').value.trim()
-  const senha  = document.getElementById('cad-senha').value
-  const senha2 = document.getElementById('cad-senha2').value
+  const nome     = document.getElementById('cad-nome').value.trim()
+  const email    = document.getElementById('cad-email').value.trim()
+  const telefone = document.getElementById('cad-telefone').value.replace(/\D/g, '')
+  const cpf      = document.getElementById('cad-cpf').value.replace(/\D/g, '')
+  const cidade   = document.getElementById('cad-cidade').value.trim()
+  const senha    = document.getElementById('cad-senha').value
+  const senha2   = document.getElementById('cad-senha2').value
 
   if (!nome)              return mostrarAlerta('Informe seu nome completo.')
   if (!email)             return mostrarAlerta('Informe seu email.')
+  if (telefone.length < 10) return mostrarAlerta('Informe um telefone válido com DDD.')
+  if (!validarCpf(cpf))   return mostrarAlerta('CPF inválido. Verifique os números digitados.')
+  if (!cidade)            return mostrarAlerta('Informe sua cidade.')
   if (senha.length < 8)   return mostrarAlerta('A senha deve ter ao menos 8 caracteres.')
   if (senha !== senha2)   return mostrarAlerta('As senhas não conferem.')
 
@@ -425,7 +478,7 @@ window.fazerCadastro = async function() {
       email,
       password: senha,
       options: {
-        data: { nome, perfil: perfilAtivo },
+        data: { nome, perfil: perfilAtivo, telefone, cpf, cidade },
         emailRedirectTo: 'https://acheiobra.com.br/login',
       }
     }))

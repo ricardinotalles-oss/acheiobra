@@ -350,9 +350,10 @@ if (errBusca) {
     .insert([{
       user_id:  user.id,
       nome:     user.user_metadata?.nome || 'Cliente',
-      telefone: user.phone || user.id.slice(0,11),
+      telefone: user.user_metadata?.telefone || '',
+      cpf:      user.user_metadata?.cpf || null,
       email:    user.email,
-      cidade:   'São João da Boa Vista',
+      cidade:   user.user_metadata?.cidade || '',
     }])
     .select()
     .single()
