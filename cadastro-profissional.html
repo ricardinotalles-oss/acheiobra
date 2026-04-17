@@ -759,6 +759,7 @@ window.finalizar = async function() {
     const nome      = document.getElementById('f-nome')?.value?.trim()
     const sobrenome = document.getElementById('f-sobrenome')?.value?.trim()
     const dados = {
+      user_id:          user.id,
       nome:             `${nome} ${sobrenome}`.trim(),
       email:            user.email,
       telefone:         document.getElementById('f-telefone')?.value?.replace(/\D/g, ''),
