@@ -591,25 +591,46 @@ window.togglePropostas = function(id) {
 window.aceitarProposta = async function(propostaId, servicoId) {
   if (!confirm('Confirma a aceitação desta proposta? Você será redirecionado para o pagamento.')) return
 
-  const { error } = await supabase
+  // 1. Busca os dados da proposta para vincular ao serviço
+  const { data: proposta, error: errProp } = await supabase
+    .from('propostas')
+    .select('profissional_id, valor, prazo_dias, data_inicio')
+    .eq('id', propostaId)
+    .single()
+
+  if (errProp || !proposta) {
+    toast('Erro ao buscar proposta.', 'erro')
+    return
+  }
+
+  // 2. Marca a proposta como aceita
+  const { error: errAceita } = await supabase
     .from('propostas')
     .update({ status: 'aceita', aceita_em: new Date().toISOString() })
     .eq('id', propostaId)
 
-  if (error) {
-    const isAuth = error.code === 'PGRST301' || error.message?.includes('JWT')
+  if (errAceita) {
+    const isAuth = errAceita.code === 'PGRST301' || errAceita.message?.includes('JWT')
     if (isAuth) { mostrarSessaoExpirada(); return }
     toast('Erro ao aceitar proposta. Tente novamente.', 'erro')
     return
   }
 
-  // Recusa as outras propostas do mesmo serviço
+  // 3. Recusa as outras propostas do mesmo serviço
   await supabase.from('propostas').update({ status: 'recusada' })
     .eq('servico_id', servicoId).neq('id', propostaId)
 
+  // 4. CRÍTICO: vincula o profissional ao serviço e atualiza valores combinados
+  await supabase.from('servicos').update({
+    profissional_id:  proposta.profissional_id,
+    valor_combinado:  proposta.valor,
+    prazo_combinado:  proposta.prazo_dias,
+    status:           'aguardando_pagamento',
+  }).eq('id', servicoId)
+
   toast('Proposta aceita! Redirecionando para pagamento...', 'ok')
 
-  // Redireciona para tela de pagamento
+  // 5. Redireciona para tela de pagamento
   setTimeout(() => {
     window.location.href = `/pagamento?proposta=${propostaId}`
   }, 1000)

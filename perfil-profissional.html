@@ -162,7 +162,7 @@ const { data: prof } = await supabase
 if (!prof) {
   document.getElementById('loading').innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);">Profissional não encontrado.</div>'
   document.getElementById('loading').style.display = 'block'
-  return
+  throw new Error('Profissional não encontrado')
 }
 
 // Busca avaliações
