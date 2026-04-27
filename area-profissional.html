@@ -271,19 +271,19 @@ if (!session) { window.location.href = '/login' }
 user = session.user
 document.getElementById('nav-nome').textContent = user.user_metadata?.nome || user.email
 
-// Busca profissional vinculado pelo email
+// Busca profissional vinculado pelo user_id (não por email)
 let prof = null
 try {
-  const { data: profPorEmail, error: errProf } = await supabase
+  const { data: profPorUserId, error: errProf } = await supabase
     .from('profissionais')
     .select('id, nome, especialidades, cidade, tipo_cadastro, prazo_formalizacao')
-    .eq('email', user.email)
+    .eq('user_id', user.id)
     .maybeSingle()
 
   if (errProf) throw errProf
 
-  if (profPorEmail) {
-    prof = profPorEmail
+  if (profPorUserId) {
+    prof = profPorUserId
     profissionalId = prof.id
 
     if (prof.tipo_cadastro === 'autonomo' && prof.prazo_formalizacao) {

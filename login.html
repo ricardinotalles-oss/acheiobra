@@ -389,18 +389,39 @@ window.fazerLogin = async function() {
   localStorage.setItem('acheiobra_perfil', perfilAtivo)
   localStorage.setItem('acheiobra_user_id', data.user.id)
 
-  // Valida se o perfil selecionado existe no banco
+  // Valida perfil contra o banco e cria registro mínimo se faltar
   if (perfilAtivo === 'profissional') {
     const { data: prof } = await supabase
       .from('profissionais')
       .select('id, ativo')
-      .eq('email', data.user.email)
+      .eq('user_id', data.user.id)
       .maybeSingle()
 
     if (!prof) {
-      await supabase.auth.signOut()
-      setBotao('btn-login', false, 'Entrar')
-      return mostrarAlerta('Você não tem cadastro como profissional. Complete seu cadastro primeiro ou entre como cliente.')
+      // Não bloqueia: manda completar o cadastro
+      mostrarAlerta('Complete seu cadastro de profissional para continuar.', 'info')
+      await supabase.auth.updateUser({ data: { perfil: 'profissional' } })
+      setTimeout(() => { window.location.href = '/cadastro-profissional' }, 1200)
+      return
+    }
+  } else {
+    // Cliente: garante que existe a linha em "clientes"
+    const { data: cli } = await supabase
+      .from('clientes')
+      .select('id')
+      .eq('user_id', data.user.id)
+      .maybeSingle()
+
+    if (!cli) {
+      const md = data.user.user_metadata || {}
+      await supabase.from('clientes').insert([{
+        user_id:  data.user.id,
+        nome:     md.nome || data.user.email,
+        email:    data.user.email,
+        telefone: md.telefone || null,
+        cpf:      md.cpf || null,
+        cidade:   md.cidade || null,
+      }])
     }
   }
 
@@ -499,11 +520,25 @@ window.fazerCadastro = async function() {
 
   // Se o Supabase não exige confirmação de email, já loga direto
   if (data.session) {
+    // Cria a linha em "clientes" agora que temos sessão (RLS exige auth.uid())
+    if (perfilAtivo === 'cliente') {
+      const { error: errCli } = await supabase.from('clientes').insert([{
+        user_id:  data.user.id,
+        nome,
+        email,
+        telefone,
+        cpf,
+        cidade,
+      }])
+      if (errCli && !errCli.message?.includes('duplicate')) {
+        console.error('Erro ao criar cliente:', errCli)
+      }
+    }
     localStorage.setItem('acheiobra_perfil', perfilAtivo)
     localStorage.setItem('acheiobra_user_id', data.user.id)
     mostrarAlerta('Conta criada! Redirecionando...', 'ok')
     setTimeout(() => {
-      window.location.href = perfilAtivo === 'profissional' ? '/area-profissional' : '/minha-area'
+      window.location.href = perfilAtivo === 'profissional' ? '/cadastro-profissional' : '/postar-servico'
     }, 1000)
     return
   }

@@ -935,23 +935,26 @@ try {
 
 // ── GARANTE CLIENTE NO BANCO ──────────────────────────────────
 async function garantirCliente() {
-  // Tenta buscar pelo email do usuário logado
+  // Busca pelo user_id (chave certa, não por email)
   const { data: existente } = await supabase
     .from('clientes')
     .select('id')
-    .eq('email', userLogado.email)
-    .single()
+    .eq('user_id', userLogado.id)
+    .maybeSingle()
 
   if (existente) return existente.id
 
-  // Cria cliente vinculado ao usuário logado
+  // Cria cliente vinculado ao usuário logado, usando metadados do signup
+  const md = userLogado.user_metadata || {}
   const { data: novo, error } = await supabase
     .from('clientes')
     .insert([{
-      nome:     userLogado.user_metadata?.nome || 'Cliente',
-      telefone: userLogado.id.slice(0, 11),
+      user_id:  userLogado.id,
+      nome:     md.nome || userLogado.email,
       email:    userLogado.email,
-      cidade:   'São João da Boa Vista',
+      telefone: md.telefone || null,
+      cpf:      md.cpf || null,
+      cidade:   md.cidade || 'São João da Boa Vista',
     }])
     .select()
     .single()

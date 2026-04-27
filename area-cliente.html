@@ -349,11 +349,11 @@ if (errBusca) {
     .from('clientes')
     .insert([{
       user_id:  user.id,
-      nome:     user.user_metadata?.nome || 'Cliente',
-      telefone: user.user_metadata?.telefone || '',
+      nome:     user.user_metadata?.nome || user.email,
+      telefone: user.user_metadata?.telefone || null,
       cpf:      user.user_metadata?.cpf || null,
       email:    user.email,
-      cidade:   user.user_metadata?.cidade || '',
+      cidade:   user.user_metadata?.cidade || null,
     }])
     .select()
     .single()

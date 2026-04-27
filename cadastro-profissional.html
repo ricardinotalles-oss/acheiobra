@@ -784,19 +784,24 @@ window.finalizar = async function() {
       ativo:            false,   // aguarda aprovação
     }
 
-    // 5. Insere no Supabase
+    // 5. Insere ou atualiza no Supabase (idempotente via user_id)
     const { data, error } = await supabase
       .from('profissionais')
-      .insert([dados])
+      .upsert([dados], { onConflict: 'user_id' })
       .select()
       .single()
 
     if (error) throw error
 
-    // 6. Exibe sucesso
+    // 6. Marca perfil nos metadados do auth e exibe sucesso
+    await supabase.auth.updateUser({ data: { perfil: 'profissional' } })
+
     document.getElementById('form-area').style.display = 'none'
     document.getElementById('sucesso').classList.add('visible')
     window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    // Redireciona após 2s
+    setTimeout(() => { window.location.href = '/area-profissional' }, 2000)
 
   } catch (err) {
     console.error('Erro no cadastro:', err)
